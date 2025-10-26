@@ -1,0 +1,4 @@
+name: Hotspot
+version: '1.0'
+main: me.harpervenom.hotspot.HotSpot
+api-version: '1.21'
