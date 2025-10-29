@@ -32,7 +32,7 @@ public class GameQueue {
 
     public GameQueue(QueueManager queueManager, GameModeEnum mode) {
         this.queueManager = queueManager;
-        scoreboard = new CustomScoreboard("queue", text(" Очередь ").append(mode.getName().append(text(" "))));
+        scoreboard = new CustomScoreboard("queue", text(" Очередь "));
         scoreboard.setPadding(1);
         gameMode = mode;
         gameSettings = mode.getGameSettings();
@@ -86,8 +86,6 @@ public class GameQueue {
 
     public void toggleSkip(Player player) {
         if (!skippingPlayers.remove(player)) skippingPlayers.add(player);
-
-        checkSkips();
     }
 
     public boolean isSkipping(Player player) {
@@ -105,7 +103,7 @@ public class GameQueue {
         boolean canSkip = totalPlayers > 1 && numberSkipping >= numberPlayersNeeded;
 
         // for tests
-        canSkip = false;
+        canSkip = true;
 
         if (canSkip) {
             timer.skip();

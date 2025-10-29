@@ -2,6 +2,8 @@ package me.harpervenom.hotspot.menu;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Consumable;
+import me.harpervenom.hotspot.game.GameListener;
+import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
 import me.harpervenom.hotspot.lobby.LobbyListener;
 import me.harpervenom.hotspot.menu.components.Button;
@@ -28,13 +30,11 @@ import static me.harpervenom.hotspot.utils.Utils.createItemStack;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
 
-public class MenuManager implements QueueListener, LobbyListener
-//        GameListener, LobbyListener
-{
+public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     private final PlayerManager playerManager;
     private final QueueManager queueManager;
-//    private final GameManager gameManager;
+    private final GameManager gameManager;
 //    private final PartyManager partyManager;
 
     private Button queuesButton, leaveQueueButton, skipWaitingButton, cancelSkipWaitingButton;
@@ -43,9 +43,10 @@ public class MenuManager implements QueueListener, LobbyListener
 
     private final HashMap<Player, ButtonSet> buttonSets = new HashMap<>();
 
-    public MenuManager(PlayerManager playerManager, QueueManager queueManager) {
+    public MenuManager(PlayerManager playerManager, QueueManager queueManager, GameManager gameManager) {
         this.playerManager = playerManager;
         this.queueManager = queueManager;
+        this.gameManager = gameManager;
 
         List<GameQueue> queues = queueManager.getQueues();
         gamesWindow = new Window("Игры", 9);
@@ -105,17 +106,19 @@ public class MenuManager implements QueueListener, LobbyListener
 
     private void makeQueuesButton() {
         ItemStack itemStack = createItemStack(Material.COMPASS, text("Играть"), null);
-        itemStack.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().build());
+//        itemStack.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().build());
         queuesButton = new Button(itemStack);
         queuesButton.setOnPersonalClick(gamesWindow::open);
     }
 
     private void makeLeaveQueueButton() {
         ItemStack itemStack = createItemStack(Material.RED_CONCRETE, text("Выйти", NamedTextColor.RED), null);
-        itemStack.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().build());
+//        itemStack.setData(DataComponentTypes.CONSUMABLE, Consumable.consumable().build());
         leaveQueueButton = new Button(itemStack);
         leaveQueueButton.setOnPersonalClick(player -> {
             queueManager.removePlayerFromQueue(player);
+            player.sendMessage(text("Вы покинули очередь", NamedTextColor.RED));
+            player.sendActionBar(text(""));
 
 //            Party party = partyManager.getParty(player);
 //            if (party != null && party.isOwner(gamePlayer.getPlayer())) {
@@ -312,10 +315,10 @@ public class MenuManager implements QueueListener, LobbyListener
         updateGamesWindow();
     }
 
-//    @Override
-//    public void onGamesUpdate() {
-//        updateGamesWindow();
-//    }
+    @Override
+    public void onGamesUpdate() {
+        updateGamesWindow();
+    }
 
     @Override
     public void onLobby(Player player) {

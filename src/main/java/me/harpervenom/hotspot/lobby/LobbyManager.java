@@ -1,5 +1,7 @@
 package me.harpervenom.hotspot.lobby;
 
+import me.harpervenom.hotspot.game.Game;
+import me.harpervenom.hotspot.game.GameListener;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -13,9 +15,7 @@ import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.utils.Utils.getLocationFromConfig;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
-public class LobbyManager
-//        implements GameListener
-{
+public class LobbyManager implements GameListener {
 
     private final World world;
     private final Location spawnLoc;
@@ -84,21 +84,14 @@ public class LobbyManager
 //    public void onGameStart(Game game) {
 //
 //    }
-//
-//    @Override
-//    public void onGameEnd(Game game) {
-//        for (Player player : game.getPlayers()) {
-//            if (player.getWorld().getUID() != game.getMap().getWorld().getUID()) continue;
-//            sendToLobby(player);
-//        }
-////        for (GameTeam team : game.getGameTeams()) {
-////            for (GameProfile gameProfile : team.getProfiles()) {
-////                Player player = gameProfile.getGamePlayer().getPlayer();
-////                if (player.getWorld().getUID() != game.getMap().getWorld().getUID()) continue;
-////                sendToLobby(gameProfile.getGamePlayer().getPlayer());
-////            }
-////        }
-//    }
+
+    @Override
+    public void onGameEnd(Game game) {
+        for (Player player : game.getPlayers()) {
+            if (player.getWorld().getUID() != game.getMap().getWorld().getUID()) continue;
+            sendToLobby(player);
+        }
+    }
 
     public void addListener(LobbyListener lobbyListener) {
         listeners.add(lobbyListener);

@@ -3,7 +3,6 @@ package me.harpervenom.hotspot.menu;
 import me.harpervenom.hotspot.menu.components.Window;
 import me.harpervenom.hotspot.player.PlayerManager;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,14 +18,14 @@ import java.util.List;
 import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.menu.components.Window.openedWindow;
 
-public class MenuListener implements Listener {
+public class MenuEventListener implements Listener {
 
     private final MenuManager manager;
     private final PlayerManager playerManager;
 
     private final List<Player> justClicked = new ArrayList<>();
 
-    public MenuListener(MenuManager manager, PlayerManager playerManager) {
+    public MenuEventListener(MenuManager manager, PlayerManager playerManager) {
         this.manager = manager;
         this.playerManager = playerManager;
     }

@@ -1,4 +1,11 @@
-name: Hotspot
+name: HotSpot
 version: '1.0'
 main: me.harpervenom.hotspot.HotSpot
 api-version: '1.21'
+commands:
+  lobby:
+    description: "Перемещает в Лобби"
+    usage: lobby
+  spawn:
+    description: "Перемещает в Лобби"
+    usage: spawn

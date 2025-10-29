@@ -1,5 +1,7 @@
 package me.harpervenom.hotspot.queue;
 
+import me.harpervenom.hotspot.game.Game;
+import me.harpervenom.hotspot.game.GameListener;
 import me.harpervenom.hotspot.game.GameModeEnum;
 import me.harpervenom.hotspot.player.GamePlayer;
 import me.harpervenom.hotspot.player.PlayerManager;
@@ -14,9 +16,7 @@ import java.util.List;
 import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
-public class QueueManager
-//        implements GameListener
-{
+public class QueueManager implements GameListener {
 
     private final PlayerManager playerManager;
 
@@ -39,7 +39,7 @@ public class QueueManager
     public void removeQueue(GameQueue queue) {
         gameQueues.remove(queue);
 
-        for (Player player : queue.getPlayers()) {
+        for (Player player : new ArrayList<>(queue.getPlayers())) {
             removePlayerFromQueue(player);
         }
 
@@ -52,8 +52,6 @@ public class QueueManager
 
     public void readyQueue(GameQueue gameQueue) {
         for (QueueListener l : listeners) l.onQueueReady(gameQueue);
-
-//        removeQueue(gameQueue);
     }
 
     public boolean addPlayerToQueue(Player player, GameQueue queue) {
@@ -71,10 +69,10 @@ public class QueueManager
         playerQueues.remove(player);
         for (QueueListener l : listeners) l.onPlayerLeave(player, queue);
 
-        if (player.isOnline()) {
-            player.sendMessage(text("Вы покинули очередь", NamedTextColor.RED));
-            player.sendActionBar(text(""));
-        }
+//        if (player.isOnline()) {
+//            player.sendMessage(text("Вы покинули очередь", NamedTextColor.RED));
+//            player.sendActionBar(text(""));
+//        }
     }
 
     public GameQueue getQueue(Player player) {
@@ -88,14 +86,8 @@ public class QueueManager
     public List<GameQueue> getQueues() {
         return gameQueues;
     }
-//    @Override
-//    public void onGameStart(Game game) {
-//        removeQueue(game.getQueue());
-//    }
-
-//    @Override
-//    public void onGameEnd(Game game) {
-//        removeQueue(game.getGameQueue());
-//    }
-
+    @Override
+    public void onGameStart(Game game) {
+        removeQueue(game.getQueue());
+    }
 }
