@@ -1,10 +1,10 @@
 package me.harpervenom.hotspot;
 
+import me.harpervenom.hotspot.chat.ChatManager;
 import me.harpervenom.hotspot.commands.LobbyCommand;
 import me.harpervenom.hotspot.game.GameEventListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
-import me.harpervenom.hotspot.game.map.MapManager;
 import me.harpervenom.hotspot.lobby.LobbyEventListener;
 import me.harpervenom.hotspot.lobby.LobbyManager;
 import me.harpervenom.hotspot.menu.MenuEventListener;
@@ -50,6 +50,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new MenuEventListener(menuManager, playerManager), this);
         getServer().getPluginManager().registerEvents(new QueueEventListener(queueManager), this);
         getServer().getPluginManager().registerEvents(new GameEventListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
 
         queueManager.createQueue(GameModeEnum.NORMAL);
 

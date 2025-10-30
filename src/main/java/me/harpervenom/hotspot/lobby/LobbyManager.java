@@ -56,17 +56,17 @@ public class LobbyManager implements GameListener {
         player.setGameMode(GameMode.ADVENTURE);
     }
 
-    public void handleChatMessage(Component message, Player sender) {
-        Component newMessage = text("[Лобби] ", NamedTextColor.GRAY).append(text("<" + sender.getName() + "> ").append(message));
-        showMessage(newMessage);
-    }
-
-    public void showMessage(Component message) {
-        for (Player player : world.getPlayers()) {
-            player.sendMessage(message);
-        }
-        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(message));
-    }
+//    public void handleChatMessage(Component message, Player sender) {
+//        Component newMessage = text("[Лобби] ", NamedTextColor.GRAY).append(text("<" + sender.getName() + "> ").append(message));
+//        showMessage(newMessage);
+//    }
+//
+//    public void showMessage(Component message) {
+//        for (Player player : world.getPlayers()) {
+//            player.sendMessage(message);
+//        }
+//        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(message));
+//    }
 
     public World getLobbyWorld() {
         return world;

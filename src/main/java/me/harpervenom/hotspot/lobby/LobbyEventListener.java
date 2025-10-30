@@ -108,13 +108,13 @@ public class LobbyEventListener implements Listener {
         manager.sendToLobby(player);
     }
 
-    @EventHandler
-    public void onChat(AsyncChatEvent e) {
-        Player player = e.getPlayer();
-        if (!manager.isLobby(player.getWorld())) return;
-        e.setCancelled(true);
-        manager.handleChatMessage(e.message(), player);
-    }
+//    @EventHandler
+//    public void onChat(AsyncChatEvent e) {
+//        Player player = e.getPlayer();
+//        if (!manager.isLobby(player.getWorld())) return;
+//        e.setCancelled(true);
+//        manager.handleChatMessage(e.message(), player);
+//    }
 
     @EventHandler
     public void onAchievement(PlayerAdvancementDoneEvent e) {

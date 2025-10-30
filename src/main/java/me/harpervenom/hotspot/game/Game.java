@@ -7,16 +7,17 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
-import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
+import static me.harpervenom.hotspot.utils.Utils.formatTime;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class Game {
@@ -36,7 +37,7 @@ public class Game {
 
     private final CustomScoreboard customScoreboard;
 
-    private final Team viewers;
+    private final Team spectators;
 
     private BukkitTask endTask;
 
@@ -49,16 +50,20 @@ public class Game {
         customScoreboard = new CustomScoreboard("game", text("Игра"));
         customScoreboard.showHealth();
 
-        viewers = customScoreboard.getScoreboard().registerNewTeam("viewers");
-        viewers.color(NamedTextColor.GRAY);
+        spectators = customScoreboard.getScoreboard().registerNewTeam("viewers");
+        spectators.color(NamedTextColor.GRAY);
     }
 
     public void start() {
         hasStarted = true;
 
-        for (Player viewer : getViewers()) {
+        gameTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tickSecond, 0L, 1);
+
+        for (Player viewer : getSpectators()) {
             spawnPlayer(viewer);
         }
+
+        updateScoreBoardViewers();
     }
 
     public void end() {
@@ -100,18 +105,18 @@ public class Game {
     }
 
     public void addViewer(Player player) {
-        viewers.addPlayer(player);
+        spectators.addPlayer(player);
         player.setGameMode(org.bukkit.GameMode.SPECTATOR);
         updateScoreBoardViewers();
     }
 
     public void removeViewer(Player player) {
-        viewers.removePlayer(player);
+        spectators.removePlayer(player);
 
     }
 
     public void spawnPlayer(Player player) {
-        if (viewers.hasPlayer(player)) {
+        if (spectators.hasPlayer(player)) {
             player.teleport(new Location(map.getWorld(), 0, 10, 0));
         }
     }
@@ -122,6 +127,7 @@ public class Game {
             customScoreboard.setViewers(new ArrayList<>());
             return;
         }
+//        Bukkit.broadcastMessage("3");
 
         List<Player> players = new ArrayList<>();
 
@@ -132,18 +138,69 @@ public class Game {
 //                .filter(Player::isOnline)
 //                .collect(Collectors.toList());
 
-        players.addAll(getViewers());
+        players.addAll(getSpectators());
 
         customScoreboard.setViewers(players);
     }
 
-    public List<Player> getPlayers() {
-        return getViewers();
+    public void updateScoreboard() {
+//        List<GameTeam> activeTeams = teams.stream()
+//                .filter(team -> !team.isDestroyed())
+//                .toList();
+
+        List<Component> lines = new ArrayList<>();
+        lines.add(text(""));
+        lines.add(text(formatTime(elapsedTicks/20)));
+        lines.add(text(""));
+
+//        if (elapsedTicks < virusStartTime) {
+//            lines.add(text("Чума: " + formatTime((virusStartTime - elapsedTicks)/20), NamedTextColor.YELLOW));
+//        } else {
+//            lines.add(text("Чума!", NamedTextColor.RED));
+//        }
+//        lines.add(text(""));
+//
+//        lines.add(text("Команд: " + activeTeams.size()));
+
+        customScoreboard.updateLines(lines);
     }
 
-    public List<Player> getViewers() {
+    private void tickSecond() {
+        elapsedTicks++;
+
+        if (elapsedTicks % 20 == 0) {
+            updateScoreboard();
+
+//            if (elapsedTicks > virusStartTime) {
+//                for (GameVillager villager : villagerMap.values()) {
+//                    LivingEntity entity = (LivingEntity) villager.getEntity();
+//                    if (entity == null || !entity.isValid()) continue;
+//
+//                    // Check if not already withered
+//                    if (!entity.hasPotionEffect(PotionEffectType.WITHER)) {
+//                        entity.addPotionEffect(
+//                                new PotionEffect(
+//                                        PotionEffectType.WITHER,
+//                                        Integer.MAX_VALUE, // effectively infinite
+//                                        0,                 // amplifier (0 = Wither I)
+//                                        false,             // ambient (true makes particles smaller)
+//                                        true,             // showParticles
+//                                        false              // showIcon
+//                                )
+//                        );
+//                    }
+//                }
+//            }
+        }
+    }
+
+    public List<Player> getPlayers() {
+        return getSpectators();
+    }
+
+    public List<Player> getSpectators() {
         List<Player> players = new ArrayList<>();
-        for (String entry : viewers.getEntries()) {
+        for (String entry : spectators.getEntries()) {
             Player player = Bukkit.getPlayer(entry); // get online player by name
             if (player != null) {
                 players.add(player);
@@ -153,7 +210,7 @@ public class Game {
     }
 
     public boolean isEmpty() {
-        if (!viewers.getEntries().isEmpty()) return false;
+        if (!spectators.getEntries().isEmpty()) return false;
 
 //        for (GameTeam team : teams) {
 //            for (GameProfile gameProfile : team.getProfiles()) {
