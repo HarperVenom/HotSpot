@@ -151,7 +151,7 @@ public class GameQueue {
                 text(""),
                 text("Игроки: " + players.size() + "/" + gameSettings.getMaxPlayers(), NamedTextColor.YELLOW),
                 text(""),
-                isReady ? text("Подготовка...") : text("До начала: " + formatTime(timer.getTimeLeft())),
+                isReady ? text("Запуск...") : text("До начала: " + formatTime(timer.getTimeLeft())),
                 text("")
         ));
     }

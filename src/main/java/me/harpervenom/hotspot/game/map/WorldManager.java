@@ -70,6 +70,7 @@ public class WorldManager {
                 busyWorlds.add(world); // mark as busy
                 world.setTime(1000);
                 world.setWeatherDuration(0);
+                plugin.getLogger().info("World (" + world.getName() + ") is now in use");
                 return world;
             }
         }
@@ -84,7 +85,7 @@ public class WorldManager {
     public void freeWorld(World world) {
         if (busyWorlds.contains(world)) {
             busyWorlds.remove(world);
-            plugin.getLogger().info("World (" + world.getName() + ") is no longer in use");
+            plugin.getLogger().info("World (" + world.getName() + ") is now free for use");
         }
     }
 

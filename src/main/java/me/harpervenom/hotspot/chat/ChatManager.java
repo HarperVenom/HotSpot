@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,9 +25,11 @@ public class ChatManager implements Listener {
     private final LobbyManager lobbyManager;
     private final GameManager gameManager;
 
-    private final TextColor gameColor = TextColor.color(204, 195, 149);
-    private final TextColor teamColor = TextColor.color(169, 204, 151);
-    private final TextColor spectatorColor = TextColor.color(204, 204, 204);
+    private final TextColor serverColor = TextColor.color(204, 143, 143);
+    private final TextColor lobbyColor = TextColor.color(143, 184, 204);
+    private final TextColor gameColor = TextColor.color(230, 217, 161);
+    private final TextColor teamColor = TextColor.color(184, 230, 161);
+    private final TextColor spectatorColor = TextColor.color(230, 230, 230);
 
     public ChatManager(LobbyManager lobbyManager, GameManager gameManager) {
         this.lobbyManager = lobbyManager;
@@ -45,10 +48,10 @@ public class ChatManager implements Listener {
 
         String raw = PlainTextComponentSerializer.plainText().serialize(message).strip();
         boolean isGlobal = raw.startsWith("!!");
-        boolean isTeam = !isGlobal && raw.startsWith("!");
+        boolean isGame = !isGlobal && raw.startsWith("!");
         Component msgText = text(
                 isGlobal ? raw.substring(2).strip() :
-                        isTeam   ? raw.substring(1).strip() :
+                        isGame   ? raw.substring(1).strip() :
                                 raw
         );
 
@@ -57,31 +60,33 @@ public class ChatManager implements Listener {
         TextColor color = NamedTextColor.WHITE;
 
         if (isGlobal) {
-            prefix = text("[Сервер] ", TextColor.color(204, 144, 143));
+            prefix = text("[Сервер] ", serverColor);
             viewers = new ArrayList<>(plugin.getServer().getOnlinePlayers());
 
         } else if (lobbyManager.isLobby(world)) {
-            prefix = text("[Лобби] ", TextColor.color(145, 184, 204));
+            prefix = text("[Лобби] ", lobbyColor);
             viewers = world.getPlayers();
 
         } else {
             Game game = gameManager.getGame(world);
             if (game == null) return;
 
-            boolean isSpectator = game.getSpectators().contains(player);
+            boolean isSpectator = game.getPlayerManager().isSpectator(player);
             if (isSpectator) {
                 color = spectatorColor;
+            } else {
+                color = game.getPlayerManager().getTeam(player).getColor();
             }
 
             if (isSpectator) {
                 prefix = text("[Зритель] ", spectatorColor);
-                viewers = game.getSpectators();
-            } else if (isTeam) {
-                prefix = text("[Команда] ", teamColor);
-                viewers = game.getPlayers(); // TODO: change to same team only once teams exist
-            } else {
+                viewers = game.getPlayers();
+            } else if (isGame) {
                 prefix = text("[Общий] ", gameColor);
                 viewers = game.getPlayers();
+            } else {
+                prefix = text("[Команда] ", teamColor);
+                viewers = game.getPlayerManager().getTeam(player).getPlayers();
             }
         }
 
@@ -96,7 +101,7 @@ public class ChatManager implements Listener {
     private Component handleGameMessage(Game game, Player player, Component message) {
         Component newMessage;
         Component front = text("");
-        if (game.getSpectators().contains(player)) {
+        if (game.getPlayerManager().isSpectator(player)) {
             front = text("[Зритель] ", gameColor);
         }
 

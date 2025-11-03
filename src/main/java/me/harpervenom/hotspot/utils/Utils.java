@@ -198,4 +198,22 @@ public class Utils {
 
         return true;
     }
+
+    public static void sendMessage(Component message, List<Player> players) {
+        for (Player player : players) {
+            player.sendMessage(message);
+        }
+    }
+
+    public static void sendActionBarMessage(Component message, List<Player> players) {
+        for (Player player : players) {
+            player.sendActionBar(message);
+        }
+    }
+
+    public static void playSound(Sound sound, float volume, float pitch, List<Player> players) {
+        for (Player player : players) {
+            player.playSound(player, sound, volume, pitch);
+        }
+    }
 }

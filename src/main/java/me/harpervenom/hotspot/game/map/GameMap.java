@@ -1,16 +1,16 @@
 package me.harpervenom.hotspot.game.map;
 
+import me.harpervenom.hotspot.game.point.Point;
+import me.harpervenom.hotspot.game.team.GameTrader;
+import me.harpervenom.hotspot.game.team.TeamBase;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static me.harpervenom.hotspot.HotSpot.plugin;
 
 public class GameMap {
 
@@ -20,8 +20,9 @@ public class GameMap {
     private final World world;
 
     private final List<Location> spawns;
-//    private final List<Trader> traders;
-//    private final List<Monument> monuments;
+    private final List<TeamBase> bases;
+
+    private final List<Point> points;
 //    private final List<LootDropper> lootDroppers;
 
     private final Set<Block> blocks = new HashSet<>();
@@ -36,15 +37,23 @@ public class GameMap {
 
         spawns = mapData.getSpawns().stream()
                 .map(loc -> new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0))
+                .toList();
+
+        List<GameTrader> traders = mapData.getTraders().stream()
+                .map(loc -> new GameTrader(new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0)))
+                .toList();
+
+        this.bases = new ArrayList<>();
+        for (int i = 0; i < spawns.size(); i++) {
+            Location spawn = spawns.get(i);
+            GameTrader trader = i < traders.size() ? traders.get(i) : null;
+            bases.add(new TeamBase(spawn, trader));
+        }
+
+        points = mapData.getMonuments().stream()
+                .map(loc -> new Point(new Location(world, loc.x, loc.y, loc.z), this))
                 .collect(Collectors.toList());
-//        traders = mapData.getTraders().stream()
-//                .map(loc -> new Trader(new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0)))
-//                .collect(Collectors.toList());
-//
-//        monuments = mapData.getMonuments().stream()
-//                .map(loc -> new Monument(new Location(world, loc.x, loc.y, loc.z), this))
-//                .collect(Collectors.toList());
-//
+
 //        lootDroppers = mapData.getVaults().stream()
 //                .map(loc -> new LootDropper(new Location(world, loc.x, loc.y, loc.z)))
 //                .collect(Collectors.toList());
@@ -62,10 +71,6 @@ public class GameMap {
             }
         }
         return false;
-    }
-
-    public Location getTeamSpawn(int i) {
-        return spawns.get(i);
     }
 
     public void addBlock(Block b) {
@@ -91,9 +96,12 @@ public class GameMap {
     public World getWorld() {
         return world;
     }
-//    public List<Monument> getMonuments() {
-//        return monuments;
-//    }
+    public List<TeamBase> getBases() {
+        return bases;
+    }
+    public List<Point> getPoints() {
+        return points;
+    }
 //
 //    public List<LootDropper> getLootDroppers() {
 //        return lootDroppers;

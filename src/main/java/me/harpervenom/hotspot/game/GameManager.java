@@ -32,12 +32,13 @@ public class GameManager implements GameListener, QueueListener {
     public void createGame(GameQueue queue) {
         Game game = new Game(this, queue);
 
-//        game.setupTeams();
-//        game.assignInitialPlayers(partyManager);
         mapManager.createMap(game).thenAccept(map -> {
             if (map == null) return;
             game.setMap(map);
-            games.add(game);
+            game.setup();
+
+            List<Player> players = queue.getPlayers();
+            Collections.shuffle(players);
 
             Bukkit.getScheduler().runTask(plugin, () -> {
                 for (Player player : queue.getPlayers()) {
@@ -48,6 +49,8 @@ public class GameManager implements GameListener, QueueListener {
                 listeners.forEach(l -> l.onGameStart(game));
                 updateGames();
             });
+
+            games.add(game);
         });
     }
 
@@ -60,14 +63,6 @@ public class GameManager implements GameListener, QueueListener {
         games.remove(game);
 
         mapManager.removeMap(game.getMap());
-
-//        for (GameProfile gameProfile : game.getGameProfiles()) {
-//            GamePlayer gamePlayer = gameProfile.getGamePlayer();
-//            Game lastGame = gamePlayer.getLastGame();
-//            if (game.equals(lastGame)) {
-//                gamePlayer.setLastGame(null);
-//            }
-//        }
 
         // Notify all listeners that the game ended
         listeners.forEach(l -> l.onGameEnd(game));
@@ -82,13 +77,17 @@ public class GameManager implements GameListener, QueueListener {
     }
 
 
-//    public Game getGame(Player player) {
-//        return games.stream()
-//                .filter(game -> game.getPlayers().stream()
-//                                .anyMatch(p -> p.equals(player)))
-//                .findFirst()
-//                .orElse(null);
-//    }
+    public Game getGame(Player player) {
+        return games.stream()
+                .filter(game -> game.getPlayers().stream()
+                                .anyMatch(p -> p.equals(player)))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public List<GameListener> getListeners() {
+        return listeners;
+    }
 
     public List<Game> getGames() {
         return Collections.unmodifiableList(games);

@@ -1,7 +1,6 @@
 package me.harpervenom.hotspot.menu;
 
-import io.papermc.paper.datacomponent.DataComponentTypes;
-import io.papermc.paper.datacomponent.item.Consumable;
+import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
@@ -9,7 +8,6 @@ import me.harpervenom.hotspot.lobby.LobbyListener;
 import me.harpervenom.hotspot.menu.components.Button;
 import me.harpervenom.hotspot.menu.components.Window;
 import me.harpervenom.hotspot.player.ButtonSet;
-import me.harpervenom.hotspot.player.GamePlayer;
 import me.harpervenom.hotspot.player.PlayerManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import me.harpervenom.hotspot.queue.QueueListener;
@@ -25,7 +23,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.utils.Utils.createItemStack;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
@@ -237,15 +234,19 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     public void updateLobbyButtons(Player player, boolean changeHand) {
         ButtonSet set = new ButtonSet();
-        set.setButton(0, queuesButton);
-        GameQueue queue = queueManager.getQueue(player);
-        if (queue != null) {
-            if (queue.isSkipping(player)) {
-                set.setButton(6, cancelSkipWaitingButton);
-            } else {
-                set.setButton(6, skipWaitingButton);
+
+        Game game = gameManager.getGame(player);
+        if (game == null) {
+            set.setButton(0, queuesButton);
+            GameQueue queue = queueManager.getQueue(player);
+            if (queue != null) {
+                if (queue.isSkipping(player)) {
+                    set.setButton(6, cancelSkipWaitingButton);
+                } else {
+                    set.setButton(6, skipWaitingButton);
+                }
+                set.setButton(8, leaveQueueButton);
             }
-            set.setButton(8, leaveQueueButton);
         }
 
         buttonSets.put(player, set);
@@ -256,7 +257,6 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
     }
 
     private void updateInventory(Player player) {
-//        Bukkit.broadcastMessage("update inventory");
         Map<Integer, Button> buttons = buttonSets.get(player).getButtons();
         Inventory inventory = player.getInventory();
 
@@ -275,16 +275,15 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             // skip if the item is already identical
             if (button.getItemStack().isSimilar(inventory.getItem(i))) continue;
 
-//            Bukkit.broadcastMessage(i + "");
-
             // update the slot
             inventory.setItem(i, button.getItemStack());
         }
     }
-//
-//    public void clearButtons(Player player) {
-//        playerManager.updateButtonSet(playerManager.get(player), new ButtonSet());
-//    }
+
+    public void clearButtonSet(Player player) {
+        buttonSets.put(player, new ButtonSet());
+        updateInventory(player);
+    }
 
     public void updateGamesWindow() {
         gamesWindow.update();

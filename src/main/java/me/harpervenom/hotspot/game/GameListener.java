@@ -6,5 +6,4 @@ public interface GameListener {
     default void onGameStart(Game game) {};
     default void onGameEnd(Game game) {};
     default void onGamesUpdate() {};
-    default void onPlayerEnterGame(Player player) {};
 }

@@ -73,7 +73,7 @@ public class MenuEventListener implements Listener {
 
     @EventHandler
     public void onWorldChange(PlayerChangedWorldEvent e) {
-        manager.updateLobbyButtons(e.getPlayer());
+//        manager.updateLobbyButtons(e.getPlayer());
     }
 
     private boolean hasJustClicked(Player player) {

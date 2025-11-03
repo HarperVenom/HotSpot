@@ -1,32 +1,25 @@
 package me.harpervenom.hotspot.game;
 
 import me.harpervenom.hotspot.game.map.GameMap;
+import me.harpervenom.hotspot.game.point.PointManager;
+import me.harpervenom.hotspot.game.team.GameTeam;
+import me.harpervenom.hotspot.game.team.GameTeamManager;
 import me.harpervenom.hotspot.queue.GameQueue;
-import me.harpervenom.hotspot.utils.CustomScoreboard;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.entity.LivingEntity;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
-import static me.harpervenom.hotspot.utils.Utils.formatTime;
-import static me.harpervenom.hotspot.utils.Utils.text;
+import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class Game {
 
     private final GameManager gameManager;
     private final GameQueue queue;
     private final GameSettings settings;
-//    private final List<GameTeam> teams = new ArrayList<>();
-//    private final HashMap<UUID, GameProfile> profileMap = new HashMap<>();
 //    private final GameDeathHandler deathHandler;
 
     private GameMap map;
@@ -35,9 +28,11 @@ public class Game {
     private boolean hasStarted = false;
     private boolean hasEnded = false;
 
-    private final CustomScoreboard customScoreboard;
-
-    private final Team spectators;
+    private final ScoreboardManager scoreboardManager;
+    private PointManager pointManager;
+    private final ScoreManager scoreManager;
+    private final GameTeamManager teamManager;
+    private final GamePlayerManager playerManager;
 
     private BukkitTask endTask;
 
@@ -47,11 +42,16 @@ public class Game {
         this.settings = queue.getSettings();
 //        this.deathHandler = new GameDeathHandler(this);
 
-        customScoreboard = new CustomScoreboard("game", text("Игра"));
-        customScoreboard.showHealth();
+        scoreManager = new ScoreManager(this);
+        scoreboardManager = new ScoreboardManager(this);
+        teamManager = new GameTeamManager(this);
+        playerManager = new GamePlayerManager(this);
+    }
 
-        spectators = customScoreboard.getScoreboard().registerNewTeam("viewers");
-        spectators.color(NamedTextColor.GRAY);
+    public void setup() {
+        pointManager = new PointManager(this);
+        pointManager.setup();
+        teamManager.createTeams(map, pointManager);
     }
 
     public void start() {
@@ -59,42 +59,36 @@ public class Game {
 
         gameTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tickSecond, 0L, 1);
 
-        for (Player viewer : getSpectators()) {
-            spawnPlayer(viewer);
+        for (GameTeam team : teamManager.getTeams()) {
+            team.spawnAll();
         }
 
+        sendActionBarMessage(text(""), getPlayers());
         updateScoreBoardViewers();
+        scoreboardManager.update();
     }
 
     public void end() {
-        if (hasEnded) return;
-        hasEnded = true;
+        pointManager.remove();
         gameManager.removeGame(this);
-        if (gameTask != null) gameTask.cancel();
         updateScoreBoardViewers();
     }
 
     public void connect(Player player) {
-        addViewer(player);
-
-        if (hasStarted) {
-            spawnPlayer(player);
-        }
+        playerManager.connect(player);
     }
 
     public void disconnect(Player player) {
-        removeViewer(player);
+        playerManager.disconnect(player);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             updateScoreBoardViewers();
 
             if (isEmpty()) {
-                // Cancel old task if it exists
                 if (endTask != null && !endTask.isCancelled()) {
                     endTask.cancel();
                 }
 
-                // Schedule new task
                 endTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     if (isEmpty()) {
                         end();
@@ -104,126 +98,57 @@ public class Game {
         }, 1);
     }
 
-    public void addViewer(Player player) {
-        spectators.addPlayer(player);
-        player.setGameMode(org.bukkit.GameMode.SPECTATOR);
-        updateScoreBoardViewers();
-    }
-
-    public void removeViewer(Player player) {
-        spectators.removePlayer(player);
-
-    }
-
-    public void spawnPlayer(Player player) {
-        if (spectators.hasPlayer(player)) {
-            player.teleport(new Location(map.getWorld(), 0, 10, 0));
-        }
-    }
-
     public void updateScoreBoardViewers() {
         if (!hasStarted) return;
         if (hasEnded) {
-            customScoreboard.setViewers(new ArrayList<>());
+            scoreboardManager.setViewers(new ArrayList<>());
             return;
         }
-//        Bukkit.broadcastMessage("3");
-
-        List<Player> players = new ArrayList<>();
-
-//                profileMap.values().stream()
-//                .map(GameProfile::getGamePlayer)
-//                .map(GamePlayer::getPlayer)
-//                .filter(this::isInGame)
-//                .filter(Player::isOnline)
-//                .collect(Collectors.toList());
-
-        players.addAll(getSpectators());
-
-        customScoreboard.setViewers(players);
-    }
-
-    public void updateScoreboard() {
-//        List<GameTeam> activeTeams = teams.stream()
-//                .filter(team -> !team.isDestroyed())
-//                .toList();
-
-        List<Component> lines = new ArrayList<>();
-        lines.add(text(""));
-        lines.add(text(formatTime(elapsedTicks/20)));
-        lines.add(text(""));
-
-//        if (elapsedTicks < virusStartTime) {
-//            lines.add(text("Чума: " + formatTime((virusStartTime - elapsedTicks)/20), NamedTextColor.YELLOW));
-//        } else {
-//            lines.add(text("Чума!", NamedTextColor.RED));
-//        }
-//        lines.add(text(""));
-//
-//        lines.add(text("Команд: " + activeTeams.size()));
-
-        customScoreboard.updateLines(lines);
+        scoreboardManager.setViewers(getPlayers());
     }
 
     private void tickSecond() {
         elapsedTicks++;
 
         if (elapsedTicks % 20 == 0) {
-            updateScoreboard();
+            scoreManager.updateScores();
+            teamManager.checkWinner();
 
-//            if (elapsedTicks > virusStartTime) {
-//                for (GameVillager villager : villagerMap.values()) {
-//                    LivingEntity entity = (LivingEntity) villager.getEntity();
-//                    if (entity == null || !entity.isValid()) continue;
-//
-//                    // Check if not already withered
-//                    if (!entity.hasPotionEffect(PotionEffectType.WITHER)) {
-//                        entity.addPotionEffect(
-//                                new PotionEffect(
-//                                        PotionEffectType.WITHER,
-//                                        Integer.MAX_VALUE, // effectively infinite
-//                                        0,                 // amplifier (0 = Wither I)
-//                                        false,             // ambient (true makes particles smaller)
-//                                        true,             // showParticles
-//                                        false              // showIcon
-//                                )
-//                        );
-//                    }
-//                }
-//            }
+            scoreboardManager.update();
         }
+    }
+
+    public void stop() {
+        if (hasEnded) return;
+        hasEnded = true;
+
+        if (gameTask != null) gameTask.cancel();
+    }
+
+    public void announceWinner(GameTeam winner) {
+        stop();
+
+        if (winner == null) {
+            sendMessage(text("Ничья!"), getPlayers());
+        } else {
+            sendMessage(text("Победитель - ").append(winner.getName()), getPlayers());
+        }
+        playSound(Sound.ENTITY_WITHER_SPAWN, 0.5f, 1f, getPlayers());
+
+        Bukkit.getScheduler().runTaskLater(plugin, this::end, 4 * 20);
     }
 
     public List<Player> getPlayers() {
-        return getSpectators();
-    }
-
-    public List<Player> getSpectators() {
-        List<Player> players = new ArrayList<>();
-        for (String entry : spectators.getEntries()) {
-            Player player = Bukkit.getPlayer(entry); // get online player by name
-            if (player != null) {
-                players.add(player);
-            }
-        }
-        return players;
+        return playerManager.getConnectedPlayers();
     }
 
     public boolean isEmpty() {
-        if (!spectators.getEntries().isEmpty()) return false;
-
-//        for (GameTeam team : teams) {
-//            for (GameProfile gameProfile : team.getProfiles()) {
-//                Player player = gameProfile.getGamePlayer().getPlayer();
-//                if (player != null && player.isOnline()
-//                        && player.getWorld().getUID().equals(map.getWorld().getUID())) {
-//                    return false;
-//                }
-//            }
-//        }
-        return true;
+        return getPlayers().isEmpty();
     }
 
+    public List<GameTeam> getTeams() {
+        return teamManager.getTeams();
+    }
     public void setMap(GameMap map) {
         this.map = map;
     }
@@ -232,6 +157,24 @@ public class Game {
     }
     public GameQueue getQueue() {
         return queue;
+    }
+    public PointManager getPointManager() {
+        return pointManager;
+    }
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
+    }
+    public GamePlayerManager getPlayerManager() {
+        return playerManager;
+    }
+    public GameTeamManager getTeamManager() {
+        return teamManager;
+    }
+    public ScoreManager getScoreManager() {
+        return scoreManager;
+    }
+    public int getElapsedTicks() {
+        return elapsedTicks;
     }
 }
 

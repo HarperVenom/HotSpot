@@ -42,8 +42,9 @@ public class MapManager {
 
         mapLoader.pasteMap(mapData, world).thenRun(() -> {
             futureMap.complete(map);
+            plugin.getLogger().info("Map created in world (" + world.getName() + ")");
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Failed to paste map: " + ex.getMessage());
+            plugin.getLogger().severe("Failed to paste map in world (" + world.getName() + "): " + ex.getMessage());
             return null;
         });
 
@@ -61,10 +62,10 @@ public class MapManager {
 
         mapLoader.eraseMap(world).thenRun(() -> {
             activeMaps.remove(map);
-            plugin.getLogger().info("Map in world (" + world.getName() + ") has been erased");
+            plugin.getLogger().info("Map erased in world (" + world.getName() + ")");
             worldManager.freeWorld(world);
         }).exceptionally(ex -> {
-            plugin.getLogger().severe("Failed to erase map: " + ex.getMessage());
+            plugin.getLogger().severe("Failed to erase map in world (" + world.getName() + "): " + ex.getMessage());
             return null;
         });
     }

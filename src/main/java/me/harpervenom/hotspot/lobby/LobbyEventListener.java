@@ -1,6 +1,7 @@
 package me.harpervenom.hotspot.lobby;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.event.player.PlayerCustomClickEvent;
 import me.harpervenom.hotspot.utils.ChangelogUtil;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -108,13 +109,10 @@ public class LobbyEventListener implements Listener {
         manager.sendToLobby(player);
     }
 
-//    @EventHandler
-//    public void onChat(AsyncChatEvent e) {
-//        Player player = e.getPlayer();
-//        if (!manager.isLobby(player.getWorld())) return;
-//        e.setCancelled(true);
-//        manager.handleChatMessage(e.message(), player);
-//    }
+    @EventHandler
+    public void onDialog(PlayerCustomClickEvent e) {
+        Bukkit.broadcastMessage("hey");
+    }
 
     @EventHandler
     public void onAchievement(PlayerAdvancementDoneEvent e) {
