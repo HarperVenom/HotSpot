@@ -10,7 +10,7 @@ import static me.harpervenom.hotspot.utils.Utils.text;
 public class ScoreManager {
 
     private final Game game;
-    private final static int protectionSeconds = 15;
+//    private final static int protectionSeconds = 15;
     private boolean protectionActive = true; // Flag to indicate if protection is on
 
     public ScoreManager(Game game) {
@@ -21,10 +21,10 @@ public class ScoreManager {
         int seconds = game.getElapsedTicks() / 20;
 
         // Update protection flag
-        if (seconds >= protectionSeconds && protectionActive) {
-            protectionActive = false; // Protection just ended
-            sendMessage(text("Защита снята! Очки начинают сниматься!"), game.getPlayers());
-        }
+//        if (seconds >= protectionSeconds && protectionActive) {
+//            protectionActive = false; // Protection just ended
+//            sendMessage(text("Защита снята! Очки начинают сниматься!"), game.getPlayers());
+//        }
 
         for (GameTeam team : game.getTeams()) {
             int loss = getScoreLoss(team);
@@ -36,7 +36,7 @@ public class ScoreManager {
 
     public int getScoreLoss(GameTeam team) {
         // Return 0 if protection is active
-        if (protectionActive) return 0;
+//        if (protectionActive) return 0;
 
         List<GameTeam> teams = game.getTeams();
         GameTeam t1 = teams.get(0);
@@ -45,9 +45,9 @@ public class ScoreManager {
         int p1 = game.getPointManager().getTeamPoints(t1).size();
         int p2 = game.getPointManager().getTeamPoints(t2).size();
 
-        if (p1 == p2) {
-            return -1; // Both lose 1
-        }
+//        if (p1 == p2) {
+//            return -1; // Both lose 1
+//        }
 
         if (team.equals(t1)) {
             return Math.min(0, p1 - p2); // Negative if losing, 0 if leading

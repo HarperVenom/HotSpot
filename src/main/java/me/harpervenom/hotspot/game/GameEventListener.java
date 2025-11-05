@@ -26,7 +26,7 @@ public class GameEventListener implements Listener {
     }
 
     @EventHandler
-    public void inQuit(PlayerQuitEvent e) {
+    public void onQuit(PlayerQuitEvent e) {
         World world = e.getPlayer().getWorld();
         Game game = gameManager.getGame(world);
         if (game == null) return;

@@ -1,10 +1,13 @@
 package me.harpervenom.hotspot.game;
 
 import me.harpervenom.hotspot.game.team.GameTeam;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
+
+import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class GameProfile {
 
@@ -30,6 +33,9 @@ public class GameProfile {
     }
     public boolean isConnected() {
         return isConnected;
+    }
+    public Component getName() {
+        return text(getPlayer().getName(), gameTeam.getColor());
     }
 //    public Component getName() {
 //        return text(gamePlayer.getPlayer().getName(), gameTeam.getColor());

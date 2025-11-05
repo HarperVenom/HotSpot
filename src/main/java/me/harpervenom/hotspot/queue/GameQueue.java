@@ -2,18 +2,15 @@ package me.harpervenom.hotspot.queue;
 
 import me.harpervenom.hotspot.game.GameModeEnum;
 import me.harpervenom.hotspot.game.GameSettings;
-import me.harpervenom.hotspot.player.GamePlayer;
 import me.harpervenom.hotspot.utils.CountdownTimer;
 import me.harpervenom.hotspot.utils.CustomScoreboard;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static me.harpervenom.hotspot.utils.Utils.formatTime;
 import static me.harpervenom.hotspot.utils.Utils.text;
@@ -35,7 +32,7 @@ public class GameQueue {
         scoreboard = new CustomScoreboard("queue", text(" Очередь "));
         scoreboard.setPadding(1);
         gameMode = mode;
-        gameSettings = mode.getGameSettings();
+        gameSettings = mode.getSettings();
         timer = new CountdownTimer(60,
                 () -> {
                     ready();

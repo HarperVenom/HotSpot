@@ -1,20 +1,16 @@
 package me.harpervenom.hotspot.menu;
 
-import me.harpervenom.hotspot.game.Game;
-import me.harpervenom.hotspot.game.GameListener;
-import me.harpervenom.hotspot.game.GameManager;
-import me.harpervenom.hotspot.game.GameModeEnum;
+import me.harpervenom.hotspot.game.*;
 import me.harpervenom.hotspot.lobby.LobbyListener;
 import me.harpervenom.hotspot.menu.components.Button;
 import me.harpervenom.hotspot.menu.components.Window;
 import me.harpervenom.hotspot.player.ButtonSet;
-import me.harpervenom.hotspot.player.PlayerManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import me.harpervenom.hotspot.queue.QueueListener;
 import me.harpervenom.hotspot.queue.QueueManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -29,7 +25,6 @@ import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
-    private final PlayerManager playerManager;
     private final QueueManager queueManager;
     private final GameManager gameManager;
 //    private final PartyManager partyManager;
@@ -40,12 +35,12 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     private final HashMap<Player, ButtonSet> buttonSets = new HashMap<>();
 
-    public MenuManager(PlayerManager playerManager, QueueManager queueManager, GameManager gameManager) {
-        this.playerManager = playerManager;
+    public MenuManager(QueueManager queueManager, GameManager gameManager) {
         this.queueManager = queueManager;
         this.gameManager = gameManager;
 
         List<GameQueue> queues = queueManager.getQueues();
+        List<Game> games = gameManager.getGames();
         gamesWindow = new Window("Игры", 9);
         gamesWindow.setOnUpdate(() -> {
             gamesWindow.clear();
@@ -54,10 +49,10 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
                 if (queue.isReady()) continue;
                 gamesWindow.addButton(makeQueueButton(queue), i);
             }
-//            for (int i = 0; i < games.size(); i++) {
-//                Game game = games.get(i);
-//                gamesWindow.addButton(makeGameButton(game), gameQueues.size() + i);
-//            }
+            for (int i = 0; i < games.size(); i++) {
+                Game game = games.get(i);
+                gamesWindow.addButton(makeGameButton(game), queues.size() + i);
+            }
         });
         updateGamesWindow();
 
@@ -65,34 +60,6 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         makeLeaveQueueButton();
         makeSkipWaitingButtons();
     }
-
-//    public MenuManager(PlayerManager playerManager, QueueManager queueManager, GameManager gameManager, PartyManager partyManager) {
-//        this.playerManager = playerManager;
-//        this.queueManager = queueManager;
-//        this.gameManager = gameManager;
-//        this.partyManager = partyManager;
-//
-//        List<GameQueue> gameQueues = queueManager.getGameQueues();
-//        List<Game> games = gameManager.getGames();
-//        gamesWindow = new Window("Игры", 9);
-//        gamesWindow.setOnUpdate(() -> {
-//            gamesWindow.clear();
-//            for (int i = 0; i < gameQueues.size(); i++) {
-//                GameQueue queue = gameQueues.get(i);
-//                if (queue.isReady()) continue;
-//                gamesWindow.addButton(makeQueueButton(queue), i);
-//            }
-//            for (int i = 0; i < games.size(); i++) {
-//                Game game = games.get(i);
-//                gamesWindow.addButton(makeGameButton(game), gameQueues.size() + i);
-//            }
-//        });
-//        updateGamesWindow();
-//
-//        makeQueuesButton();
-//        makeLeaveQueueButton();
-//        makeSkipWaitingButtons();
-//    }
 
     public boolean handleHandClick(Player player) {
         Button button = buttonSets.get(player).getButtons().get(player.getInventory().getHeldItemSlot());
@@ -158,9 +125,9 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             lore.add(text(player.getName(), NamedTextColor.GRAY));
         }
 
-        GameModeEnum mode = queue.getGameMode();
+        GameSettings settings = queue.getGameMode().getSettings();
 
-        ItemStack itemStack = createItemStack(mode.getQueueMaterial(), text("Очередь ").append(mode.getName()), lore);
+        ItemStack itemStack = createItemStack(settings.getQueueMaterial(), text("Очередь ").append(settings.getName()), lore);
 
         Button button = new Button(itemStack);
 
@@ -196,37 +163,33 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
         return button;
     }
-//
-//    private Button makeGameButton(Game game) {
-//        List<GameProfile> gameProfiles = game.getGameProfiles();
-//
-//        List<Component> lore = new ArrayList<>();
-//        lore.add(text("Игроков: " + gameProfiles.size()+ "/" + game.getSettings().getMode().getMaxTeams()));
-//        for (GameProfile profile : gameProfiles) {
-//            TextColor color = NamedTextColor.GRAY;
-//            if (!profile.isInGame()) color = TextColor.color(130, 35, 30);
-//            if (profile.isEliminated()) color = NamedTextColor.DARK_GRAY;
-//            lore.add(text(profile.getGamePlayer().getPlayer().getName(), color));
-//        }
-//
-//        ItemStack itemStack = createItemStack(
-//                game.getSettings().getMode() == CustomGameMode.SOLO ?
-//                        Material.WHITE_CONCRETE :
-//                        Material.YELLOW_CONCRETE, text("Игра ")
-//                .append(game.getSettings().getMode().getName()), lore);
-//
-//        Button button = new Button(itemStack);
-//
-//        button.setOnPersonalClick(player -> {
-//            boolean returned = game.reconnectPlayer(player);
-//
-//            if (!returned) {
-//                game.addViewer(player);
-//            }
-//        });
-//
-//        return button;
-//    }
+
+    private Button makeGameButton(Game game) {
+        List<GameProfile> gameProfiles = game.getPlayerManager().getProfileMap().values().stream().toList();
+
+        GameSettings settings = game.getSettings();
+
+        List<Component> lore = new ArrayList<>();
+        lore.add(text("Игроков: " + gameProfiles.size()+ "/" + settings.getMaxPlayers()));
+        for (GameProfile profile : gameProfiles) {
+            TextColor color = NamedTextColor.GRAY;
+            if (!profile.isConnected()) color = TextColor.color(130, 35, 30);
+            lore.add(text(profile.getPlayer().getName(), color));
+        }
+
+        ItemStack itemStack = createItemStack(
+                settings.getGameMaterial(), text("Игра ")
+                .append(settings.getName()), lore);
+
+        Button button = new Button(itemStack);
+
+        button.setOnPersonalClick(player -> {
+            game.connect(player);
+            updateLobbyButtons(player);
+        });
+
+        return button;
+    }
 
     public void updateLobbyButtons(Player player) {
         updateLobbyButtons(player, true);

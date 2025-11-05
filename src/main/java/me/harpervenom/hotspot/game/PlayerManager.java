@@ -1,7 +1,7 @@
 package me.harpervenom.hotspot.game;
 
 import me.harpervenom.hotspot.game.team.GameTeam;
-import me.harpervenom.hotspot.game.team.GameTeamManager;
+import me.harpervenom.hotspot.game.team.TeamManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -9,16 +9,18 @@ import org.bukkit.scoreboard.Team;
 
 import java.util.*;
 
-public class GamePlayerManager {
+public class PlayerManager {
 
-    private final GameTeamManager teamManager;
+    private final Game game;
+    private final TeamManager teamManager;
     private final Map<UUID, GameProfile> profileMap = new HashMap<>();
     private final Team spectators;
 
-    public GamePlayerManager(Game game) {
+    public PlayerManager(Game game) {
+        this.game = game;
         teamManager = game.getTeamManager();
 
-        spectators = game.getScoreboardManager().getScoreboard().registerNewTeam("viewers");
+        spectators = game.getUiManager().getScoreboard().registerNewTeam("viewers");
         spectators.color(NamedTextColor.GRAY);
     }
 
@@ -39,15 +41,21 @@ public class GamePlayerManager {
     public void connect(Player player) {
         GameProfile profile = profileMap.get(player.getUniqueId());
         if (profile != null) {
+            profile.getTeam().spawn(player);
             profile.setConnected(true);
+            game.updateScoreBoardViewers();
         } else {
             addPlayer(player);
         }
+
+        game.getUiManager().getBar().addViewer(player);
     }
 
     public void disconnect(Player player) {
         GameProfile profile = profileMap.get(player.getUniqueId());
         if (profile != null) profile.setConnected(false);
+
+        game.getUiManager().getBar().removeViewer(player);
     }
 
     public GameProfile getProfile(Player player) {

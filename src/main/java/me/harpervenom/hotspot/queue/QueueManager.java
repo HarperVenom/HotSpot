@@ -18,15 +18,12 @@ import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class QueueManager implements GameListener {
 
-    private final PlayerManager playerManager;
-
     private final List<GameQueue> gameQueues = new ArrayList<>();
     private final List<QueueListener> listeners = new ArrayList<>();
 
     private final HashMap<Player, GameQueue> playerQueues = new HashMap<>();
 
-    public QueueManager(PlayerManager playerManager) {
-        this.playerManager = playerManager;
+    public QueueManager() {
     }
 
     public void createQueue(GameModeEnum mode) {

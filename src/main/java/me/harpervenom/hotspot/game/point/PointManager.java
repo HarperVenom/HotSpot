@@ -56,7 +56,7 @@ public class PointManager {
 
             case SUCCESS -> {
                 point.setTeam(team);
-                game.getScoreboardManager().update();
+                game.getUiManager().update();
             }
         }
     }

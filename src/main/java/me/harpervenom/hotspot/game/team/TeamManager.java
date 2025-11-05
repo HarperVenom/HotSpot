@@ -9,12 +9,12 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameTeamManager {
+public class TeamManager {
 
     private final Game game;
     private final List<GameTeam> teams = new ArrayList<>();
 
-    public GameTeamManager(Game game) {
+    public TeamManager(Game game) {
         this.game = game;
     }
 
@@ -25,7 +25,7 @@ public class GameTeamManager {
 
     private void createTeam(NamedTextColor color, String name, TeamBase base, Point firstPoint) {
         GameTeam gameTeam = new GameTeam(color, name, base);
-        gameTeam.register(game.getScoreboardManager().getScoreboard());
+        gameTeam.register(game.getUiManager().getScoreboard());
         gameTeam.setFirstPoint(firstPoint);
         teams.add(gameTeam);
     }

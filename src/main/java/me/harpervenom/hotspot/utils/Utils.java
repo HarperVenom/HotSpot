@@ -216,4 +216,19 @@ public class Utils {
             player.playSound(player, sound, volume, pitch);
         }
     }
+
+    public static Color toBukkitColor(NamedTextColor namedTextColor) {
+        if (namedTextColor == null) return null;
+
+        if (namedTextColor == NamedTextColor.RED) {
+            return Color.fromRGB(255, 0, 0); // Red
+        } else if (namedTextColor == NamedTextColor.BLUE) {
+            return Color.fromRGB(0, 0, 255); // Blue
+        } else if (namedTextColor == NamedTextColor.GREEN) {
+            return Color.fromRGB(0, 255, 0); // Green
+        } else if (namedTextColor == NamedTextColor.YELLOW) {
+            return Color.fromRGB(255, 255, 0); // Yellow
+        }
+        return null; // Return null if not one of the specified colors
+    }
 }

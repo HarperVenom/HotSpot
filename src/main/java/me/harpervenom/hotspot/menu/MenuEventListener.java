@@ -1,14 +1,12 @@
 package me.harpervenom.hotspot.menu;
 
 import me.harpervenom.hotspot.menu.components.Window;
-import me.harpervenom.hotspot.player.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
@@ -21,19 +19,12 @@ import static me.harpervenom.hotspot.menu.components.Window.openedWindow;
 public class MenuEventListener implements Listener {
 
     private final MenuManager manager;
-    private final PlayerManager playerManager;
 
     private final List<Player> justClicked = new ArrayList<>();
 
-    public MenuEventListener(MenuManager manager, PlayerManager playerManager) {
+    public MenuEventListener(MenuManager manager) {
         this.manager = manager;
-        this.playerManager = playerManager;
     }
-
-//    @EventHandler
-//    public void onPlayerJoin(PlayerJoinEvent e) {
-//        manager.updateLobbyButtons(e.getPlayer());
-//    }
 
     @EventHandler
     public void onButtonInteract(PlayerInteractEvent e) {
@@ -69,11 +60,6 @@ public class MenuEventListener implements Listener {
 
         window.close(player, false);
         openedWindow.remove(player);
-    }
-
-    @EventHandler
-    public void onWorldChange(PlayerChangedWorldEvent e) {
-//        manager.updateLobbyButtons(e.getPlayer());
     }
 
     private boolean hasJustClicked(Player player) {

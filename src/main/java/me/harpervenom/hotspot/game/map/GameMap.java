@@ -1,5 +1,6 @@
 package me.harpervenom.hotspot.game.map;
 
+import me.harpervenom.hotspot.game.vault.Vault;
 import me.harpervenom.hotspot.game.point.Point;
 import me.harpervenom.hotspot.game.team.GameTrader;
 import me.harpervenom.hotspot.game.team.TeamBase;
@@ -23,7 +24,7 @@ public class GameMap {
     private final List<TeamBase> bases;
 
     private final List<Point> points;
-//    private final List<LootDropper> lootDroppers;
+    private final List<Vault> vaults;
 
     private final Set<Block> blocks = new HashSet<>();
 
@@ -54,9 +55,9 @@ public class GameMap {
                 .map(loc -> new Point(new Location(world, loc.x, loc.y, loc.z), this))
                 .collect(Collectors.toList());
 
-//        lootDroppers = mapData.getVaults().stream()
-//                .map(loc -> new LootDropper(new Location(world, loc.x, loc.y, loc.z)))
-//                .collect(Collectors.toList());
+        vaults = mapData.getVaults().stream()
+                .map(loc -> new Vault(new Location(world, loc.x, loc.y, loc.z)))
+                .collect(Collectors.toList());
     }
 
     public boolean isBlockProtected(Block b) {
@@ -102,17 +103,12 @@ public class GameMap {
     public List<Point> getPoints() {
         return points;
     }
-//
-//    public List<LootDropper> getLootDroppers() {
-//        return lootDroppers;
-//    }
-//
-//    public LootDropper getLootDropper(Block b) {
-//        for (LootDropper lootDropper : lootDroppers) {
-//            if (lootDropper.isBlock(b)) return lootDropper;
-//        }
-//        return null;
-//    }
+
+    public List<Vault> getVaults() {
+        return vaults;
+    }
+
+
 
 //    public void updateMonumentsDisplay() {
 //        for (Player player : world.getPlayers()) {

@@ -1,9 +1,10 @@
 package me.harpervenom.hotspot.game;
 
+import me.harpervenom.hotspot.game.vault.VaultManager;
 import me.harpervenom.hotspot.game.map.GameMap;
 import me.harpervenom.hotspot.game.point.PointManager;
 import me.harpervenom.hotspot.game.team.GameTeam;
-import me.harpervenom.hotspot.game.team.GameTeamManager;
+import me.harpervenom.hotspot.game.team.TeamManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -28,11 +29,14 @@ public class Game {
     private boolean hasStarted = false;
     private boolean hasEnded = false;
 
-    private final ScoreboardManager scoreboardManager;
+    private final UIManager uiManager;
     private PointManager pointManager;
+    private VaultManager vaultManager;
     private final ScoreManager scoreManager;
-    private final GameTeamManager teamManager;
-    private final GamePlayerManager playerManager;
+    private final TeamManager teamManager;
+    private final PlayerManager playerManager;
+
+    private final GameDeathHandler deathHandler;
 
     private BukkitTask endTask;
 
@@ -43,14 +47,20 @@ public class Game {
 //        this.deathHandler = new GameDeathHandler(this);
 
         scoreManager = new ScoreManager(this);
-        scoreboardManager = new ScoreboardManager(this);
-        teamManager = new GameTeamManager(this);
-        playerManager = new GamePlayerManager(this);
+        uiManager = new UIManager(this);
+        teamManager = new TeamManager(this);
+        playerManager = new PlayerManager(this);
+
+        deathHandler = new GameDeathHandler(this);
     }
 
     public void setup() {
         pointManager = new PointManager(this);
         pointManager.setup();
+
+        vaultManager = new VaultManager(this);
+        vaultManager.setup();
+
         teamManager.createTeams(map, pointManager);
     }
 
@@ -65,21 +75,24 @@ public class Game {
 
         sendActionBarMessage(text(""), getPlayers());
         updateScoreBoardViewers();
-        scoreboardManager.update();
+        uiManager.update();
     }
 
     public void end() {
         pointManager.remove();
         gameManager.removeGame(this);
+
         updateScoreBoardViewers();
     }
 
     public void connect(Player player) {
         playerManager.connect(player);
+        gameManager.updateGames();
     }
 
     public void disconnect(Player player) {
         playerManager.disconnect(player);
+        gameManager.updateGames();
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             updateScoreBoardViewers();
@@ -101,10 +114,12 @@ public class Game {
     public void updateScoreBoardViewers() {
         if (!hasStarted) return;
         if (hasEnded) {
-            scoreboardManager.setViewers(new ArrayList<>());
+            uiManager.setViewers(new ArrayList<>());
+            uiManager.removeBar();
             return;
         }
-        scoreboardManager.setViewers(getPlayers());
+
+        uiManager.setViewers(getPlayers());
     }
 
     private void tickSecond() {
@@ -113,8 +128,9 @@ public class Game {
         if (elapsedTicks % 20 == 0) {
             scoreManager.updateScores();
             teamManager.checkWinner();
+            vaultManager.update();
 
-            scoreboardManager.update();
+            uiManager.update();
         }
     }
 
@@ -135,7 +151,7 @@ public class Game {
         }
         playSound(Sound.ENTITY_WITHER_SPAWN, 0.5f, 1f, getPlayers());
 
-        Bukkit.getScheduler().runTaskLater(plugin, this::end, 4 * 20);
+        Bukkit.getScheduler().runTaskLater(plugin, this::end, 5 * 20);
     }
 
     public List<Player> getPlayers() {
@@ -161,20 +177,29 @@ public class Game {
     public PointManager getPointManager() {
         return pointManager;
     }
-    public ScoreboardManager getScoreboardManager() {
-        return scoreboardManager;
+    public VaultManager getVaultManager() {
+        return vaultManager;
     }
-    public GamePlayerManager getPlayerManager() {
+    public UIManager getUiManager() {
+        return uiManager;
+    }
+    public PlayerManager getPlayerManager() {
         return playerManager;
     }
-    public GameTeamManager getTeamManager() {
+    public TeamManager getTeamManager() {
         return teamManager;
     }
     public ScoreManager getScoreManager() {
         return scoreManager;
     }
+    public GameDeathHandler getDeathHandler() {
+        return deathHandler;
+    }
     public int getElapsedTicks() {
         return elapsedTicks;
+    }
+    public GameSettings getSettings() {
+        return settings;
     }
 }
 

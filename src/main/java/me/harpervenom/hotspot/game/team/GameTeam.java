@@ -20,11 +20,11 @@ public class GameTeam {
 
     private final int id;
     private final NamedTextColor color;
-    private String name;
+    private final String name;
     private Team team;
 
     private final List<GameProfile> profiles = new ArrayList<>();
-    private TeamBase base;
+    private final TeamBase base;
 
     private Point firstPoint;
 
@@ -62,7 +62,17 @@ public class GameTeam {
     }
 
     public void spawn(Player player) {
+        spawn(player, true);
+    }
+
+    public void spawn(Player player, boolean reset) {
         player.teleport(base.getSpawn());
+
+        player.setGameMode(org.bukkit.GameMode.SURVIVAL);
+        if (reset) {
+            player.setSaturation(20);
+            player.setFoodLevel(20);
+        }
     }
 
     public void setFirstPoint(Point point) {

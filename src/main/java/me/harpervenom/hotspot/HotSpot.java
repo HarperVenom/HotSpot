@@ -5,12 +5,13 @@ import me.harpervenom.hotspot.commands.LobbyCommand;
 import me.harpervenom.hotspot.game.GameEventListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
+import me.harpervenom.hotspot.game.listeners.DeathListener;
+import me.harpervenom.hotspot.game.vault.VaultListener;
 import me.harpervenom.hotspot.game.point.PointListener;
 import me.harpervenom.hotspot.lobby.LobbyEventListener;
 import me.harpervenom.hotspot.lobby.LobbyManager;
 import me.harpervenom.hotspot.menu.MenuEventListener;
 import me.harpervenom.hotspot.menu.MenuManager;
-import me.harpervenom.hotspot.player.PlayerManager;
 import me.harpervenom.hotspot.queue.QueueEventListener;
 import me.harpervenom.hotspot.queue.QueueManager;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -32,10 +33,9 @@ public final class HotSpot extends JavaPlugin implements Listener {
         saveDefaultConfig();
 
         LobbyManager lobbyManager = new LobbyManager();
-        PlayerManager playerManager = new PlayerManager();
-        QueueManager queueManager = new QueueManager(playerManager);
+        QueueManager queueManager = new QueueManager();
         GameManager gameManager = new GameManager();
-        MenuManager menuManager = new MenuManager(playerManager, queueManager, gameManager);
+        MenuManager menuManager = new MenuManager(queueManager, gameManager);
 
         lobbyManager.addListener(menuManager);
 
@@ -48,10 +48,13 @@ public final class HotSpot extends JavaPlugin implements Listener {
 
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new LobbyEventListener(lobbyManager), this);
-        getServer().getPluginManager().registerEvents(new MenuEventListener(menuManager, playerManager), this);
+        getServer().getPluginManager().registerEvents(new MenuEventListener(menuManager), this);
         getServer().getPluginManager().registerEvents(new QueueEventListener(queueManager), this);
         getServer().getPluginManager().registerEvents(new GameEventListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PointListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new VaultListener(gameManager), this);
+
+        getServer().getPluginManager().registerEvents(new DeathListener(gameManager), this);
 
         getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
 

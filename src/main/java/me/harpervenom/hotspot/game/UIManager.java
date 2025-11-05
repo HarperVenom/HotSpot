@@ -3,6 +3,7 @@ package me.harpervenom.hotspot.game;
 import me.harpervenom.hotspot.game.point.PointManager;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import me.harpervenom.hotspot.utils.CustomScoreboard;
+import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -10,28 +11,29 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static me.harpervenom.hotspot.utils.Utils.formatTime;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
-public class ScoreboardManager {
+public class UIManager {
     private final Game game;
     private final CustomScoreboard scoreboard;
 
-    public ScoreboardManager(Game game) {
+    private final BossBar bar;
+
+    public UIManager(Game game) {
         this.game = game;
         scoreboard = new CustomScoreboard("game", text("Игра"));
         scoreboard.showHealth();
         scoreboard.setPadding(1);
+
+        bar = BossBar.bossBar(text("", NamedTextColor.WHITE), 1L, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
     }
 
     public void update() {
         List<Component> lines = new ArrayList<>();
         lines.add(text(""));
-//        lines.add(text(formatTime(game.getElapsedTicks() / 20)));
-//        lines.add(text(""));
 
         int maxPoints = game.getPointManager().getPoints().size();
         for (GameTeam team : game.getTeams()) {
@@ -41,6 +43,23 @@ public class ScoreboardManager {
         lines.add(text(""));
 
         scoreboard.updateLines(lines);
+
+        updateBar();
+    }
+
+    private void updateBar() {
+        int vaultsTime = game.getVaultManager().getTime();
+        Component info =
+                text(formatTime(game.getElapsedTicks() / 20), NamedTextColor.WHITE)
+                        .append(text(" | ", NamedTextColor.GRAY))
+                        .append(text("Хранилища: ")).append(text(formatTime(vaultsTime)));
+        bar.name(info);
+    }
+
+    public void removeBar() {
+        for (Player player : game.getPlayers()) {
+            bar.removeViewer(player);
+        }
     }
 
     private Component buildTeamLine(GameTeam team, int maxPoints) {
@@ -87,5 +106,8 @@ public class ScoreboardManager {
     }
     public Scoreboard getScoreboard() {
         return scoreboard.getScoreboard();
+    }
+    public BossBar getBar() {
+        return bar;
     }
 }
