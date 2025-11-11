@@ -1,6 +1,6 @@
 package me.harpervenom.hotspot.game.vault;
 
-import me.harpervenom.hotspot.game.GameProfile;
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -60,15 +60,12 @@ public class Vault {
                     return;
                 }
 
-                ItemStack egg = new ItemStack(Material.EGG);
-
-                Item item = dispenseItem(egg);
+                Item item = dispenseItem(profile.getLootManager().getLootClass().pickItem(profile));
                 if (item != null) {
                     setItemOwner(item.getItemStack(), player.getUniqueId());
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         removeItemOwner(item.getItemStack());
                     }, 5 * 20);
-//                    profile.addLoot(item.getItemStack());
                 }
 
                 amount[0]--;

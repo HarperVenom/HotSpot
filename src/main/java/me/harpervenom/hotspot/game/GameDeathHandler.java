@@ -1,5 +1,6 @@
 package me.harpervenom.hotspot.game;
 
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -8,12 +9,10 @@ import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.time.Duration;
-import java.util.Random;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.utils.Utils.*;
@@ -67,24 +66,8 @@ public class GameDeathHandler {
         e.setCancelled(true);
         player.setVelocity(new Vector(0, 0, 0));
 
-        Random random = new Random();
-
-        ItemStack[] contents = player.getInventory().getContents();
-        for (int i = 0; i < contents.length; i++) {
-            ItemStack item = contents[i];
-            if (item != null && item.getType() != Material.AIR) {
-                if (random.nextDouble() < 0.4) { // 40% chance to drop
-                    player.getWorld().dropItemNaturally(player.getLocation(), item);
-                    contents[i] = null;
-                }
-                 // remove item from inventory regardless
-            }
-        }
-
-        player.getWorld().dropItemNaturally(player.getLocation(), player.getItemOnCursor());
         player.setItemOnCursor(null);
-
-        player.getInventory().setContents(contents);
+        player.getInventory().clear();
     }
 
     private void killPlayer(GameProfile gameProfile) {
@@ -110,14 +93,16 @@ public class GameDeathHandler {
         }.runTaskTimer(plugin, 0, 20);
     }
 
-    private void respawn(GameProfile gameProfile) {
-        Player player = gameProfile.getPlayer();
+    private void respawn(GameProfile profile) {
+        Player player = profile.getPlayer();
 
         if (player.getSpectatorTarget() != null) {
             player.setSpectatorTarget(null);
         }
 
-        GameTeam gameTeam = gameProfile.getTeam();
+        profile.reset();
+
+        GameTeam gameTeam = profile.getTeam();
         gameTeam.spawn(player);
     }
 

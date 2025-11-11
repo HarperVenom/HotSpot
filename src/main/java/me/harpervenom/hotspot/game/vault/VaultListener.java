@@ -2,7 +2,7 @@ package me.harpervenom.hotspot.game.vault;
 
 import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameManager;
-import me.harpervenom.hotspot.game.GameProfile;
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

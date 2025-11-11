@@ -1,16 +1,19 @@
 package me.harpervenom.hotspot.game.team;
 
-import me.harpervenom.hotspot.game.GameProfile;
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.point.Point;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import static me.harpervenom.hotspot.utils.Utils.text;
 
@@ -23,19 +26,19 @@ public class GameTeam {
     private final String name;
     private Team team;
 
-    private final List<GameProfile> profiles = new ArrayList<>();
-    private final TeamBase base;
+    private final HashMap<UUID, GameProfile> profiles = new HashMap<>();
+    private final Location spawn;
 
     private Point firstPoint;
 
     private int score = 100;
 
-    public GameTeam(NamedTextColor color, String name, TeamBase base) {
+    public GameTeam(NamedTextColor color, String name, Location spawn) {
         this.id = lastId;
         lastId++;
         this.color = color;
         this.name = name;
-        this.base = base;
+        this.spawn = spawn;
     }
 
     public void register(Scoreboard scoreboard) {
@@ -46,7 +49,7 @@ public class GameTeam {
     }
 
     public void addProfile(GameProfile profile) {
-        profiles.add(profile);
+        profiles.put(profile.getPlayer().getUniqueId(), profile);
 
         Player player = profile.getPlayer();
         if (player != null) {
@@ -54,8 +57,9 @@ public class GameTeam {
         }
     }
 
+    // Move to player manager
     public void spawnAll() {
-        for (GameProfile profile : profiles) {
+        for (GameProfile profile : profiles.values()) {
             Player player = profile.getPlayer();
             spawn(player);
         }
@@ -66,12 +70,13 @@ public class GameTeam {
     }
 
     public void spawn(Player player, boolean reset) {
-        player.teleport(base.getSpawn());
+        player.teleport(spawn);
 
         player.setGameMode(org.bukkit.GameMode.SURVIVAL);
         if (reset) {
             player.setSaturation(20);
             player.setFoodLevel(20);
+            profiles.get(player.getUniqueId()).getEquipmentManager().giveItems();
         }
     }
 
@@ -88,10 +93,10 @@ public class GameTeam {
         return profiles.size();
     }
     public List<GameProfile> getProfiles() {
-        return profiles;
+        return profiles.values().stream().toList();
     }
     public List<Player> getPlayers() {
-        return profiles.stream().map(GameProfile::getPlayer).toList();
+        return profiles.values().stream().map(GameProfile::getPlayer).toList();
     }
     public NamedTextColor getColor() {
         return color;

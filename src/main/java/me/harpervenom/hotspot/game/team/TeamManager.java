@@ -4,10 +4,15 @@ import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.map.GameMap;
 import me.harpervenom.hotspot.game.point.Point;
 import me.harpervenom.hotspot.game.point.PointManager;
+import me.harpervenom.hotspot.game.trader.Trader;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class TeamManager {
 
@@ -19,12 +24,12 @@ public class TeamManager {
     }
 
     public void createTeams(GameMap map, PointManager pointManager) {
-        createTeam(NamedTextColor.RED, "Красные", map.getBases().getFirst(), pointManager.getPoints().getFirst());
-        createTeam(NamedTextColor.BLUE, "Синие", map.getBases().get(1), pointManager.getPoints().getLast());
+        createTeam(NamedTextColor.RED, "Красные", map.getSpawns().getFirst(), pointManager.getPoints().getFirst());
+        createTeam(NamedTextColor.BLUE, "Синие", map.getSpawns().get(1), pointManager.getPoints().getLast());
     }
 
-    private void createTeam(NamedTextColor color, String name, TeamBase base, Point firstPoint) {
-        GameTeam gameTeam = new GameTeam(color, name, base);
+    private void createTeam(NamedTextColor color, String name, Location spawn, Point firstPoint) {
+        GameTeam gameTeam = new GameTeam(color, name, spawn);
         gameTeam.register(game.getUiManager().getScoreboard());
         gameTeam.setFirstPoint(firstPoint);
         teams.add(gameTeam);

@@ -1,5 +1,6 @@
 package me.harpervenom.hotspot.game;
 
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import me.harpervenom.hotspot.game.team.TeamManager;
 import net.kyori.adventure.text.format.NamedTextColor;

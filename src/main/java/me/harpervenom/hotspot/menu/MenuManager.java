@@ -1,6 +1,7 @@
 package me.harpervenom.hotspot.menu;
 
 import me.harpervenom.hotspot.game.*;
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.lobby.LobbyListener;
 import me.harpervenom.hotspot.menu.components.Button;
 import me.harpervenom.hotspot.menu.components.Window;

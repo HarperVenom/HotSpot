@@ -1,11 +1,11 @@
-package me.harpervenom.hotspot.game;
+package me.harpervenom.hotspot.game.profile;
 
 import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.UUID;
+import java.util.*;
 
 import static me.harpervenom.hotspot.utils.Utils.text;
 
@@ -15,8 +15,22 @@ public class GameProfile {
     private GameTeam gameTeam;
     private boolean isConnected = true;
 
+    private final UpgradesManager upgradesManager;
+    private final EconomyManager economyManager;
+    private final EquipmentManager equipmentManager;
+    private final LootManager lootManager;
+
     public GameProfile(Player player) {
         this.playerId = player.getUniqueId();
+        upgradesManager = new UpgradesManager(this);
+        economyManager = new EconomyManager(this);
+        equipmentManager = new EquipmentManager(this);
+        lootManager = new LootManager(this);
+        reset();
+    }
+
+    public void reset() {
+        lootManager.reset();
     }
 
     public void setTeam(GameTeam gameTeam) {
@@ -37,7 +51,17 @@ public class GameProfile {
     public Component getName() {
         return text(getPlayer().getName(), gameTeam.getColor());
     }
-//    public Component getName() {
-//        return text(gamePlayer.getPlayer().getName(), gameTeam.getColor());
-//    }
+
+    public UpgradesManager getUpgradesManager() {
+        return upgradesManager;
+    }
+    public EconomyManager getEconomyManager() {
+        return economyManager;
+    }
+    public EquipmentManager getEquipmentManager() {
+        return equipmentManager;
+    }
+    public LootManager getLootManager() {
+        return lootManager;
+    }
 }

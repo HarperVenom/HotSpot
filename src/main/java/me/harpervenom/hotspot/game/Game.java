@@ -1,5 +1,6 @@
 package me.harpervenom.hotspot.game;
 
+import me.harpervenom.hotspot.game.trader.TraderManager;
 import me.harpervenom.hotspot.game.vault.VaultManager;
 import me.harpervenom.hotspot.game.map.GameMap;
 import me.harpervenom.hotspot.game.point.PointManager;
@@ -21,7 +22,6 @@ public class Game {
     private final GameManager gameManager;
     private final GameQueue queue;
     private final GameSettings settings;
-//    private final GameDeathHandler deathHandler;
 
     private GameMap map;
     private BukkitTask gameTask;
@@ -35,6 +35,7 @@ public class Game {
     private final ScoreManager scoreManager;
     private final TeamManager teamManager;
     private final PlayerManager playerManager;
+    private TraderManager traderManager;
 
     private final GameDeathHandler deathHandler;
 
@@ -44,7 +45,6 @@ public class Game {
         this.gameManager = gameManager;
         this.queue = queue;
         this.settings = queue.getSettings();
-//        this.deathHandler = new GameDeathHandler(this);
 
         scoreManager = new ScoreManager(this);
         uiManager = new UIManager(this);
@@ -60,6 +60,9 @@ public class Game {
 
         vaultManager = new VaultManager(this);
         vaultManager.setup();
+
+        traderManager = new TraderManager(this);
+        traderManager.setup();
 
         teamManager.createTeams(map, pointManager);
     }
@@ -179,6 +182,9 @@ public class Game {
     }
     public VaultManager getVaultManager() {
         return vaultManager;
+    }
+    public TraderManager getTraderManager() {
+        return traderManager;
     }
     public UIManager getUiManager() {
         return uiManager;

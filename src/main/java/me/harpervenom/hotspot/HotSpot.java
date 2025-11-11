@@ -6,6 +6,7 @@ import me.harpervenom.hotspot.game.GameEventListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
 import me.harpervenom.hotspot.game.listeners.DeathListener;
+import me.harpervenom.hotspot.game.trader.TraderListener;
 import me.harpervenom.hotspot.game.vault.VaultListener;
 import me.harpervenom.hotspot.game.point.PointListener;
 import me.harpervenom.hotspot.lobby.LobbyEventListener;
@@ -53,6 +54,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new GameEventListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PointListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new VaultListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new TraderListener(gameManager), this);
 
         getServer().getPluginManager().registerEvents(new DeathListener(gameManager), this);
 

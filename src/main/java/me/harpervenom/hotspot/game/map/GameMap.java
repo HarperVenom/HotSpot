@@ -2,12 +2,10 @@ package me.harpervenom.hotspot.game.map;
 
 import me.harpervenom.hotspot.game.vault.Vault;
 import me.harpervenom.hotspot.game.point.Point;
-import me.harpervenom.hotspot.game.team.GameTrader;
-import me.harpervenom.hotspot.game.team.TeamBase;
+import me.harpervenom.hotspot.game.trader.Trader;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,8 +19,7 @@ public class GameMap {
     private final World world;
 
     private final List<Location> spawns;
-    private final List<TeamBase> bases;
-
+    private final List<Trader> traders;
     private final List<Point> points;
     private final List<Vault> vaults;
 
@@ -40,16 +37,9 @@ public class GameMap {
                 .map(loc -> new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0))
                 .toList();
 
-        List<GameTrader> traders = mapData.getTraders().stream()
-                .map(loc -> new GameTrader(new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0)))
+        traders = mapData.getTraders().stream()
+                .map(loc -> new Trader(new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0)))
                 .toList();
-
-        this.bases = new ArrayList<>();
-        for (int i = 0; i < spawns.size(); i++) {
-            Location spawn = spawns.get(i);
-            GameTrader trader = i < traders.size() ? traders.get(i) : null;
-            bases.add(new TeamBase(spawn, trader));
-        }
 
         points = mapData.getMonuments().stream()
                 .map(loc -> new Point(new Location(world, loc.x, loc.y, loc.z), this))
@@ -97,13 +87,15 @@ public class GameMap {
     public World getWorld() {
         return world;
     }
-    public List<TeamBase> getBases() {
-        return bases;
+    public List<Location> getSpawns() {
+        return spawns;
+    }
+    public List<Trader> getTraders() {
+        return traders;
     }
     public List<Point> getPoints() {
         return points;
     }
-
     public List<Vault> getVaults() {
         return vaults;
     }
