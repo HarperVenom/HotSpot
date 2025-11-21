@@ -5,7 +5,7 @@ import me.harpervenom.hotspot.commands.LobbyCommand;
 import me.harpervenom.hotspot.game.GameEventListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
-import me.harpervenom.hotspot.game.listeners.DeathListener;
+import me.harpervenom.hotspot.game.listeners.*;
 import me.harpervenom.hotspot.game.trader.TraderListener;
 import me.harpervenom.hotspot.game.vault.VaultListener;
 import me.harpervenom.hotspot.game.point.PointListener;
@@ -49,7 +49,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
 
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new LobbyEventListener(lobbyManager), this);
-        getServer().getPluginManager().registerEvents(new MenuEventListener(menuManager), this);
+        getServer().getPluginManager().registerEvents(new MenuEventListener(menuManager, lobbyManager), this);
         getServer().getPluginManager().registerEvents(new QueueEventListener(queueManager), this);
         getServer().getPluginManager().registerEvents(new GameEventListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PointListener(gameManager), this);
@@ -57,6 +57,10 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new TraderListener(gameManager), this);
 
         getServer().getPluginManager().registerEvents(new DeathListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new MapListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new DamageListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new ExplosionListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new GeneralListener(), this);
 
         getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
 
@@ -65,6 +69,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
         LobbyCommand lobbyCommand = new LobbyCommand(lobbyManager);
         getCommand("lobby").setExecutor(lobbyCommand);
         getCommand("spawn").setExecutor(lobbyCommand);
+
     }
 
     @Override

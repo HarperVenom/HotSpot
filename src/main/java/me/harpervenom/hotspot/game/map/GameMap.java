@@ -50,7 +50,7 @@ public class GameMap {
                 .collect(Collectors.toList());
     }
 
-    public boolean isBlockProtected(Block b) {
+    public boolean canPlace(Block b) {
         Location blockLoc = b.getLocation();
 
         for (Location spawn : spawns) {
@@ -58,19 +58,19 @@ public class GameMap {
 
             if (Math.abs(spawn.getX() - blockLoc.getX()) <= 1 &&
                     Math.abs(spawn.getZ() - blockLoc.getZ()) <= 1) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
+    }
+
+    public boolean canBrake(Block b) {
+        if (b.getType().getHardness() == 0.0) return true;
+        return blocks.contains(b);
     }
 
     public void addBlock(Block b) {
         blocks.add(b);
-    }
-
-    public boolean isBreakable(Block b) {
-        if (b.getType().getHardness() == 0.0) return true;
-        return blocks.contains(b);
     }
 
     public void removeBlock(Block b) {

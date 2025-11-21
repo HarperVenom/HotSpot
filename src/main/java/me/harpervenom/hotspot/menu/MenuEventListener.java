@@ -1,5 +1,6 @@
 package me.harpervenom.hotspot.menu;
 
+import me.harpervenom.hotspot.lobby.LobbyManager;
 import me.harpervenom.hotspot.menu.components.Window;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -19,16 +20,20 @@ import static me.harpervenom.hotspot.menu.components.Window.openedWindow;
 public class MenuEventListener implements Listener {
 
     private final MenuManager manager;
+    private final LobbyManager lobbyManager;
 
     private final List<Player> justClicked = new ArrayList<>();
 
-    public MenuEventListener(MenuManager manager) {
+    public MenuEventListener(MenuManager manager, LobbyManager lobbyManager) {
         this.manager = manager;
+        this.lobbyManager = lobbyManager;
     }
 
     @EventHandler
     public void onButtonInteract(PlayerInteractEvent e) {
         Player player = e.getPlayer();
+
+        if (!lobbyManager.isLobby(player.getWorld())) return;
 
         if (!e.getAction().isRightClick() || e.getHand() != EquipmentSlot.HAND) return;
 

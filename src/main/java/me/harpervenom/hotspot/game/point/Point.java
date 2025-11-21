@@ -13,8 +13,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Transformation;
 
+import java.util.List;
+
 import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.utils.Utils.text;
+import static me.harpervenom.hotspot.utils.Utils.toBukkitColor;
 
 public class Point {
 
@@ -48,8 +51,9 @@ public class Point {
 //        Bukkit.getScheduler().runTaskLater(plugin, () -> {
 //            hologram.setCustomNameVisible(false);
 //        }, 30 * 20);
-
         update();
+
+        spawnDisplay();
     }
 
     public void update() {
@@ -63,7 +67,7 @@ public class Point {
 
         block.setType(material);
 
-//        updateDisplay();
+//        spawnDisplay();
 
 //        if (team == null) {
 //            updateHologram(text("Сломай блок", NamedTextColor.WHITE));
@@ -71,7 +75,7 @@ public class Point {
 //            hologram.setCustomNameVisible(false);
 //        }
 
-//        spawnDustParticles(block, team == null ? Color.WHITE : toBukkitColor(team.getColor()));
+        spawnDustParticles(block, team == null ? Color.WHITE : toBukkitColor(team.getColor()));
     }
 
     public void setTeam(GameTeam team) {
@@ -123,7 +127,7 @@ public class Point {
 //        }
 //    }
 
-    private void updateDisplay() {
+    private void spawnDisplay() {
         if (display != null) display.remove();
 
         display = block.getWorld().spawn(
@@ -142,8 +146,6 @@ public class Point {
                 }
         );
         display.setGlowing(true);
-
-//        map.updateMonumentsDisplay();
     }
 
     private void spawnHologram() {
@@ -220,21 +222,21 @@ public class Point {
                 );
 
                 // Column
-                for (int i = 0; i <= 10; i++) {
-                    Location columnLoc = baseLocation.clone().add(0, i * 1.2, 0); // every 1.5 blocks up
-
-                    float size = 7f - (i * 0.5f); // decrease size by 0.5 each step
-                    if (size < 1f) size = 1f;     // don't let it go below 1 (minimum visible size)
-
-                    block.getWorld().spawnParticle(
-                            Particle.DUST,
-                            columnLoc,
-                            1, // 1 particle per spot
-                            0, 0, 0, 0,
-                            new Particle.DustOptions(color, size),
-                            true
-                    );
-                }
+//                for (int i = 0; i <= 10; i++) {
+//                    Location columnLoc = baseLocation.clone().add(0, i * 1.2, 0); // every 1.5 blocks up
+//
+//                    float size = 7f - (i * 0.5f); // decrease size by 0.5 each step
+//                    if (size < 1f) size = 1f;     // don't let it go below 1 (minimum visible size)
+//
+//                    block.getWorld().spawnParticle(
+//                            Particle.DUST,
+//                            columnLoc,
+//                            1, // 1 particle per spot
+//                            0, 0, 0, 0,
+//                            new Particle.DustOptions(color, size),
+//                            true
+//                    );
+//                }
             }
         };
 
@@ -286,16 +288,15 @@ public class Point {
         }.runTaskTimer(plugin, 0L, 10L);
     }
 
-//    public void highlightForPlayer(Player player, boolean on) {
-//        GamePlayer p = GamePlayer.getGamePlayer(player);
-//        GameTeam playerTeam = p.getTeam();
-//
-//        if (player.getGameMode() == GameMode.SURVIVAL && (team == null || !team.equals(playerTeam)) && on) {
-//            player.showEntity(plugin, display);
-//        } else {
-//            player.hideEntity(plugin, display);
-//        }
-//    }
+    public void setViewers(List<Player> players) {
+        for (Player player : block.getWorld().getPlayers()) {
+            player.hideEntity(plugin, display);
+        }
+
+        for (Player player : players) {
+            player.showEntity(plugin, display);
+        }
+    }
 
     public void remove() {
         if (particleTask != null) {

@@ -5,8 +5,9 @@ import me.harpervenom.hotspot.game.vault.VaultManager;
 import me.harpervenom.hotspot.game.map.GameMap;
 import me.harpervenom.hotspot.game.point.PointManager;
 import me.harpervenom.hotspot.game.team.GameTeam;
-import me.harpervenom.hotspot.game.team.TeamManager;
+import me.harpervenom.hotspot.game.team.GameTeamManager;
 import me.harpervenom.hotspot.queue.GameQueue;
+import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -33,23 +34,28 @@ public class Game {
     private PointManager pointManager;
     private VaultManager vaultManager;
     private final ScoreManager scoreManager;
-    private final TeamManager teamManager;
+    private final GameTeamManager teamManager;
     private final PlayerManager playerManager;
     private TraderManager traderManager;
+    private DamageManager damageManager;
 
     private final GameDeathHandler deathHandler;
 
     private BukkitTask endTask;
 
+    private final UUID ownerId;
+
     public Game(GameManager gameManager, GameQueue queue) {
         this.gameManager = gameManager;
         this.queue = queue;
         this.settings = queue.getSettings();
+        this.ownerId = queue.getOwner() == null ? null : queue.getOwner().getUniqueId();
 
         scoreManager = new ScoreManager(this);
         uiManager = new UIManager(this);
-        teamManager = new TeamManager(this);
+        teamManager = new GameTeamManager(this);
         playerManager = new PlayerManager(this);
+        damageManager = new DamageManager(this);
 
         deathHandler = new GameDeathHandler(this);
     }
@@ -64,7 +70,11 @@ public class Game {
         traderManager = new TraderManager(this);
         traderManager.setup();
 
-        teamManager.createTeams(map, pointManager);
+        if (queue.getOrganizer() instanceof TeamQueueOrganizer teamQueueOrganizer) {
+            teamManager.createTeams(map, pointManager, teamQueueOrganizer.getTeamManager().getTeams());
+        } else {
+            teamManager.createTeams(map, pointManager, null);
+        }
     }
 
     public void start() {
@@ -72,9 +82,18 @@ public class Game {
 
         gameTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tickSecond, 0L, 1);
 
+        if (ownerId != null) {
+            Player owner = Bukkit.getPlayer(ownerId);
+            if (owner != null && playerManager.getTeam(owner) == null) {
+             playerManager.connectSpectator(owner);
+            }
+        }
+
         for (GameTeam team : teamManager.getTeams()) {
             team.spawnAll();
         }
+
+        pointManager.updateDisplay();
 
         sendActionBarMessage(text(""), getPlayers());
         updateScoreBoardViewers();
@@ -91,6 +110,7 @@ public class Game {
     public void connect(Player player) {
         playerManager.connect(player);
         gameManager.updateGames();
+        pointManager.updateDisplay();
     }
 
     public void disconnect(Player player) {
@@ -192,7 +212,7 @@ public class Game {
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
-    public TeamManager getTeamManager() {
+    public GameTeamManager getTeamManager() {
         return teamManager;
     }
     public ScoreManager getScoreManager() {
@@ -201,11 +221,17 @@ public class Game {
     public GameDeathHandler getDeathHandler() {
         return deathHandler;
     }
+    public DamageManager getDamageManager() {
+        return damageManager;
+    }
     public int getElapsedTicks() {
         return elapsedTicks;
     }
     public GameSettings getSettings() {
         return settings;
+    }
+    public boolean hasEnded() {
+        return hasEnded;
     }
 }
 

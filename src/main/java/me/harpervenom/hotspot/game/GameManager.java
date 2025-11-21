@@ -33,16 +33,16 @@ public class GameManager implements GameListener, QueueListener {
         Game game = new Game(this, queue);
 
         mapManager.createMap(game).thenAccept(map -> {
-            Bukkit.broadcastMessage(map + "");
             if (map == null) return;
-            game.setMap(map);
-            game.setup();
 
             List<Player> players = queue.getPlayers();
             Collections.shuffle(players);
 
             Bukkit.getScheduler().runTask(plugin, () -> {
-                for (Player player : queue.getPlayers()) {
+                game.setMap(map);
+                game.setup();
+
+                for (Player player : players) {
                     game.connect(player);
                 }
 

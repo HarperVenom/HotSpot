@@ -110,7 +110,7 @@ public class LobbyEventListener implements Listener {
     }
 
     @EventHandler
-    public void onDialog(PlayerCustomClickEvent e) {
+    public void onDialog( PlayerCustomClickEvent e) {
         Bukkit.broadcastMessage("hey");
     }
 

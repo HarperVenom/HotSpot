@@ -9,13 +9,15 @@ public class GameSettings {
     private final Component name;
     private final Material queueMaterial, gameMaterial;
     private MapData mapData;
-    private int maxPlayers;
+    private final int maxPlayers;
+    private final boolean isCustomTeams;
 
-    public GameSettings(Component name, Material queueMaterial, Material gameMaterial, int maxPlayers) {
+    public GameSettings(Component name, Material queueMaterial, Material gameMaterial, int maxPlayers, boolean isCustomTeams) {
         this.name = name;
         this.queueMaterial = queueMaterial;
         this.gameMaterial = gameMaterial;
         this.maxPlayers = maxPlayers;
+        this.isCustomTeams = isCustomTeams;
     }
 
     public Component getName() {
@@ -29,5 +31,8 @@ public class GameSettings {
     }
     public int getMaxPlayers() {
         return maxPlayers;
+    }
+    public boolean isCustom() {
+        return isCustomTeams;
     }
 }

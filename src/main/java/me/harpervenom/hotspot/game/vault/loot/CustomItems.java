@@ -1,5 +1,9 @@
 package me.harpervenom.hotspot.game.vault.loot;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -114,6 +118,10 @@ public class CustomItems {
 
         pillarRelic = createItemStack(Material.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE, text("Реликвия Вознесения", TextColor.color(120, 95, 70)), null);
         addLoreLine(pillarRelic, text("Поднимает под тобой столб грязи"));
+        pillarRelic.setData(DataComponentTypes.TOOLTIP_DISPLAY,
+                TooltipDisplay.tooltipDisplay().addHiddenComponents(DataComponentTypes.RECIPES)
+                        .addHiddenComponents(DataComponentTypes.TRIM)
+                        .addHiddenComponents(DataComponentTypes.LORE).build());
 
         reflectionRelic = createItemStack(Material.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, text("Реликвия Отражения", NamedTextColor.DARK_PURPLE), null);
         addLoreLine(reflectionRelic, text("Откидывает игрока который наносит тебе урон,"));
@@ -140,17 +148,22 @@ public class CustomItems {
                 text("Т", NamedTextColor.RED).append(text("N")).append(text("Т", NamedTextColor.RED)),
                 null);
         setItemId(tnt, tntId);
+        tnt.setData(DataComponentTypes.CONSUMABLE,
+                Consumable.consumable().consumeSeconds(0)
+                        .animation(ItemUseAnimation.NONE)
+                        .hasConsumeParticles(false)
+                        .build());
 
         survivorJacket = new ItemStack(Material.LEATHER_CHESTPLATE);
         setItemId(survivorJacket, survivorJacketId);
         setCustomName(survivorJacket, text("Куртка Выжившего", NamedTextColor.RED));
-        addLoreLine(survivorJacket, text("Дает дополнительные ").append(text("+2❤", NamedTextColor.RED)));
+        addLoreLine(survivorJacket, text("Дает дополнительные ").append(text("+3❤", NamedTextColor.RED)));
         addLoreLine(survivorJacket, text("Регенерация I"));
         LeatherArmorMeta jacketMeta = (LeatherArmorMeta) survivorJacket.getItemMeta();
         if (jacketMeta != null) {
             jacketMeta.setColor(Color.fromARGB(255, 43, 22, 14));
 
-            addAttributeModifier(jacketMeta, "max_health", Attribute.MAX_HEALTH, 4.0,
+            addAttributeModifier(jacketMeta, "max_health", Attribute.MAX_HEALTH, 6.0,
                     AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.CHEST);
             addAttributeModifier(jacketMeta, "armor", Attribute.ARMOR, 3.0,
                     AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.CHEST);
@@ -191,7 +204,7 @@ public class CustomItems {
         addLoreLine(ironPlate, text("При получении урона от врага - вам Спешка II на " + ironPlateDuration + " сек."));
         addLoreLine(ironPlate, text("и Утомление I врагу на " + ironPlateDurationNegative + " сек."));
         addLoreLine(ironPlate, text("Перезарядка " + ironPlateCooldown + " сек."));
-        applyArmorTrim(ironPlate, TrimPattern.BOLT, TrimMaterial.QUARTZ);
+        applyArmorTrim(ironPlate, TrimPattern.BOLT, TrimMaterial.NETHERITE);
         hideArmorTrim(ironPlate);
 
         diamondPlate = new ItemStack(Material.DIAMOND_CHESTPLATE);
@@ -293,8 +306,8 @@ public class CustomItems {
         hideTooltip(hastePotion);
 
         fallingPotion = createPotion(false, false,
-                new PotionEffect(PotionEffectType.SLOW_FALLING, 60*20, 0),
-                text("Медленное Падение (1:00)", color));
+                new PotionEffect(PotionEffectType.SLOW_FALLING, 45*20, 0),
+                text("Медленное Падение (0:45)", color));
         hideTooltip(fallingPotion);
 
         fireResistancePotion = createPotion(true, false,

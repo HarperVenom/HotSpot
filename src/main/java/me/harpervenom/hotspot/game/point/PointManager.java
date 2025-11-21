@@ -4,6 +4,7 @@ import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
@@ -57,6 +58,7 @@ public class PointManager {
             case SUCCESS -> {
                 point.setTeam(team);
                 game.getUiManager().update();
+                updateDisplay();
             }
         }
     }
@@ -110,6 +112,20 @@ public class PointManager {
         }
 
         return line;
+    }
+
+    public void updateDisplay() {
+        for (Point point : points) {
+            List<Player> viewers = new ArrayList<>();
+
+            for (GameTeam team : game.getTeamManager().getTeams()) {
+                CaptureResult result = checkCapture(point, team);
+                if (result == CaptureResult.SUCCESS) {
+                    viewers.addAll(team.getPlayers());
+                }
+            }
+            point.setViewers(viewers);
+        }
     }
 
     public void remove() {

@@ -1,6 +1,7 @@
 package me.harpervenom.hotspot.game.profile;
 
 import me.harpervenom.hotspot.game.team.GameTeam;
+import me.harpervenom.hotspot.game.trader.TradeType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,6 +27,9 @@ public class GameProfile {
         economyManager = new EconomyManager(this);
         equipmentManager = new EquipmentManager(this);
         lootManager = new LootManager(this);
+
+        upgradesManager.setLevel(TradeType.PICKAXE, 1);
+
         reset();
     }
 

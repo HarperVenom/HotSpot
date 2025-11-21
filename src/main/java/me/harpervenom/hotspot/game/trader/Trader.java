@@ -26,6 +26,7 @@ public class Trader {
         if (villager == null && location.getWorld() != null) {
             villager = (Villager) location.getWorld().spawnEntity(location, EntityType.VILLAGER);
             villager.setAI(false);
+            villager.setSilent(true);
             villager.setInvulnerable(true);
             villager.customName(text("Магазин", TextColor.color(77, 230, 46)));
             villager.setCustomNameVisible(true);

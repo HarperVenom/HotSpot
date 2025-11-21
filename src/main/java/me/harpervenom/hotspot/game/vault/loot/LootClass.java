@@ -49,28 +49,28 @@ public enum LootClass {
 
         pool.addCategory(LootCategory.EQUIPMENT, 1);
         pool.addCategory(LootCategory.POTIONS, 0.2);
-        pool.addCategory(LootCategory.ARMOR_ENCHANTS, 0.1);
+        pool.addCategory(LootCategory.ARMOR_ENCHANTS, 0.05);
 
         if (!equipment.hasChest()) {
             pool.addCategory(LootCategory.CHESTPLATES, 1);
         }
 
-        double baseEnchantsWeight = 0.3;
+        double baseEnchantsWeight = 0.2;
         // weapon-specific
         switch (this) {
             case SWORD -> pool.addCategory(LootCategory.SWORD_ENCHANTS, baseEnchantsWeight);
             case AXE -> pool.addCategory(LootCategory.AXE_ENCHANT, baseEnchantsWeight);
             case TRIDENT -> {
-                pool.addCategory(LootCategory.TRIDENT, 0.1);
+                pool.addCategory(LootCategory.TRIDENT, 0.05);
                 pool.addCategory(LootCategory.TRIDENT_ENCHANTS, baseEnchantsWeight);
             }
             case TRIDENT_RIPTIDE -> {
-                pool.addCategory(LootCategory.TRIDENT, 0.1);
+                pool.addCategory(LootCategory.TRIDENT, 0.05);
                 pool.addCategory(LootCategory.TRIDENT_RIPTIDE, 0.1);
                 pool.addCategory(LootCategory.TRIDENT_RIPTIDE_ENCHANTS, baseEnchantsWeight);
             }
             case MACE -> {
-                pool.addCategory(LootCategory.MACE, 0.5);
+                pool.addCategory(LootCategory.MACE, 0.2);
                 pool.addCategory(LootCategory.MACE_ENCHANTS, baseEnchantsWeight);
             }
             case BOW -> {

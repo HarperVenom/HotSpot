@@ -4,6 +4,7 @@ import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.point.Point;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -76,6 +77,7 @@ public class GameTeam {
         if (reset) {
             player.setSaturation(20);
             player.setFoodLevel(20);
+            player.getInventory().clear();
             profiles.get(player.getUniqueId()).getEquipmentManager().giveItems();
         }
     }
@@ -112,9 +114,7 @@ public class GameTeam {
         return switch (color.toString().toUpperCase()) {
             case "RED" -> Material.RED_CONCRETE;
             case "BLUE" -> Material.BLUE_CONCRETE;
-            case "GREEN" -> Material.LIME_CONCRETE;
-            case "YELLOW" -> Material.YELLOW_CONCRETE;
-            default -> Material.WHITE_CONCRETE; // Default fallback
+            default -> Material.WHITE_CONCRETE;
         };
     }
 }

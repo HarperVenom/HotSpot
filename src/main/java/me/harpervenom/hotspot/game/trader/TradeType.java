@@ -1,13 +1,17 @@
 package me.harpervenom.hotspot.game.trader;
 
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import me.harpervenom.hotspot.game.profile.GameProfile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,10 +20,10 @@ import java.util.List;
 import static me.harpervenom.hotspot.utils.Utils.*;
 
 public enum TradeType {
-    PICKAXE("pickaxe", 30, 1.5, null, false, Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE),
-    LEGGINGS("leggings", 15, 1.5, EquipmentSlot.LEGS, false, Material.LEATHER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS),
-    HELMET("helmet", 10, 1.5, EquipmentSlot.HEAD, false, Material.LEATHER_HELMET,  Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET),
-    BOOTS("boots", 10, 1.5, EquipmentSlot.FEET, false, Material.LEATHER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS),
+    PICKAXE("pickaxe", 30, 1.5, null, false, Material.WOODEN_PICKAXE, Material.COPPER_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE),
+    LEGGINGS("leggings", 15, 1.5, EquipmentSlot.LEGS, false, Material.LEATHER_LEGGINGS, Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS),
+    HELMET("helmet", 10, 1.5, EquipmentSlot.HEAD, false, Material.LEATHER_HELMET, Material.COPPER_HELMET, Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET),
+    BOOTS("boots", 10, 1.5, EquipmentSlot.FEET, false, Material.LEATHER_BOOTS, Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS),
 
     FOOD("food", 3, 0, null, true, Material.COOKED_BEEF),
     BLOCKS("blocks", 3, 0, null, true, Material.ROOTED_DIRT);
@@ -46,7 +50,7 @@ public enum TradeType {
         this.armorSlot = armorSlot;
         this.quantitative = quantitative;
 
-        List<Component> lore = List.of(text("Начальный предмет", NamedTextColor.GRAY));
+        List<Component> lore = List.of(text("Остается после смерти", NamedTextColor.GRAY));
         this.items = Arrays.stream(materials).map(m -> createItem(m, lore)).toArray(ItemStack[]::new);
 
         if (quantitative) {
@@ -67,9 +71,16 @@ public enum TradeType {
 
         ItemStack shopItemStack;
 
-        if (lvl == getMaxLevel()) return maxLevelItem;
+//        if (lvl == getMaxLevel()) return maxLevelItem;
 
-        shopItemStack = items[lvl].clone();
+        shopItemStack = items[Math.max(0, lvl - 1)].clone();
+
+        if (lvl == 0 && shopItemStack.getItemMeta() instanceof LeatherArmorMeta meta) {
+            meta.setColor(Color.fromRGB(168, 168, 168)); // gray
+            shopItemStack.setItemMeta(meta);
+            shopItemStack.setData(DataComponentTypes.TOOLTIP_DISPLAY,
+                    TooltipDisplay.tooltipDisplay().addHiddenComponents(DataComponentTypes.DYED_COLOR).build());
+        }
 
         addLoreLine(shopItemStack, text("Уровень: " + profile.getUpgradesManager().getTradeLevel(this), NamedTextColor.YELLOW));
         addLoreLine(shopItemStack, getPriceLine(profile));
@@ -111,7 +122,7 @@ public enum TradeType {
         if (isMaxLevel(profile)) return false;
         boolean successful = profile.getEconomyManager().takePayment(getCurrentPrice(profile));
         if (!successful) return false;
-        profile.getUpgradesManager().increaseTradeLevel(this);
+        profile.getUpgradesManager().increaseLevel(this);
         return true;
     }
 

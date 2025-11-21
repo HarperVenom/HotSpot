@@ -57,19 +57,19 @@ public class Loot {
         equipment = List.of(
                 LootEntry.makeItemEntry(Material.SHIELD, 1, 1, 0.05),
 
-                LootEntry.makeItemEntry(mudBomb, 2),
+                LootEntry.makeItemEntry(mudBomb, 1),
                 LootEntry.makeItemEntry(pillarRelic, 1),
-                LootEntry.makeItemEntry(reflectionRelic, 0.5),
-                LootEntry.makeItemEntry(vacuumBomb, 0.6),
+                LootEntry.makeItemEntry(reflectionRelic, 0.8),
+                LootEntry.makeItemEntry(vacuumBomb, 0.8),
 
                 LootEntry.makeItemEntry(horseEgg, 1, 1, 0.02),
                 LootEntry.makeItemEntry(camelEgg, 1, 1, 0.01),
 
-                LootEntry.makeItemEntry(tnt, 1, 1, 0.1),
+                LootEntry.makeItemEntry(tnt, 1, 1, 110.1),
 
-                LootEntry.makeItemEntry(Material.WIND_CHARGE, 2, 4, 0.5),
+                LootEntry.makeItemEntry(Material.WIND_CHARGE, 2, 4, 0.8),
                 LootEntry.makeItemEntry(Material.ENDER_PEARL, 1, 1, 0.3),
-                LootEntry.makeItemEntry(Material.COAL_BLOCK, 4, 6, 0.6),
+                LootEntry.makeItemEntry(Material.COAL_BLOCK, 2, 4, 0.5),
                 LootEntry.makeItemEntry(Material.GOLDEN_APPLE, 1, 1, 0.5),
 
                 LootEntry.makeItemEntry(Material.ENCHANTED_GOLDEN_APPLE, 1, 1, 0.02),
@@ -144,7 +144,7 @@ public class Loot {
         int max = 5;
 
         arrows = List.of(
-                LootEntry.makeItemEntry(new ItemStack(Material.ARROW), 10, 12, 24),
+                LootEntry.makeItemEntry(new ItemStack(Material.ARROW), 8, 12, 24),
                 LootEntry.makeItemEntry(new ItemStack(Material.SPECTRAL_ARROW), 1, min, max),
                 LootEntry.makeItemEntry(slownessArrow, min, max, 1),
                 LootEntry.makeItemEntry(weaknessArrow, min, max, 1),

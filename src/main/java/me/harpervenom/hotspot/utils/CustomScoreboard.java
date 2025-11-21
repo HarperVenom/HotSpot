@@ -121,60 +121,6 @@ public class CustomScoreboard {
         return paddedPlain;
     }
 
-//    public void updateLines(List<Component> newLines) {
-//        this.lines = newLines;
-//
-//        spaceCount = 0;
-//
-//        // Update each line individually
-//        for (int i = 0; i < newLines.size(); i++) {
-//            updateLine(i, newLines.get(i));
-//        }
-//
-//        // Remove lines that are no longer present
-//        for (int i = newLines.size(); i < lineEntries.size(); i++) {
-//            String oldEntry = lineEntries.remove(i);
-//            if (oldEntry != null) scoreboard.resetScores(oldEntry);
-//        }
-//    }
-//
-//    private void updateLine(int position, Component line) {
-//        String plain = PlainTextComponentSerializer.plainText().serialize(line);
-//
-//        if (plain.isEmpty()) {
-//            plain = space();
-//        }
-//
-//        // Apply horizontal padding
-//        String paddedPlain = " ".repeat(padding) + plain + " ".repeat(padding);
-//        Component paddedLine = Component.text(" ".repeat(padding))
-//                .append(line)
-//                .append(Component.text(" ".repeat(padding)));
-//
-////        Bukkit.broadcastMessage(position + "");
-//
-//        String oldEntry = lineEntries.get(position);
-//        if (oldEntry != null && oldEntry.equals(paddedPlain)) {
-//            // Already same entry → skip
-////            Bukkit.broadcastMessage("same");
-//            return;
-//        }
-//
-////        Bukkit.broadcastMessage("changed");
-//
-//        // Remove old entry if present
-//        if (oldEntry != null) {
-//            scoreboard.resetScores(oldEntry);
-//        }
-//
-//        // Set new score
-//        Score score = objective.getScore(paddedPlain);
-//        score.customName(paddedLine);
-//        score.setScore(lines.size() - 1 - position);
-//
-//        lineEntries.put(position, paddedPlain);
-//    }
-
     private String space() {
         spaceCount++;
         return " ".repeat(spaceCount);

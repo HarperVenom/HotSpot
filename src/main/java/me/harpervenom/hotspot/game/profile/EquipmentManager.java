@@ -3,6 +3,7 @@ package me.harpervenom.hotspot.game.profile;
 import me.harpervenom.hotspot.game.trader.TradeType;
 import me.harpervenom.hotspot.game.vault.loot.LootClass;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -42,8 +43,9 @@ public class EquipmentManager {
         PlayerInventory inventory = player.getInventory();
 
         ItemStack pickaxe = getItem(TradeType.PICKAXE);
-
-        addLoreLine(pickaxe, text("*ШИФТ + ПКМ в руках телепортирует тебя на базу*"));
+        if (pickaxe.getItemMeta() != null) {
+            addLoreLine(pickaxe, text("*ШИФТ + ПКМ в руках телепортирует тебя на базу*"));
+        }
 
         inventory.setItem(1, pickaxe);
         inventory.setItem(2, new ItemStack(Material.COOKED_BEEF, 8));

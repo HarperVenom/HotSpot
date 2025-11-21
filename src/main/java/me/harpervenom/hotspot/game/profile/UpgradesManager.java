@@ -14,7 +14,11 @@ public class UpgradesManager {
         this.profile = profile;
     }
 
-    public void increaseTradeLevel(TradeType type) {
+    public void setLevel(TradeType type, int level) {
+        tradeLevels.put(type, level);
+    }
+
+    public void increaseLevel(TradeType type) {
         int currentLevel = getTradeLevel(type);
         if (currentLevel < type.getMaxLevel()) {
 
