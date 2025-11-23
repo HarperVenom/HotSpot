@@ -12,7 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -33,74 +32,61 @@ public class ExplosionListener implements Listener {
 
     static HashMap<UUID, Player> explosions = new HashMap<>();
 
-//    public static final Set<UUID> cooldown = new HashSet<>();
-
-//    public static void cooldown(Player player) {
-//        if (cooldown.contains(player.getUniqueId())) return;
-//        cooldown.add(player.getUniqueId());
-//        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-//            cooldown.remove(player.getUniqueId());
-//        }, 5);
-//    }
-
     @EventHandler
-    public void onConsume(PlayerItemConsumeEvent e) {
-    }
+    public void onTNTInteract(PlayerInteractEvent e) {
+        Player player = e.getPlayer();
+        Action action = e.getAction();
 
-//    @EventHandler
-//    public void onTNTInteract(PlayerInteractEvent e) {
-//        Player player = e.getPlayer();
-//        Action action = e.getAction();
-//
-//        ItemStack item = e.getItem();
-//
-//        if (!tntId.equals(getItemId(item))) return;
-////        if (isOnCooldown(player)) return;
-//
-//        if (action == Action.RIGHT_CLICK_BLOCK && canPlaceOn(e.getClickedBlock())) {
-//            return;
-//        }
-//        // Only act on left-clicks (air or block)
-//        if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) return;
-//
-//        e.setCancelled(true);
-//
-//        item.setAmount(item.getAmount() - 1);
-//
-//        Location initialPlayerLocation = player.getLocation();
-//
-//        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-//            Location newPlayerLocation = player.getLocation();
-//
-//            Vector movementVector = newPlayerLocation.toVector().subtract(initialPlayerLocation.toVector()).multiply(0.5);
-//            Vector direction = player.getLocation().getDirection().normalize();
-//
-//            Location tntLoc = player.getEyeLocation().add(direction.clone().multiply(0.5));
-//            TNTPrimed tnt = player.getWorld().spawn(tntLoc, TNTPrimed.class);
-//            tnt.setFuseTicks(50);
-//
-//            // Add player's movement vector to forward throw direction
-//            Vector tntVelocity = direction.multiply(0.15).add(movementVector);
-//            tnt.setVelocity(tntVelocity);
-//
-//            tnt.getWorld().playSound(tntLoc, Sound.ENTITY_TNT_PRIMED, 1, 1);
-//            player.swingMainHand();
-//
-//            explosions.put(tnt.getUniqueId(), player);
-//
-//            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-//                explosions.remove(tnt.getUniqueId());
-//            }, 80);
-//        }, 1);
-//    }
+        ItemStack item = e.getItem();
+
+        if (!tntId.equals(getItemId(item))) return;
+
+        e.setCancelled(true);
+
+        if (action == Action.RIGHT_CLICK_BLOCK && canPlaceOn(e.getClickedBlock())) {
+            return;
+        }
+        // Only act on left-clicks (air or block)
+        if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) return;
+
+        if (player.hasCooldown(item.getType())) return;
+        item.setAmount(item.getAmount() - 1);
+        player.setCooldown(item.getType(), 15);
+
+        Location initialPlayerLocation = player.getLocation();
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Location newPlayerLocation = player.getLocation();
+
+            Vector movementVector = newPlayerLocation.toVector().subtract(initialPlayerLocation.toVector()).multiply(0.5);
+            Vector direction = player.getLocation().getDirection().normalize();
+
+            Location tntLoc = player.getEyeLocation().add(direction.clone().multiply(0.5));
+            TNTPrimed tnt = player.getWorld().spawn(tntLoc, TNTPrimed.class);
+            tnt.setFuseTicks(50);
+
+            // Add player's movement vector to forward throw direction
+            Vector tntVelocity = direction.multiply(0.15).add(movementVector);
+            tnt.setVelocity(tntVelocity);
+
+            tnt.getWorld().playSound(tntLoc, Sound.ENTITY_TNT_PRIMED, 1, 1);
+            player.swingMainHand();
+
+            explosions.put(tnt.getUniqueId(), player);
+
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                explosions.remove(tnt.getUniqueId());
+            }, 80);
+        }, 1);
+    }
 
     private boolean canPlaceOn(Block clickedBlock) {
         if (clickedBlock == null) return false;
 
         // Example of placeable surfaces, you can expand this
         Material type = clickedBlock.getType();
-        return type.isSolid();
-//                && isInteractable(type);
+        return type.isSolid()
+                && isInteractable(type);
     }
 
     @EventHandler
@@ -113,7 +99,6 @@ public class ExplosionListener implements Listener {
 
     @EventHandler
     public void onExplosionDamage(EntityDamageByEntityEvent e) {
-        Bukkit.broadcastMessage("3");
         UUID tntId = e.getDamager().getUniqueId();
 
         if (explosions.containsKey(tntId)) {
@@ -137,15 +122,28 @@ public class ExplosionListener implements Listener {
         e.getEntity().setInvulnerable(true);
     }
 
+    public static boolean isInteractable(Material type) {
+        // Add any interactable blocks you want to allow here
+        return switch (type) {
+            case CHEST, TRAPPED_CHEST, BARREL,
+                 CRAFTING_TABLE, FURNACE, BLAST_FURNACE,
+                 ANVIL, ENDER_CHEST, ENCHANTING_TABLE,
+                 NOTE_BLOCK, LEVER, STONE_BUTTON, OAK_BUTTON,
+                 ACACIA_DOOR, BIRCH_DOOR, DARK_OAK_DOOR, IRON_DOOR,
+                 SPRUCE_DOOR, JUNGLE_DOOR, CRIMSON_DOOR, WARPED_DOOR,
+                 DISPENSER, DROPPER -> true;
+            default -> false;
+        };
+    }
 
-//    public static void createExplosion(Player player, float power) {
-//        explosions.put(player.getUniqueId(), player);
-//
-//        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-//            explosions.remove(player.getUniqueId());
-//        }, 80);
-//
-//        player.getWorld().createExplosion(player.getLocation(), power, false, false, player);
-//    }
+    public static void createExplosion(Player player, float power) {
+        explosions.put(player.getUniqueId(), player);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            explosions.remove(player.getUniqueId());
+        }, 80);
+
+        player.getWorld().createExplosion(player.getLocation(), power, true, false, player);
+    }
 }
 

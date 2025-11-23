@@ -2,8 +2,10 @@ package me.harpervenom.hotspot.game.vault.loot;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Consumable;
+import io.papermc.paper.datacomponent.item.Equippable;
 import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -29,7 +31,7 @@ import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class CustomItems {
 
-    private static String breakableKeyword = "breakable";
+    private final static String breakableKeyword = "breakable";
 
     public static ItemStack mudBomb;
     public static String mudBombId = "mudBomb";
@@ -54,7 +56,7 @@ public class CustomItems {
 
     public static ItemStack sunPlate;
     public static String sunPlateId = "sunPlate";
-    public static int sunPlateCooldown = 17;
+    public static int sunPlateCooldown = 20;
     public static double sunPlateAbsorption = 10;
 
     public static ItemStack explosionPlate;
@@ -88,14 +90,12 @@ public class CustomItems {
 
     public static ItemStack turboShovel;
 
-
-
     public static void createCustomItems() {
-        mudBomb = new ItemStack(Material.EGG);
+        mudBomb = new ItemStack(Material.BLUE_EGG);
         ItemMeta mudBombMeta = mudBomb.getItemMeta();
 
         if (mudBombMeta != null) {
-            mudBombMeta.displayName(text("Грязевая Бомба", NamedTextColor.DARK_PURPLE));
+            mudBombMeta.displayName(text("Глиняная Бомба", TextColor.color(161, 207, 230)));
             mudBomb.setItemMeta(mudBombMeta);
         }
         // id hard repeated in the listener
@@ -106,27 +106,27 @@ public class CustomItems {
         ItemMeta vacuumBombMeta = vacuumBomb.getItemMeta();
 
         if (vacuumBombMeta != null) {
-            vacuumBombMeta.displayName(text("Вакуумная Бомба", NamedTextColor.DARK_GRAY));
+            vacuumBombMeta.displayName(text("Вакуумная Бомба", TextColor.color(144, 128, 255)));
             vacuumBomb.setItemMeta(vacuumBombMeta);
         }
         // id hard repeated in the listener
         setItemId(vacuumBomb, vacuumBombId);
 
         // Relics
-        thunderRelic = createItemStack(Material.FLOW_ARMOR_TRIM_SMITHING_TEMPLATE, text("Реликвия Грома", NamedTextColor.BLUE), null);
-        addLoreLine(thunderRelic, text("Призывает грозовую погоду на " + thunderDuration + " секунд."));
+        thunderRelic = createItemStack(Material.LIGHT_BLUE_DYE, text("Шторм", TextColor.color(59, 157, 255)), null);
+        addLoreLine(thunderRelic, text("Призывает грозовую погоду на " + thunderDuration + " секунд"));
+        makeConsumable(thunderRelic);
 
-        pillarRelic = createItemStack(Material.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE, text("Реликвия Вознесения", TextColor.color(120, 95, 70)), null);
+        pillarRelic = createItemStack(Material.BROWN_DYE, text("Вознесение", TextColor.color(255, 166, 77)), null);
         addLoreLine(pillarRelic, text("Поднимает под тобой столб грязи"));
-        pillarRelic.setData(DataComponentTypes.TOOLTIP_DISPLAY,
-                TooltipDisplay.tooltipDisplay().addHiddenComponents(DataComponentTypes.RECIPES)
-                        .addHiddenComponents(DataComponentTypes.TRIM)
-                        .addHiddenComponents(DataComponentTypes.LORE).build());
+        makeConsumable(pillarRelic);
 
-        reflectionRelic = createItemStack(Material.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, text("Реликвия Отражения", NamedTextColor.DARK_PURPLE), null);
+        reflectionRelic = createItemStack(Material.PURPLE_DYE, text("Отражение", TextColor.color(
+                187, 51, 255
+        )), null);
         addLoreLine(reflectionRelic, text("Откидывает игрока который наносит тебе урон,"));
-        addLoreLine(reflectionRelic, text("если держать в руках."));
-
+        addLoreLine(reflectionRelic, text("если держать в руках"));
+//        makeConsumable(reflectionRelic);
 
         rocket = new ItemStack(Material.FIREWORK_ROCKET);
         FireworkMeta fireworkMeta = (FireworkMeta) rocket.getItemMeta();
@@ -144,20 +144,15 @@ public class CustomItems {
         fireworkMeta.addEffect(effect);
         rocket.setItemMeta(fireworkMeta);
 
-        tnt = createItemStack(Material.TNT_MINECART,
-                text("Т", NamedTextColor.RED).append(text("N")).append(text("Т", NamedTextColor.RED)),
-                null);
+        tnt = createItemStack(Material.TNT_MINECART, text("ТNT", NamedTextColor.RED), null);
         setItemId(tnt, tntId);
-        tnt.setData(DataComponentTypes.CONSUMABLE,
-                Consumable.consumable().consumeSeconds(0)
-                        .animation(ItemUseAnimation.NONE)
-                        .hasConsumeParticles(false)
-                        .build());
+        makeConsumable(tnt);
+        tnt.setData(DataComponentTypes.MAX_STACK_SIZE, 3);
 
         survivorJacket = new ItemStack(Material.LEATHER_CHESTPLATE);
         setItemId(survivorJacket, survivorJacketId);
         setCustomName(survivorJacket, text("Куртка Выжившего", NamedTextColor.RED));
-        addLoreLine(survivorJacket, text("Дает дополнительные ").append(text("+3❤", NamedTextColor.RED)));
+        addLoreLine(survivorJacket, text("+3❤", NamedTextColor.RED));
         addLoreLine(survivorJacket, text("Регенерация I"));
         LeatherArmorMeta jacketMeta = (LeatherArmorMeta) survivorJacket.getItemMeta();
         if (jacketMeta != null) {
@@ -176,23 +171,23 @@ public class CustomItems {
         sunPlate = new ItemStack(Material.GOLDEN_CHESTPLATE);
         setItemId(sunPlate, sunPlateId);
         setCustomName(sunPlate, text("Солнечный Нагрудник", NamedTextColor.YELLOW));
-        addLoreLine(sunPlate, text("При получении урона ").append(text("+5❤", NamedTextColor.YELLOW)));
+        addLoreLine(sunPlate, text("Получая урон: ").append(text("+5❤", NamedTextColor.YELLOW)));
         addLoreLine(sunPlate, text("Перезарядка " + sunPlateCooldown + " сек."));
         applyArmorTrim(sunPlate, TrimPattern.DUNE, TrimMaterial.GOLD);
         hideArmorTrim(sunPlate);
 
         explosionPlate = new ItemStack(Material.COPPER_CHESTPLATE);
         setItemId(explosionPlate, explosionPlateId);
-        setCustomName(explosionPlate, text("Взрывной Нагрудник", NamedTextColor.DARK_RED));
+        setCustomName(explosionPlate, text("Взрывной Нагрудник", TextColor.color(255, 85, 0)));
         addLoreLine(explosionPlate, text("Взрывается при смерти"));
-        addLoreLine(explosionPlate, text("Сила взрыва зависит от полученного урона"));
+        addLoreLine(explosionPlate, text("Получая урон сила взрыва увеличивается"));
         addLoreLine(explosionPlate, text("Заряд: 2", NamedTextColor.RED));
-        applyArmorTrim(explosionPlate, TrimPattern.FLOW, TrimMaterial.REDSTONE);
+        applyArmorTrim(explosionPlate, TrimPattern.FLOW, TrimMaterial.RESIN);
         hideArmorTrim(explosionPlate);
 
         chainPlate = new ItemStack(Material.CHAINMAIL_CHESTPLATE);
         setItemId(chainPlate, chainPlateId);
-        setCustomName(chainPlate, text("Кольчуга", TextColor.color(255, 120, 0)));
+        setCustomName(chainPlate, text("Кольчуга", TextColor.color(255, 149, 0)));
         addLoreLine(chainPlate, text("Поджигает атакующего на " + chainPlateDuration + " сек."));
         addLoreLine(chainPlate, text("Перезарядка " + chainPlateCooldown + " сек."));
         applyArmorTrim(chainPlate, TrimPattern.WARD, TrimMaterial.COPPER);
@@ -201,16 +196,16 @@ public class CustomItems {
         ironPlate = new ItemStack(Material.IRON_CHESTPLATE);
         setItemId(ironPlate, ironPlateId);
         setCustomName(ironPlate, text("Железный Нагрудник", TextColor.color(163, 227, 255)));
-        addLoreLine(ironPlate, text("При получении урона от врага - вам Спешка II на " + ironPlateDuration + " сек."));
-        addLoreLine(ironPlate, text("и Утомление I врагу на " + ironPlateDurationNegative + " сек."));
-        addLoreLine(ironPlate, text("Перезарядка " + ironPlateCooldown + " сек."));
+        addLoreLine(ironPlate, text("Получая урон от игрока: Спешка II на " + ironPlateDuration + " сек."));
+        addLoreLine(ironPlate, text("Врагу: Утомление I на " + ironPlateDurationNegative + " сек."));
+        addLoreLine(ironPlate, text("Перезарядка: " + ironPlateCooldown + " сек."));
         applyArmorTrim(ironPlate, TrimPattern.BOLT, TrimMaterial.NETHERITE);
         hideArmorTrim(ironPlate);
 
         diamondPlate = new ItemStack(Material.DIAMOND_CHESTPLATE);
         setItemId(diamondPlate, diamondPlateId);
         setCustomName(diamondPlate, text("Алмазный Нагрудник", TextColor.color(0, 255, 200)));
-        addLoreLine(diamondPlate, text("При получении урона от врага - Скорость III на " + diamondPlateDuration + " сек."));
+        addLoreLine(diamondPlate, text("Получая урон от игрока: Скорость III на " + diamondPlateDuration + " сек."));
         addLoreLine(diamondPlate, text("Перезарядка " + diamondPlateCooldown + " сек."));
         applyArmorTrim(diamondPlate, TrimPattern.RAISER, TrimMaterial.DIAMOND);
         hideArmorTrim(diamondPlate);
@@ -220,9 +215,10 @@ public class CustomItems {
         setCustomName(tankPlate, text("Танковый Нагрудник", NamedTextColor.LIGHT_PURPLE));
         addLoreLine(tankPlate, text("Урон -" + (damageReduction*100) + "%"));
         addLoreLine(tankPlate, text("Сопротивление II"));
+        addLoreLine(tankPlate, text("Увеличенная отдача от ударов"));
         addLoreLine(tankPlate, text("При здоровье ").append(text("<4❤", NamedTextColor.RED)).
-                append(text(" Сопротивление IV и Медлительность II")));
-        addLoreLine(tankPlate, text("Выпущеные снаряды оглушают врагов"));
+                append(text(": Сопротивление IV и Медлительность II")));
+        addLoreLine(tankPlate, text("Снаряды оглушают врагов"));
 
         applyArmorTrim(tankPlate, TrimPattern.SENTRY, TrimMaterial.NETHERITE);
         hideArmorTrim(tankPlate);
@@ -270,14 +266,14 @@ public class CustomItems {
     private static void createPotions() {
         // Positive
         NamedTextColor color = NamedTextColor.GREEN;
-        strengthPotion = createPotion(true, false,
-                new PotionEffect(PotionEffectType.STRENGTH, 45*20, 0),
-                text("Сила I (0:45)", color));
+        strengthPotion = createPotion(false, false,
+                new PotionEffect(PotionEffectType.STRENGTH, 30*20, 0),
+                text("Сила I (0:30)", color));
         hideTooltip(strengthPotion);
 
         speedPotion = createPotion(true, false,
-                new PotionEffect(PotionEffectType.SPEED, 60*20, 1),
-                text("Скорость II (1:00)", color));
+                new PotionEffect(PotionEffectType.SPEED, 45*20, 1),
+                text("Скорость II (0:45)", color));
         hideTooltip(speedPotion);
 
         resistancePotion = createPotion(true, false,
@@ -286,8 +282,8 @@ public class CustomItems {
         hideTooltip(resistancePotion);
 
         jumpPotion = createPotion(true, false,
-                new PotionEffect(PotionEffectType.JUMP_BOOST, 60*20, 1),
-                text("Прыгучесть II (1:00)", color));
+                new PotionEffect(PotionEffectType.JUMP_BOOST, 45*20, 1),
+                text("Прыгучесть II (0:45)", color));
         hideTooltip(jumpPotion);
 
         jump5Potion = createPotion(false, false,
@@ -301,8 +297,8 @@ public class CustomItems {
         hideTooltip(healingPotion);
 
         hastePotion = createPotion(true, false,
-                new PotionEffect(PotionEffectType.HASTE, 60*20, 0),
-                text("Спешка I (1:00)", color));
+                new PotionEffect(PotionEffectType.HASTE, 45*20, 0),
+                text("Спешка I (0:45)", color));
         hideTooltip(hastePotion);
 
         fallingPotion = createPotion(false, false,
@@ -478,5 +474,14 @@ public class CustomItems {
         meta.addItemFlags(ItemFlag.HIDE_ARMOR_TRIM);
         meta.addItemFlags(ItemFlag.HIDE_DYE);
         item.setItemMeta(meta);
+    }
+
+    public static void makeConsumable(ItemStack itemStack) {
+        itemStack.setData(DataComponentTypes.CONSUMABLE,
+                Consumable.consumable().consumeSeconds(0)
+                        .animation(ItemUseAnimation.NONE)
+                        .hasConsumeParticles(false)
+                        .sound(Key.key(""))
+                        .build());
     }
 }

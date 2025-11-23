@@ -90,6 +90,29 @@ public class Utils {
         }
     }
 
+    public static Component getCustomName(ItemStack item) {
+        if (item == null) return null;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            return meta.displayName();
+        }
+
+        return null;
+    }
+
+    public static void setCustomLore(ItemStack item, List<Component> loreLines) {
+        if (item == null) return;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            // Clear the lore if loreLines is null
+            // Set an empty list for lore
+            meta.lore(Objects.requireNonNullElseGet(loreLines, ArrayList::new)); // Set the provided lore
+            item.setItemMeta(meta);
+        }
+    }
+
     public static void addLoreLine(ItemStack item, Component line) {
         ItemMeta meta = item.getItemMeta();
         List<Component> lore = meta.lore();

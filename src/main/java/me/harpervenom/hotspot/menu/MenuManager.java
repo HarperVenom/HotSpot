@@ -293,9 +293,9 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
     private Button makeTimerButton(GameQueue queue, Player player) {
         boolean isCustom = queue.getSettings().isCustom();
         if (queue.isSkipping(player)) {
-            return createSkipButton(Material.REDSTONE_TORCH, isCustom ? "Запустить таймер" : "Не пропускать ожидание");
+            return createSkipButton(Material.REDSTONE_TORCH, isCustom ? "Отменить таймер" : "Не пропускать ожидание");
         } else {
-            return createSkipButton(Material.LEVER, isCustom ? "Отменить таймер" : "Пропустить ожидание");
+            return createSkipButton(Material.LEVER, isCustom ? "Запустить таймер" : "Пропустить ожидание");
         }
     }
 

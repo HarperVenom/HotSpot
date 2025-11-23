@@ -10,6 +10,7 @@ import me.harpervenom.hotspot.utils.CountdownTimer;
 import me.harpervenom.hotspot.utils.CustomScoreboard;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -97,23 +98,12 @@ public class GameQueue {
 
         List<Player> players = organizer.getAllPlayers();
 
-        updateScoreboard();
-
         if (!silent && players.isEmpty()) {
             timer.reset();
         }
-    }
 
-//    private void updateViewers(List<Player> players) {
-//        Set<Player> viewers = new HashSet<>(players);
-//        if (ownerID != null) {
-//            Player owner = Bukkit.getPlayer(ownerID);
-//            if (owner != null) {
-//                viewers.add(owner);
-//            }
-//        }
-//        scoreboard.setViewers(viewers.stream().toList());
-//    }
+        updateScoreboard();
+    }
 
     public void toggleSkip(Player player) {
         if (!skippingPlayers.remove(player)) skippingPlayers.add(player);

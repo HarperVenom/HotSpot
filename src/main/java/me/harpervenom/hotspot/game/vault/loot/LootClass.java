@@ -66,7 +66,7 @@ public enum LootClass {
             }
             case TRIDENT_RIPTIDE -> {
                 pool.addCategory(LootCategory.TRIDENT, 0.05);
-                pool.addCategory(LootCategory.TRIDENT_RIPTIDE, 0.1);
+                pool.addCategory(LootCategory.TRIDENT_RIPTIDE, 0.05);
                 pool.addCategory(LootCategory.TRIDENT_RIPTIDE_ENCHANTS, baseEnchantsWeight);
             }
             case MACE -> {

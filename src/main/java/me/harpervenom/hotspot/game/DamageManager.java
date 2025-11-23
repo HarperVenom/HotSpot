@@ -2,17 +2,22 @@ package me.harpervenom.hotspot.game;
 
 import me.harpervenom.hotspot.game.profile.GameProfile;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
+import static me.harpervenom.hotspot.game.listeners.ArmorListener.isWearingTankPlate;
+import static me.harpervenom.hotspot.game.vault.loot.CustomItems.damageReduction;
 
 public class DamageManager {
 
@@ -20,8 +25,6 @@ public class DamageManager {
 
     private final Map<UUID, BukkitTask> lastDamagerTasks = new HashMap<>();
     private final Map<UUID, GameProfile> lastDamager = new HashMap<>(); // <victim, damager>
-
-//    private final List<UUID> handledEntities = new ArrayList<>();
 
     public DamageManager(Game game) {
         this.game = game;
@@ -31,17 +34,15 @@ public class DamageManager {
         if (!(e.getDamager() instanceof Player damager)) return;
 
         double damage = e.getFinalDamage();
-
-//        if (isWearingTankPlate(damager)) {
-//            damage -= damageReduction * damage;
-//            e.setDamage(damage);
-//        }
+        if (isWearingTankPlate(damager)) {
+            damage -= damageReduction * damage;
+            e.setDamage(damage);
+        }
 
         GameProfile damagerProfile = game.getPlayerManager().getProfile(damager);
         if (damagerProfile == null) return;
 
         if (!e.isCancelled()) {
-//            damagerProfile.getEconomyManager().transferToBalance(damage);
             assignLastDamager(e.getEntity(), damagerProfile);
         }
     }
@@ -53,15 +54,15 @@ public class DamageManager {
 
         double damage = e.getFinalDamage();
 
-//        if (isWearingTankPlate(shooter)) {
-//            damage -= damageReduction * damage;
-//            e.setDamage(damage);
-//
-//            entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 10, 10, true, false, true));
-//            entity.getWorld().playSound(entity.getLocation(), Sound.BLOCK_BELL_USE, 0.5f, 1.3f);
-//
-//            shooter.playSound(shooter, Sound.BLOCK_BELL_USE, 0.5f, 1.3f);
-//        }
+        if (isWearingTankPlate(shooter)) {
+            damage -= damageReduction * damage;
+            e.setDamage(damage);
+
+            entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 10, 10, true, false, true));
+            entity.getWorld().playSound(entity.getLocation(), Sound.BLOCK_BELL_USE, 0.5f, 1.3f);
+
+            shooter.playSound(shooter, Sound.BLOCK_BELL_USE, 0.5f, 1.3f);
+        }
 
         GameProfile shooterProfile = game.getPlayerManager().getProfile(shooter);
         if (shooterProfile == null) return;
@@ -72,7 +73,6 @@ public class DamageManager {
         }
 
         if (!e.isCancelled()) {
-//            shooterProfile.getEconomyManager().transferToBalance(damage);
             assignLastDamager(entity, shooterProfile);
         }
     }
@@ -95,10 +95,18 @@ public class DamageManager {
             }
         }
 
-        Entity victim = e.getEntity();
+        Entity entity = e.getEntity();
+
+//        if (entity instanceof Player victim) {
+//            double damage = e.getFinalDamage();
+//            if (isWearingTankPlate(victim)) {
+//                damage -= damageReduction * damage;
+//                e.setDamage(damage);
+//            }
+//        }
 
         if (!e.isCancelled()) {
-            assignLastDamager(victim, exploderProfile);
+            assignLastDamager(entity, exploderProfile);
         }
     }
 
@@ -124,14 +132,20 @@ public class DamageManager {
         double damage = Math.min(entity.getHealth(), e.getFinalDamage());
 
         Player damager = profile.getPlayer();
-//        if (isWearingTankPlate(damager)) {
-//            damage -= damageReduction * damage;
-//            e.setDamage(damage);
-//        }
+        if (isWearingTankPlate(damager)) {
+            damage -= damageReduction * damage;
+            e.setDamage(damage);
+        }
 
         if (e.getCause() == EntityDamageEvent.DamageCause.KILL) return;
 
         profile.getEconomyManager().transferToBalance(damage);
+    }
+
+    public void assignLastDamager(Entity entity, Player player) {
+        GameProfile profile = game.getPlayerManager().getProfile(player);
+        if (profile == null) return;
+        assignLastDamager(entity, profile);
     }
 
     public void assignLastDamager(Entity entity, GameProfile profile) {

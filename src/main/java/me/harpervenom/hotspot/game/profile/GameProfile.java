@@ -21,6 +21,8 @@ public class GameProfile {
     private final EquipmentManager equipmentManager;
     private final LootManager lootManager;
 
+    private boolean isProtected = false;
+
     public GameProfile(Player player) {
         this.playerId = player.getUniqueId();
         upgradesManager = new UpgradesManager(this);
@@ -35,6 +37,8 @@ public class GameProfile {
 
     public void reset() {
         lootManager.reset();
+        getEquipmentManager().setHasWeapon(false);
+        getEquipmentManager().setHasChest(false);
     }
 
     public void setTeam(GameTeam gameTeam) {
@@ -67,5 +71,13 @@ public class GameProfile {
     }
     public LootManager getLootManager() {
         return lootManager;
+    }
+
+    public void setProtected(boolean isProtected) {
+        this.isProtected = isProtected;
+    }
+
+    public boolean isProtected() {
+        return isProtected;
     }
 }

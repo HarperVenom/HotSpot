@@ -44,7 +44,7 @@ public class EquipmentManager {
 
         ItemStack pickaxe = getItem(TradeType.PICKAXE);
         if (pickaxe.getItemMeta() != null) {
-            addLoreLine(pickaxe, text("*ШИФТ + ПКМ в руках телепортирует тебя на базу*"));
+            addLoreLine(pickaxe, text("ТП на базу ШИФТ+ПКМ", NamedTextColor.LIGHT_PURPLE));
         }
 
         inventory.setItem(1, pickaxe);
