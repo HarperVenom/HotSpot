@@ -11,16 +11,29 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static me.harpervenom.hotspot.utils.Utils.formatTime;
 import static me.harpervenom.hotspot.utils.Utils.text;
+import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
+import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public class UIManager {
     private final Game game;
     private final CustomScoreboard scoreboard;
 
-    private final BossBar bar;
+//    private final BossBar bar;
+
+    // Three separate bars
+    private final BossBar barBlue;
+    private final BossBar barRed;
+    private final BossBar barWhite;
+
+    private final Set<Player> blueViewers = new HashSet<>();
+    private final Set<Player> redViewers = new HashSet<>();
+    private final Set<Player> whiteViewers = new HashSet<>();
 
     public UIManager(Game game) {
         this.game = game;
@@ -28,7 +41,11 @@ public class UIManager {
         scoreboard.showHealth();
         scoreboard.setPadding(1);
 
-        bar = BossBar.bossBar(text("", NamedTextColor.WHITE), 1L, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
+//        bar = BossBar.bossBar(text("", NamedTextColor.WHITE), 1L, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
+
+        barBlue = BossBar.bossBar(text(""), 1f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
+        barRed = BossBar.bossBar(text(""), 1f, BossBar.Color.RED, BossBar.Overlay.PROGRESS);
+        barWhite = BossBar.bossBar(text(""), 1f, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
     }
 
     public void update() {
@@ -44,23 +61,80 @@ public class UIManager {
 
         scoreboard.updateLines(lines);
 
-        updateBar();
+        updateBars();
     }
 
-    private void updateBar() {
+//    private void updateBar() {
+//        int vaultsTime = game.getVaultManager().getTime();
+//        Component info =
+//                text(formatTime(game.getElapsedTicks() / 20), NamedTextColor.WHITE)
+//                        .append(text(" | ", NamedTextColor.GRAY))
+//                        .append(text("Хранилища: ")).append(text(formatTime(vaultsTime)));
+//        bar.name(info);
+//    }
+
+    // Updates all bars with the same content
+    private void updateBars() {
         int vaultsTime = game.getVaultManager().getTime();
-        Component info =
-                text(formatTime(game.getElapsedTicks() / 20), NamedTextColor.WHITE)
-                        .append(text(" | ", NamedTextColor.GRAY))
-                        .append(text("Хранилища: ")).append(text(formatTime(vaultsTime)));
-        bar.name(info);
+
+        Component info = text(formatTime(game.getElapsedTicks() / 20), NamedTextColor.WHITE)
+                .append(text(" | ", NamedTextColor.GRAY))
+                .append(text("Хранилища: "))
+                .append(text(formatTime(vaultsTime)));
+
+        barBlue.name(info);
+        barRed.name(info);
+        barWhite.name(info);
     }
 
-    public void removeBar() {
+    public void refreshBarViewers() {
+        // remove bars from old viewers
+        for (Player p : blueViewers)        p.hideBossBar(barBlue);
+        for (Player p : redViewers)         p.hideBossBar(barRed);
+        for (Player p : whiteViewers)       p.hideBossBar(barWhite);
+
+        blueViewers.clear();
+        redViewers.clear();
+        whiteViewers.clear();
+
+        // assign players again
         for (Player player : game.getPlayers()) {
-            bar.removeViewer(player);
+            GameTeam team = game.getPlayerManager().getTeam(player);
+
+            if (team == null) {
+                whiteViewers.add(player);
+                player.showBossBar(barWhite);
+                continue;
+            }
+
+            NamedTextColor color = team.getColor();
+
+            if (color == NamedTextColor.BLUE) {
+                blueViewers.add(player);
+                player.showBossBar(barBlue);
+            } else if (color == NamedTextColor.RED) {
+                redViewers.add(player);
+                player.showBossBar(barRed);
+            } else {
+                whiteViewers.add(player);
+                player.showBossBar(barWhite);
+            }
         }
     }
+
+    public void removeAllBars() {
+        for (Player p : game.getPlayers()) {
+            barBlue.removeViewer(p);
+            barRed.removeViewer(p);
+            barWhite.removeViewer(p);
+        }
+    }
+
+//    public void removeBar() {
+//        for (Player player : game.getPlayers()) {
+//            bar.removeViewer(player);
+//        }
+//    }
 
     private Component buildTeamLine(GameTeam team, int maxPoints) {
         PointManager pm = game.getPointManager();
@@ -107,7 +181,7 @@ public class UIManager {
     public Scoreboard getScoreboard() {
         return scoreboard.getScoreboard();
     }
-    public BossBar getBar() {
-        return bar;
-    }
+//    public BossBar getBar() {
+//        return bar;
+//    }
 }

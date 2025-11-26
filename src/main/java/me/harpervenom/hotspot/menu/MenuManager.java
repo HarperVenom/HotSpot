@@ -23,8 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-import static me.harpervenom.hotspot.utils.Utils.createItemStack;
-import static me.harpervenom.hotspot.utils.Utils.text;
+import static me.harpervenom.hotspot.utils.Utils.*;
 
 
 public class MenuManager implements QueueListener, LobbyListener, GameListener {
@@ -172,8 +171,8 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             GameQueue queue = queueManager.getQueue(player);
             if (queue == null) return;
             queue.toggleSkip(player);
-            updateLobbyButtons(player, false);
             queue.checkSkips();
+            updateLobbyButtons(player, false);
         });
         return button;
     }
@@ -212,7 +211,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
         if (added) {
             updateLobbyButtons(player, false);
-            queue.playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 1.5f);
+            playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 1.5f, queue.getPlayers());
         }
     }
 
@@ -270,8 +269,8 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
         button.setOnPersonalClick(player -> {
             updateLobbyButtons(player);
-            Bukkit.broadcastMessage("try");
-//            game.connect(player);
+//            Bukkit.broadcastMessage("try");
+            game.connect(player);
         });
 
         return button;
@@ -315,7 +314,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
                     set.setButton(4, makeTeamsButton(queue, player));
                 }
 
-                if (!queue.getSettings().isCustom() || queue.isOwner(player)) {
+                if (!queue.isSkipped() && !queue.getSettings().isCustom() || queue.isOwner(player)) {
                     set.setButton(6, makeTimerButton(queue, player));
                 }
 

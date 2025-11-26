@@ -65,9 +65,10 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new SpawnEggListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new PotionListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new ArmorListener(gameManager), this);
+        getServer().getPluginManager().registerEvents(new PickaxeListener(gameManager), this);
         getServer().getPluginManager().registerEvents(new SmartWeaponListener(), this);
+        getServer().getPluginManager().registerEvents(new TridentListener(), this);
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
-        getServer().getPluginManager().registerEvents(new ItemListener(), this);
 
         getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
 

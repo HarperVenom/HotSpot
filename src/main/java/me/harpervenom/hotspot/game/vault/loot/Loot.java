@@ -84,7 +84,7 @@ public class Loot {
                 LootEntry.makeItemEntry(diamondPlate, 0.6),
 
                 LootEntry.makeItemEntry(chainPlate, 0.4),
-                LootEntry.makeItemEntry(explosionPlate, 0.4),
+                LootEntry.makeItemEntry(explosionPlate, 110.4),
 
                 LootEntry.makeItemEntry(tankPlate, 0.1),
 
@@ -137,14 +137,14 @@ public class Loot {
 
         mace = List.of(
                 LootEntry.makeItemEntry(jump5Potion, 0.1),
-                LootEntry.makeItemEntry(Material.WIND_CHARGE, 2, 4, 1)
+                LootEntry.makeItemEntry(Material.WIND_CHARGE, 4, 6, 1)
         );
 
         int min = 2;
         int max = 5;
 
         arrows = List.of(
-                LootEntry.makeItemEntry(new ItemStack(Material.ARROW), 5, 10, 24),
+                LootEntry.makeItemEntry(new ItemStack(Material.ARROW), 5, 10, 10),
                 LootEntry.makeItemEntry(new ItemStack(Material.SPECTRAL_ARROW), 1, min, max),
                 LootEntry.makeItemEntry(slownessArrow, min, max, 1),
                 LootEntry.makeItemEntry(weaknessArrow, min, max, 1),

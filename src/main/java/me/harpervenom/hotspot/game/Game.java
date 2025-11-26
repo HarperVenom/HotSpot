@@ -8,6 +8,7 @@ import me.harpervenom.hotspot.game.team.GameTeam;
 import me.harpervenom.hotspot.game.team.GameTeamManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -16,6 +17,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.*;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
+import static me.harpervenom.hotspot.game.listeners.TridentListener.clearTridentTasksByGame;
 import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class Game {
@@ -93,14 +95,19 @@ public class Game {
             team.spawnAll();
         }
 
+        sendTitle(text(""), text(""), getPlayers());
+
         pointManager.updateDisplay();
 
         sendActionBarMessage(text(""), getPlayers());
         updateScoreBoardViewers();
         uiManager.update();
+
+        playSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1, 1, getPlayers());
     }
 
     public void end() {
+        clearTridentTasksByGame(this);
         pointManager.remove();
         gameManager.removeGame(this);
 
@@ -138,7 +145,7 @@ public class Game {
         if (!hasStarted) return;
         if (hasEnded) {
             uiManager.setViewers(new ArrayList<>());
-            uiManager.removeBar();
+            uiManager.removeAllBars();
             return;
         }
 
@@ -168,9 +175,19 @@ public class Game {
         stop();
 
         if (winner == null) {
-            sendMessage(text("Ничья!"), getPlayers());
+            sendMessage(text("Ничья"), getPlayers());
+            sendTitle(text("Ничья"), text(""), getPlayerManager().getConnectedPlayers());
         } else {
-            sendMessage(text("Победитель - ").append(winner.getName()), getPlayers());
+            GameTeam loser = getTeamManager().getTeams()
+                    .stream()
+                    .filter(team -> team != winner)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No loser team found"));
+
+            sendMessage(winner.getName().append(text(" одержали победу")), getPlayers());
+            sendTitle(text("Поражение", NamedTextColor.RED), text(""), loser.getPlayers());
+            sendTitle(text("Победа", NamedTextColor.GOLD), text(""), winner.getPlayers());
+            sendTitle(winner.getName(), text("одержали победу"), getPlayerManager().getSpectators());
         }
         playSound(Sound.ENTITY_WITHER_SPAWN, 0.5f, 1f, getPlayers());
 
@@ -229,6 +246,9 @@ public class Game {
     }
     public GameSettings getSettings() {
         return settings;
+    }
+    public boolean hasStarted() {
+        return hasStarted;
     }
     public boolean hasEnded() {
         return hasEnded;

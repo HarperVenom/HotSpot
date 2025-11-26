@@ -2,8 +2,6 @@ package me.harpervenom.hotspot.game.vault.loot;
 
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Consumable;
-import io.papermc.paper.datacomponent.item.Equippable;
-import io.papermc.paper.datacomponent.item.TooltipDisplay;
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -172,7 +170,7 @@ public class CustomItems {
         setItemId(sunPlate, sunPlateId);
         setCustomName(sunPlate, text("Солнечный Нагрудник", NamedTextColor.YELLOW));
         addLoreLine(sunPlate, text("Получая урон: ").append(text("+5❤", NamedTextColor.YELLOW)));
-        addLoreLine(sunPlate, text("Перезарядка " + sunPlateCooldown + " сек."));
+        addLoreLine(sunPlate, text("Перезарядка: " + sunPlateCooldown + " сек."));
         applyArmorTrim(sunPlate, TrimPattern.DUNE, TrimMaterial.GOLD);
         hideArmorTrim(sunPlate);
 
@@ -189,7 +187,7 @@ public class CustomItems {
         setItemId(chainPlate, chainPlateId);
         setCustomName(chainPlate, text("Кольчуга", TextColor.color(255, 149, 0)));
         addLoreLine(chainPlate, text("Поджигает атакующего на " + chainPlateDuration + " сек."));
-        addLoreLine(chainPlate, text("Перезарядка " + chainPlateCooldown + " сек."));
+        addLoreLine(chainPlate, text("Перезарядка: " + chainPlateCooldown + " сек."));
         applyArmorTrim(chainPlate, TrimPattern.WARD, TrimMaterial.COPPER);
         hideArmorTrim(chainPlate);
 
@@ -206,7 +204,7 @@ public class CustomItems {
         setItemId(diamondPlate, diamondPlateId);
         setCustomName(diamondPlate, text("Алмазный Нагрудник", TextColor.color(0, 255, 200)));
         addLoreLine(diamondPlate, text("Получая урон от игрока: Скорость III на " + diamondPlateDuration + " сек."));
-        addLoreLine(diamondPlate, text("Перезарядка " + diamondPlateCooldown + " сек."));
+        addLoreLine(diamondPlate, text("Перезарядка: " + diamondPlateCooldown + " сек."));
         applyArmorTrim(diamondPlate, TrimPattern.RAISER, TrimMaterial.DIAMOND);
         hideArmorTrim(diamondPlate);
 

@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
+import static me.harpervenom.hotspot.game.listeners.ArmorListener.activateExplosionChest;
 import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class GameDeathHandler {
@@ -59,6 +60,8 @@ public class GameDeathHandler {
         if (gameProfile == null) return;
 
         Player player = gameProfile.getPlayer();
+
+        activateExplosionChest(player);
 
         handleDeathState(e, player);
 

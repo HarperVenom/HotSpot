@@ -27,10 +27,11 @@ public class PlayerManager {
         spectators.color(NamedTextColor.GRAY);
     }
 
-    public void createProfile(Player player) {
-        createProfile(player, null);
+    public GameProfile createProfile(Player player) {
+        return createProfile(player, null);
     }
-    public void createProfile(Player player, GameTeam team) {
+
+    public GameProfile createProfile(Player player, GameTeam team) {
         GameProfile profile = new GameProfile(player);
         profileMap.put(player.getUniqueId(), profile);
         if (team == null) {
@@ -39,6 +40,7 @@ public class PlayerManager {
             profile.setTeam(team);
             team.addProfile(profile);
         }
+        return profile;
     }
 
     private void assignToBestTeam(GameProfile profile) {
@@ -54,12 +56,16 @@ public class PlayerManager {
         if (profile != null) {
             profile.getTeam().spawn(player);
             profile.setConnected(true);
-            game.updateScoreBoardViewers();
         } else {
-            createProfile(player);
+            profile = createProfile(player);
+        }
+        game.updateScoreBoardViewers();
+
+        if (game.hasStarted()) {
+            profile.getTeam().spawn(player);
         }
 
-        game.getUiManager().getBar().addViewer(player);
+        game.getUiManager().refreshBarViewers();
     }
 
     public void connectSpectator(Player player) {
@@ -67,7 +73,7 @@ public class PlayerManager {
         player.teleport(game.getMap().getWorld().getBlockAt(0, 10, 0).getLocation());
         player.setGameMode(GameMode.SPECTATOR);
         game.updateScoreBoardViewers();
-        game.getUiManager().getBar().addViewer(player);
+        game.getUiManager().refreshBarViewers();
     }
 
     public void disconnect(Player player) {
@@ -75,7 +81,7 @@ public class PlayerManager {
         if (profile != null) profile.setConnected(false);
         spectators.removePlayer(player);
 
-        game.getUiManager().getBar().removeViewer(player);
+        game.getUiManager().refreshBarViewers();
     }
 
     public GameProfile getProfile(Player player) {

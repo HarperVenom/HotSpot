@@ -143,7 +143,7 @@ public class ExplosionListener implements Listener {
             explosions.remove(player.getUniqueId());
         }, 80);
 
-        player.getWorld().createExplosion(player.getLocation(), power, true, false, player);
+        player.getWorld().createExplosion(player.getLocation(), power, true, true, player);
     }
 }
 

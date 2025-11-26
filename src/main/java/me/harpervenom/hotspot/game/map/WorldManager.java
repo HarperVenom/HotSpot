@@ -38,6 +38,7 @@ public class WorldManager {
             creator.type(WorldType.FLAT);
             World world = Bukkit.createWorld(creator);
             if (world == null) return;
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
             world.setGameRule(GameRule.DISABLE_RAIDS, true);
             world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);

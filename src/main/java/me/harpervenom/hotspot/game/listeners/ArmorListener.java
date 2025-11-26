@@ -239,13 +239,15 @@ public class ArmorListener implements Listener {
 
         float power = getPlatePower(totalDamage);
 
-        createExplosion(player, power);
-        spawnExplosionParticles(player, power * 1.2f);
-        player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1, 0.8f);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            createExplosion(player, power);
+            spawnExplosionParticles(player, power * 1.2f);
+            player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1, 0.8f);
 
-        // Reset stored damage
-        data.set(DAMAGE_KEY, PersistentDataType.DOUBLE, 0.0);
-        chestplate.setItemMeta(meta);
+            // Reset stored damage
+            data.set(DAMAGE_KEY, PersistentDataType.DOUBLE, 0.0);
+            chestplate.setItemMeta(meta);
+        }, 1);
     }
 
     public static void spawnExplosionParticles(Player player, float explosionRadius) {
@@ -260,9 +262,9 @@ public class ArmorListener implements Listener {
         };
 
         Particle.DustOptions[] colors = {
-                new Particle.DustOptions(Color.fromRGB(255, 0, 0), 2f),    // red
+                new Particle.DustOptions(Color.fromRGB(255, 255, 0), 2f),  // yellow
                 new Particle.DustOptions(Color.fromRGB(255, 165, 0), 2f),  // orange
-                new Particle.DustOptions(Color.fromRGB(255, 255, 0), 2f)   // yellow
+                new Particle.DustOptions(Color.fromRGB(255, 0, 0), 2f),    // red
         };
 
         final int totalTicks = 4; // duration of effect
@@ -275,7 +277,7 @@ public class ArmorListener implements Listener {
                 double radius = radii[i];
                 Particle.DustOptions dust = colors[i];
 
-                int points = 50; // points per sphere
+                int points = (int) (explosionRadius * 30); // points per sphere
                 for (int j = 0; j < points; j++) {
                     double theta = 2 * Math.PI * j / points;
                     double phi = Math.acos(2 * random.nextDouble() - 1);

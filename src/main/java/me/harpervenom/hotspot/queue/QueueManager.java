@@ -82,6 +82,11 @@ public class QueueManager implements GameListener {
 
     public boolean addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
         GameQueue lastQueue = getQueue(player);
+
+        if (queue.isFull()) {
+            return false;
+        }
+
         if (lastQueue != null) {
             if (!lastQueue.equals(queue)) {
                 clearQueue(player);

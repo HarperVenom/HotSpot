@@ -4,7 +4,6 @@ import me.harpervenom.hotspot.queue.players.team.QueueTeam;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class SimpleQueueOrganizer implements QueuePlayerOrganizer {
@@ -27,6 +26,6 @@ public class SimpleQueueOrganizer implements QueuePlayerOrganizer {
 
     @Override
     public List<Player> getAllPlayers() {
-        return Collections.unmodifiableList(players);
+        return players;
     }
 }

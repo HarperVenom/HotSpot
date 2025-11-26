@@ -4,19 +4,27 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
+import static me.harpervenom.hotspot.game.vault.loot.CustomItems.isBreakable;
 
 public class GeneralListener implements Listener {
 
@@ -109,5 +117,50 @@ public class GeneralListener implements Listener {
                 }
             }, 1L);
         }
+    }
+
+    @EventHandler
+    public void onItemDamage(PlayerItemDamageEvent e) {
+        ItemStack item = e.getItem();
+        if (isBreakable(item)) {
+            return;
+        }
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onArrowPickup(PlayerPickupArrowEvent e) {
+        Player player = e.getPlayer();
+        boolean hasBow = player.getInventory().contains(Material.BOW);
+        boolean hasCrossbow = player.getInventory().contains(Material.CROSSBOW);
+
+        if (e.getArrow().getType() == EntityType.TRIDENT) return;
+
+        if (!hasBow && !hasCrossbow) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onItemPickup(EntityPickupItemEvent event) {
+        Item item = event.getItem();
+        Material type = item.getItemStack().getType();
+
+        if (type == Material.ARROW || type == Material.TIPPED_ARROW || type == Material.SPECTRAL_ARROW) {
+            Entity entity = event.getEntity();
+            if (!canPickupArrows(entity)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    private boolean canPickupArrows(Entity entity) {
+        if (!(entity instanceof Player player)) return true;
+        PlayerInventory inv = player.getInventory();
+
+        return inv.contains(Material.CROSSBOW) ||
+                inv.contains(Material.BOW) ||
+                inv.getItemInOffHand().getType() == Material.CROSSBOW ||
+                inv.getItemInOffHand().getType() == Material.BOW;
     }
 }

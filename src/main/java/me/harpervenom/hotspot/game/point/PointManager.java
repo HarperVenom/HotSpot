@@ -120,7 +120,7 @@ public class PointManager {
 
             for (GameTeam team : game.getTeamManager().getTeams()) {
                 CaptureResult result = checkCapture(point, team);
-                if (getTeamPoints(team).size() > points.size() / 2) continue;
+//                if (getTeamPoints(team).size() > points.size() / 2) continue;
                 if (result == CaptureResult.SUCCESS) {
                     viewers.addAll(team.getPlayers());
                 }

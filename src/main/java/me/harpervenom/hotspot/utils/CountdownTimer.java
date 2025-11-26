@@ -1,42 +1,60 @@
 package me.harpervenom.hotspot.utils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitTask;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
+
+import java.util.function.IntConsumer;
 
 public class CountdownTimer {
 
     private final int startSeconds;
     private int countdownId = -1;
-    private int timeLeft;
+    private int timeLeft; // seconds
     private final Runnable onFinish;
-    private final Runnable onTick;
+    private final IntConsumer onTick;
 
-    public CountdownTimer(int startSeconds, Runnable onFinish, Runnable onTick) {
+    public CountdownTimer(int startSeconds, Runnable onFinish, IntConsumer onTick) {
         this.startSeconds = startSeconds;
-        this.timeLeft = startSeconds;
+        this.timeLeft = this.startSeconds;
         this.onFinish = onFinish;
         this.onTick = onTick;
     }
 
     public void start() {
-        if (countdownId != -1) return; // already running
+        if (countdownId != -1) {
+            cancel();
+        }
 
         countdownId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             timeLeft--;
-            if (onTick != null) onTick.run();
+
+            if (onTick != null) {
+                onTick.accept(timeLeft);
+            }
 
             if (timeLeft <= 0) {
                 cancel();
                 if (onFinish != null) onFinish.run();
             }
-        }, 20L, 20L);
+        }, 0, 20L);
     }
 
     public void skip() {
-        timeLeft = 0;
-        cancel();
-        if (onFinish != null) onFinish.run();
+        skip(0);
+    }
+
+    public void skip(int secondsLeft) {
+        cancel();                      // hard stop old task
+        timeLeft = secondsLeft + 1;
+
+        if (timeLeft <= 0) {
+            if (onFinish != null) onFinish.run();
+            return;
+        }
+
+        start();                       // restart task cleanly
     }
 
     public void reset() {
@@ -54,9 +72,11 @@ public class CountdownTimer {
     public void setTimeLeft(int seconds) {
         timeLeft = seconds;
     }
-
     public int getTimeLeft() {
         return timeLeft;
+    }
+    public boolean isRunning() {
+        return countdownId != -1;
     }
 }
 

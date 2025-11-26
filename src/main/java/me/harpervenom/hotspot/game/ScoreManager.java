@@ -1,11 +1,11 @@
 package me.harpervenom.hotspot.game;
 
 import me.harpervenom.hotspot.game.team.GameTeam;
+import org.bukkit.Sound;
 
 import java.util.List;
 
-import static me.harpervenom.hotspot.utils.Utils.sendMessage;
-import static me.harpervenom.hotspot.utils.Utils.text;
+import static me.harpervenom.hotspot.utils.Utils.playSound;
 
 public class ScoreManager {
 
@@ -30,6 +30,9 @@ public class ScoreManager {
             int loss = getScoreLoss(team);
             if (loss < 0) {
                 team.setScore(team.getScore() + loss);
+                if (team.getScore() < 10) {
+                    playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1, 0.5f, team.getPlayers());
+                }
             }
         }
     }

@@ -75,11 +75,11 @@ public enum LootClass {
             }
             case BOW -> {
                 pool.addCategory(LootCategory.BOW_ENCHANTS, baseEnchantsWeight);
-                pool.addCategory(LootCategory.ARROWS, 1);
+                pool.addCategory(LootCategory.ARROWS, 0.8);
             }
             case CROSSBOW -> {
                 pool.addCategory(LootCategory.CROSSBOW_ENCHANTS, baseEnchantsWeight);
-                pool.addCategory(LootCategory.ARROWS, 1);
+                pool.addCategory(LootCategory.ARROWS, 0.8);
             }
         }
 

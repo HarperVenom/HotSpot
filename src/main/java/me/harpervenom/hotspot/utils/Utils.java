@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
@@ -12,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -292,6 +292,12 @@ public class Utils {
     public static void playSound(Sound sound, float volume, float pitch, List<Player> players) {
         for (Player player : players) {
             player.playSound(player, sound, volume, pitch);
+        }
+    }
+
+    public static void sendTitle(Component title, Component subtitle, List<Player> players) {
+        for (Player player : players) {
+            player.showTitle(Title.title(title, subtitle));
         }
     }
 

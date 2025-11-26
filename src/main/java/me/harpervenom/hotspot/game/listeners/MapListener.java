@@ -38,7 +38,7 @@ public class MapListener implements Listener {
         if (!game.getMap().canPlace(b)) {
             e.setCancelled(true);
             Player p = e.getPlayer();
-            p.sendActionBar(text("Территория защищена!", NamedTextColor.RED));
+            p.sendActionBar(text("Территория защищена", NamedTextColor.RED));
             return;
         }
 

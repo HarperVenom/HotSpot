@@ -52,9 +52,11 @@ public class QueueTeamManager {
     }
 
     public List<Player> getPlayers() {
-        return teams.stream()
-                .flatMap(team -> team.getPlayers().stream())
-                .toList();
+        return new ArrayList<>(
+                teams.stream()
+                        .flatMap(team -> team.getPlayers().stream())
+                        .toList()
+        );
     }
 }
 
