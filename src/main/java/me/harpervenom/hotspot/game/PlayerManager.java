@@ -6,11 +6,14 @@ import me.harpervenom.hotspot.game.team.GameTeamManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
+
+import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class PlayerManager {
 
@@ -56,8 +59,18 @@ public class PlayerManager {
         if (profile != null) {
             profile.getTeam().spawn(player);
             profile.setConnected(true);
+            profile.reset();
+            if (game.hasStarted()) {
+                sendMessage(profile.getName().append(text(" вернулся в игру", NamedTextColor.GRAY)), game.getPlayers());
+                playSound(Sound.BLOCK_NOTE_BLOCK_BIT, 0.5f, 1f, getConnectedPlayers());
+            }
         } else {
             profile = createProfile(player);
+            if (game.hasStarted()) {
+                sendMessage( text(player.getName()).append(text(" присоединился к команде ", NamedTextColor.GRAY)
+                        .append(profile.getTeam().getName())), getConnectedPlayers());
+                playSound(Sound.BLOCK_NOTE_BLOCK_BIT, 0.5f, 1f, getConnectedPlayers());
+            }
         }
         game.updateScoreBoardViewers();
 
@@ -78,7 +91,11 @@ public class PlayerManager {
 
     public void disconnect(Player player) {
         GameProfile profile = profileMap.get(player.getUniqueId());
-        if (profile != null) profile.setConnected(false);
+        if (profile != null) {
+            profile.setConnected(false);
+            sendMessage(profile.getName().append(text(" покинул игру", NamedTextColor.GRAY)), game.getPlayers());
+            playSound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 1f, getConnectedPlayers());
+        }
         spectators.removePlayer(player);
 
         game.getUiManager().refreshBarViewers();

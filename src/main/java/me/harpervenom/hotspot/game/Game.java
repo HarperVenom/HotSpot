@@ -104,6 +104,8 @@ public class Game {
         uiManager.update();
 
         playSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1, 1, getPlayers());
+
+        plugin.getLogger().info("Game started");
     }
 
     public void end() {
@@ -169,6 +171,12 @@ public class Game {
         hasEnded = true;
 
         if (gameTask != null) gameTask.cancel();
+    }
+
+    public void remove() {
+        if (gameTask != null) gameTask.cancel();
+        deathHandler.remove();
+        plugin.getLogger().info("Game removed");
     }
 
     public void announceWinner(GameTeam winner) {

@@ -35,7 +35,7 @@ public class MapManager {
             return null;
         }
 
-        MapData mapData = mapLoader.getMaps().getFirst();
+        MapData mapData = game.getSettings().getMapData();
 
         GameMap map = new GameMap(mapData, world);
         activeMaps.add(map);
@@ -72,5 +72,8 @@ public class MapManager {
 
     public void close() {
         worldManager.deleteWorlds();
+    }
+    public List<MapData> getMaps() {
+        return mapLoader.getMaps();
     }
 }

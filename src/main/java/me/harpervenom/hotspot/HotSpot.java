@@ -6,6 +6,7 @@ import me.harpervenom.hotspot.game.GameEventListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
 import me.harpervenom.hotspot.game.listeners.*;
+import me.harpervenom.hotspot.game.map.MapManager;
 import me.harpervenom.hotspot.game.trader.TraderListener;
 import me.harpervenom.hotspot.game.vault.VaultListener;
 import me.harpervenom.hotspot.game.point.PointListener;
@@ -33,10 +34,12 @@ public final class HotSpot extends JavaPlugin implements Listener {
 
         saveDefaultConfig();
 
+        MapManager mapManager = new MapManager();
+
         LobbyManager lobbyManager = new LobbyManager();
-        QueueManager queueManager = new QueueManager();
-        GameManager gameManager = new GameManager();
-        MenuManager menuManager = new MenuManager(queueManager, gameManager);
+        QueueManager queueManager = new QueueManager(mapManager);
+        GameManager gameManager = new GameManager(mapManager);
+        MenuManager menuManager = new MenuManager(queueManager, gameManager, mapManager);
 
         lobbyManager.addListener(menuManager);
 
@@ -69,7 +72,6 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new SmartWeaponListener(), this);
         getServer().getPluginManager().registerEvents(new TridentListener(), this);
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
-
         getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
 
         queueManager.createQueue(GameModeEnum.NORMAL);

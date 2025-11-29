@@ -35,4 +35,10 @@ public class GameSettings {
     public boolean isCustom() {
         return isCustomTeams;
     }
+    public void setMapData(MapData mapData) {
+        this.mapData = mapData;
+    }
+    public MapData getMapData() {
+        return mapData;
+    }
 }

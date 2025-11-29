@@ -49,6 +49,7 @@ public class LobbyEventListener implements Listener {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
+        manager.sendToLobby(e.getPlayer());
         Bukkit.getScheduler().runTaskLater(plugin, LobbyEventListener::updateTabMenu, 1);
     }
 

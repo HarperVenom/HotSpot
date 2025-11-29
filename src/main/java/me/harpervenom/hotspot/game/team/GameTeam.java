@@ -78,6 +78,7 @@ public class GameTeam {
             player.setSaturation(20);
             player.setFoodLevel(20);
             player.getInventory().clear();
+            player.getInventory().setHeldItemSlot(0);
             profiles.get(player.getUniqueId()).getEquipmentManager().giveItems();
         }
     }

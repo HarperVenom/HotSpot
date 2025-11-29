@@ -4,6 +4,7 @@ import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -38,22 +39,17 @@ public class GameDeathHandler {
 
         Component victimName = gameProfile.getName();
 
-        Component killerName = null;
-        Entity entity = e.getDamageSource().getCausingEntity();
-        if (entity instanceof Player killer) {
-            GameProfile killerProfile = game.getPlayerManager().getProfile(killer);
-            if (killerProfile != null) {
-                killerName = killerProfile.getName();
-            }
-        }
-
+        GameProfile lastDamager = game.getDamageManager().getLastDamager(player);
         Component deathMessage;
-        if (killerName != null) {
-            deathMessage = victimName.append(text(" был убит ", NamedTextColor.GRAY)).append(killerName);
+        if (lastDamager != null) {
+            deathMessage = victimName.append(text(" был убит ", NamedTextColor.GRAY)).append(lastDamager.getName());
         } else {
             deathMessage = victimName.append(text(" погиб", NamedTextColor.GRAY));
         }
         sendMessage(deathMessage, game.getPlayers());
+
+        String logMessage = PlainTextComponentSerializer.plainText().serialize(deathMessage);
+        plugin.getLogger().info(logMessage);
     }
 
     public void handleDeath(PlayerDeathEvent e, GameProfile gameProfile) {
@@ -194,6 +190,10 @@ public class GameDeathHandler {
                 }
             }
         }, 0L, 5L);
+    }
+
+    public void remove() {
+        Bukkit.getScheduler().cancelTask(particleTaskId);
     }
 }
 

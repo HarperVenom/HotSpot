@@ -65,7 +65,7 @@ public class Loot {
                 LootEntry.makeItemEntry(horseEgg, 1, 1, 0.02),
                 LootEntry.makeItemEntry(camelEgg, 1, 1, 0.01),
 
-                LootEntry.makeItemEntry(tnt, 1, 1, 0.4),
+                LootEntry.makeItemEntry(tnt, 1, 1, 0.5),
 
                 LootEntry.makeItemEntry(Material.WIND_CHARGE, 2, 4, 0.8),
                 LootEntry.makeItemEntry(Material.ENDER_PEARL, 1, 1, 0.3),

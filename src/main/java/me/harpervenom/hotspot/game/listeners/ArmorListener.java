@@ -219,6 +219,8 @@ public class ArmorListener implements Listener {
                 text("Заряд: " + getPlatePower(storedDamage), NamedTextColor.RED)
                 ));
 
+        player.sendActionBar(text("Заряд: " + getPlatePower(storedDamage), NamedTextColor.RED));
+
         // Optional effects
         World world = player.getWorld();
         Location loc = player.getLocation();

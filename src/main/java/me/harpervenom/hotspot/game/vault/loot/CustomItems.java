@@ -89,11 +89,11 @@ public class CustomItems {
     public static ItemStack turboShovel;
 
     public static void createCustomItems() {
-        mudBomb = new ItemStack(Material.BLUE_EGG);
+        mudBomb = new ItemStack(Material.EGG);
         ItemMeta mudBombMeta = mudBomb.getItemMeta();
 
         if (mudBombMeta != null) {
-            mudBombMeta.displayName(text("Глиняная Бомба", TextColor.color(161, 207, 230)));
+            mudBombMeta.displayName(text("Грязевая Бомба", TextColor.color(162, 165, 179)));
             mudBomb.setItemMeta(mudBombMeta);
         }
         // id hard repeated in the listener

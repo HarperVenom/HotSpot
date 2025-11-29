@@ -3,6 +3,7 @@ package me.harpervenom.hotspot.queue;
 import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameListener;
 import me.harpervenom.hotspot.game.GameModeEnum;
+import me.harpervenom.hotspot.game.map.MapManager;
 import me.harpervenom.hotspot.menu.components.Window;
 import me.harpervenom.hotspot.queue.players.team.QueueTeam;
 import org.bukkit.Bukkit;
@@ -16,12 +17,18 @@ import static me.harpervenom.hotspot.HotSpot.plugin;
 
 public class QueueManager implements GameListener {
 
+    private final MapManager mapManager;
+
     private final List<GameQueue> gameQueues = new ArrayList<>();
     private final List<QueueListener> listeners = new ArrayList<>();
 
     private final HashMap<Player, GameQueue> playerQueues = new HashMap<>();
     private final HashMap<Player, GameQueue> queueOwners = new HashMap<>();
     private final HashMap<GameQueue, Window> queueWindows = new HashMap<>();
+
+    public QueueManager(MapManager mapManager) {
+        this.mapManager = mapManager;
+    }
 
     public GameQueue createQueue(GameModeEnum mode) {
         return createQueue(mode, null);
@@ -32,6 +39,10 @@ public class QueueManager implements GameListener {
             clearQueue(owner);
         }
         GameQueue queue = new GameQueue(this, mode, owner);
+
+        mode.getSettings().setMapData(mapManager.getMaps().getFirst());
+        queue.updateScoreboard();
+
         if (owner != null) {
             queue.addViewer(owner);
             queueOwners.put(owner, queue);
@@ -53,14 +64,12 @@ public class QueueManager implements GameListener {
     }
 
     public void removeQueue(GameQueue queue) {
-        gameQueues.remove(queue);
         queue.clean();
         if (queue.getOwner() != null) {
             queueOwners.remove(queue.getOwner());
         }
         for (Player player : new ArrayList<>(queue.getPlayers())) {
-            queue.removePlayer(player, true);
-            playerQueues.remove(player);
+            removePlayerFromQueue(player, true);
         }
 
         if (!queue.getSettings().isCustom()) {
@@ -69,6 +78,7 @@ public class QueueManager implements GameListener {
             }, 3 * 20);
         }
 
+        gameQueues.remove(queue);
         for (QueueListener l : listeners) l.onQueueRemove(queue);
     }
 
@@ -121,9 +131,10 @@ public class QueueManager implements GameListener {
             queue.removeViewer(player);
         }
 
-        for (QueueListener l : listeners) l.onPlayerLeave(player, queue);
-
         playerQueues.remove(player);
+
+        if (silent) return;
+        for (QueueListener l : listeners) l.onPlayerLeave(player, queue);
     }
 
     public void clearQueue(Player player) {

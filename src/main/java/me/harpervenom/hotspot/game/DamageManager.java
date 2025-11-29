@@ -151,6 +151,8 @@ public class DamageManager {
     public void assignLastDamager(Entity entity, GameProfile profile) {
         UUID uuid = entity.getUniqueId();
 
+        if (profile.getPlayer().getUniqueId().equals(uuid)) return;
+
         // Store the attacker
         lastDamager.put(uuid, profile);
 
@@ -168,5 +170,9 @@ public class DamageManager {
 
         // Store the new task
         lastDamagerTasks.put(uuid, task);
+    }
+
+    public GameProfile getLastDamager(Player player) {
+        return lastDamager.get(player.getUniqueId());
     }
 }

@@ -1,6 +1,8 @@
 package me.harpervenom.hotspot.menu;
 
 import me.harpervenom.hotspot.game.*;
+import me.harpervenom.hotspot.game.map.MapData;
+import me.harpervenom.hotspot.game.map.MapManager;
 import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.lobby.LobbyListener;
 import me.harpervenom.hotspot.menu.components.Button;
@@ -18,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -30,6 +33,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     private final QueueManager queueManager;
     private final GameManager gameManager;
+    private final MapManager mapManager;
 //    private final PartyManager partyManager;
 
     private Button queuesButton, createQueueButton, leaveQueueButton, removeQueueButton;
@@ -38,9 +42,10 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     private final HashMap<Player, ButtonSet> buttonSets = new HashMap<>();
 
-    public MenuManager(QueueManager queueManager, GameManager gameManager) {
+    public MenuManager(QueueManager queueManager, GameManager gameManager, MapManager mapManager) {
         this.queueManager = queueManager;
         this.gameManager = gameManager;
+        this.mapManager = mapManager;
 
         makeCreateQueueButton();
 
@@ -91,21 +96,32 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         Window window = new Window("Создать игру", 27);
 
         GameModeEnum mode = GameModeEnum.CUSTOM;
+        GameSettings settings = mode.getSettings();
+        settings.setMapData(mapManager.getMaps().getFirst());
 
         window.setOnUpdate(() -> {
             ItemStack createItemStack = createItemStack(Material.LIME_CONCRETE, text("Создать", NamedTextColor.GREEN), null);
             Button createButton = new Button(createItemStack);
             createButton.setOnPersonalClick(player -> {
                 GameQueue queue = queueManager.createQueue(mode, player);
-                if (mode.getSettings().isCustom()) {
+                if (settings.isCustom()) {
                     queueManager.setWindow(queue, makeQueueWindow(queue));
                 } else {
                     addPlayerToQueue(player, queue);
                 }
                 updateLobbyButtons(player);
+                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BANJO, 0.5f, 1);
                 queueManager.getQueueWindow(queue).open(player);
             });
 
+            ItemStack mapItemStack = createItemStack(settings.getMapData().getMaterial(),
+                    text("Карта: " + settings.getMapData().getDisplayName()), null);
+            Button mapButton = new Button(mapItemStack);
+            mapButton.setOnPersonalClick(player -> {
+                makeMapWindow(player, settings, window).open(player);
+            });
+
+            window.addButton(mapButton, 4);
             window.addButton(createButton, 22);
         });
         window.update();
@@ -113,8 +129,26 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         return window;
     }
 
+    private Window makeMapWindow(Player player, GameSettings setting, Window lastWindow) {
+        Window window = new Window("Выбор карты", InventoryType.CHEST);
+        List<MapData> maps = mapManager.getMaps();
+        for (int i = 0; i < maps.size(); i++) {
+            MapData mapData = maps.get(i);
+            ItemStack mapItemStack = createItemStack(mapData.getMaterial(),
+                    text(mapData.getDisplayName()), null);
+            Button button = new Button(mapItemStack);
+            button.setOnClick(() -> {
+                setting.setMapData(mapData);
+                lastWindow.update();
+                lastWindow.open(player);
+            });
+            window.addButton(button, i);
+        }
+        return window;
+    }
+
     private Window makeQueueWindow(GameQueue queue) {
-        Window window = new Window("Очередь", 27);
+        Window window = new Window("Команды", 27);
 
         window.setOnUpdate(() -> {
             TeamQueueOrganizer organizer = (TeamQueueOrganizer) queue.getOrganizer();
@@ -137,12 +171,13 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         button.setOnPersonalClick(player -> {
             QueueTeam lastTeam = queue.getTeam(player);
             if (lastTeam != null && lastTeam.equals(team) && queue.isOwner(player)) {
-                queueManager.removePlayerFromQueue(player);
+                queueManager.removePlayerFromQueue(player, true);
+                updateLobbyButtons(player, false);
             } else {
                 addPlayerToQueue(player, queue, team);
             }
             window.update();
-            updateLobbyButtons(player, false);
+//            updateLobbyButtons(player, false);
         });
         return button;
     }
@@ -172,24 +207,38 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             if (queue == null) return;
             queue.toggleSkip(player);
             queue.checkSkips();
-            updateLobbyButtons(player, false);
+            for (Player queuePlayer : queue.getPlayers()) {
+                updateLobbyButtons(queuePlayer, false);
+                queuePlayer.sendActionBar(text(""));
+            }
         });
         return button;
     }
 
     private Button makeQueueButton(GameQueue queue) {
         List<Component> lore = new ArrayList<>();
-        lore.add(text("Игроков: " + queue.getPlayers().size()+ "/" + queue.getMaxPlayers()));
-        for (Player player : queue.getPlayers()) {
-            lore.add(text(player.getName(), NamedTextColor.GRAY));
+        lore.add(text("Игроков: " + queue.getPlayers(false).size()+ "/" + queue.getMaxPlayers()));
+        if (queue.getOrganizer() instanceof TeamQueueOrganizer organizer) {
+            for (QueueTeam team : organizer.getTeamManager().getTeams()) {
+                for (Player player : team.getPlayers()) {
+                    lore.add(text(player.getName(), queue.getTeam(player).getColor()));
+                }
+            }
+        } else {
+            for (Player player : queue.getPlayers(false)) {
+                lore.add(text(player.getName(), NamedTextColor.GRAY));
+            }
+        }
+
+        if (queue.getOwner() != null) {
+            lore.add(text(""));
+            lore.add(text( "★ " + queue.getOwner().getName(), TextColor.color(126, 89, 128)));
         }
 
         GameSettings settings = queue.getGameMode().getSettings();
 
         ItemStack itemStack = createItemStack(settings.getQueueMaterial(), text("Очередь ").append(settings.getName()), lore);
-
         Button button = new Button(itemStack);
-
         button.setOnPersonalClick(player -> {
             if (settings.isCustom()) {
                 onCustomQueueClick(player, queue);
@@ -217,36 +266,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     private void onCustomQueueClick(Player player, GameQueue queue) {
         queueManager.getQueueWindow(queue).open(player);
-//        makeQueueWindow(queue).open(player);
     }
-
-//    private Window makeQueueWindow(GameQueue queue) {
-//        Window window = new Window("Очередь", 27);
-//
-//        window.setOnUpdate(() -> {
-//            TeamQueueOrganizer organizer = (TeamQueueOrganizer) queue.getOrganizer();
-//
-//            window.addButton(makeTeamButton(window, queue, organizer.getTeamManager().getTeams().getFirst()), 12);
-//            window.addButton(makeTeamButton(window, queue,organizer.getTeamManager().getTeams().getLast()), 14);
-//        });
-//        window.update();
-//
-//        return window;
-//    }
-//
-//    private Button makeTeamButton(Window window, GameQueue queue, QueueTeam team) {
-//        List<Component> lore = new ArrayList<>();
-//        for (Player player : team.getPlayers()) {
-//            lore.add(text(player.getName()));
-//        }
-//        ItemStack itemStack = createItemStack(team.getMaterial(), text(team.getName(), team.getColor()), lore);
-//        Button button = new Button(itemStack);
-//        button.setOnPersonalClick(player -> {
-//            addPlayerToQueue(player, queue, team);
-//            window.update();
-//        });
-//        return button;
-//    }
 
     private Button makeGameButton(Game game) {
         List<GameProfile> gameProfiles = game.getPlayerManager().getProfileMap().values().stream().toList();
@@ -269,7 +289,6 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
         button.setOnPersonalClick(player -> {
             updateLobbyButtons(player);
-//            Bukkit.broadcastMessage("try");
             game.connect(player);
         });
 
@@ -382,6 +401,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
     @Override
     public void onPlayerLeave(Player player, GameQueue queue) {
         updateGamesWindow();
+        updateLobbyButtons(player);
     }
 
     @Override

@@ -20,8 +20,8 @@ public class GameManager implements GameListener, QueueListener {
     private final List<GameListener> listeners = new ArrayList<>();
 //    private final PartyManager partyManager;
 
-    public GameManager() {
-        mapManager = new MapManager();
+    public GameManager(MapManager mapManager) {
+        this.mapManager = mapManager;
         listeners.add(this);
     }
 
@@ -64,6 +64,8 @@ public class GameManager implements GameListener, QueueListener {
         games.remove(game);
 
         mapManager.removeMap(game.getMap());
+
+        game.remove();
 
         // Notify all listeners that the game ended
         listeners.forEach(l -> l.onGameEnd(game));

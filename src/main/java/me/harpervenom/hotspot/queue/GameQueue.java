@@ -44,11 +44,11 @@ public class GameQueue {
 
     public GameQueue(QueueManager queueManager, GameModeEnum mode, Player owner) {
         this.queueManager = queueManager;
-        scoreboard = new CustomScoreboard("queue", text(" Очередь "));
+        scoreboard = new CustomScoreboard("queue", mode.getSettings().getName());
         scoreboard.setPadding(1);
         gameMode = mode;
         settings = mode.getSettings();
-        timer = new CountdownTimer(settings.isCustom() ? 6 : 120,
+        timer = new CountdownTimer(settings.isCustom() ? 6 : 60,
                 () -> {
                     sendTitle(text("Запуск...", NamedTextColor.YELLOW), text(""), getPlayers());
                     ready();
@@ -69,8 +69,6 @@ public class GameQueue {
         } else {
             organizer = new SimpleQueueOrganizer();
         }
-
-        updateScoreboard();
     }
 
     private void ready() {
@@ -147,12 +145,9 @@ public class GameQueue {
         }
 
         int numberSkipping = skippingPlayers.size();
-
         int totalPlayers = getPlayers().size();
         int numberPlayersNeeded = Math.max(2, (int) Math.ceil(totalPlayers * 0.8));
-
         actionBarMessage(text("Пропуск ожидания " + numberSkipping + "/" + numberPlayersNeeded, NamedTextColor.YELLOW));
-
         canSkip = totalPlayers > 1 && numberSkipping >= numberPlayersNeeded;
 
         // tests
@@ -160,7 +155,7 @@ public class GameQueue {
 
         if (canSkip) {
             isSkipped = true;
-            timer.skip(5);
+            timer.skip(settings.isCustom() ? 5 : 3);
             updateScoreboard();
         }
     }
@@ -217,16 +212,18 @@ public class GameQueue {
         return players;
     }
 
-    private void updateScoreboard() {
-        Component timeLeftLine = isReady ? text("Запуск...") : text("До начала: " + formatTime(timer.getTimeLeft()));
+    public void updateScoreboard() {
+        Component timeLeftLine = isReady ? text("Запуск...") : text("Начало: " + formatTime(timer.getTimeLeft()));
 
-        if (owner != null && !timer.isRunning()) {
+        if (!isReady && owner != null && !timer.isRunning()) {
             timeLeftLine = text("Ожидание");
         }
 
         scoreboard.updateLines(List.of(
                 text(""),
-                text("Игроки: " + organizer.getAllPlayers().size() + "/" + settings.getMaxPlayers(), NamedTextColor.YELLOW),
+                text("Карта: ").append(text(settings.getMapData().getDisplayName(), NamedTextColor.YELLOW)),
+                text(""),
+                text("Игроки: ").append(text(organizer.getAllPlayers().size() + "/" + settings.getMaxPlayers(), NamedTextColor.YELLOW)),
                 text(""),
                 timeLeftLine,
                 text("")
