@@ -95,7 +95,7 @@ public class Game {
             team.spawnAll();
         }
 
-        sendTitle(text(""), text(""), getPlayers());
+        getPlayers().forEach(Player::clearTitle);
 
         pointManager.updateDisplay();
 
@@ -116,10 +116,12 @@ public class Game {
         updateScoreBoardViewers();
     }
 
-    public void connect(Player player) {
-        playerManager.connect(player);
+    public boolean connect(Player player) {
+        boolean success = playerManager.connect(player);
+        if (!success) return false;
         gameManager.updateGames();
         pointManager.updateDisplay();
+        return true;
     }
 
     public void disconnect(Player player) {
@@ -144,7 +146,7 @@ public class Game {
     }
 
     public void updateScoreBoardViewers() {
-        if (!hasStarted) return;
+//        if (!hasStarted) return;
         if (hasEnded) {
             uiManager.setViewers(new ArrayList<>());
             uiManager.removeAllBars();

@@ -16,14 +16,19 @@ public class TeamQueueOrganizer implements QueuePlayerOrganizer {
     }
 
     @Override
-    public void addPlayer(Player p) {
-        // Optional: could show team selection UI here
-        teamManager.addPlayer(p, teamManager.getTeams().getFirst());
+    public boolean canAccept(Player p, QueueTeam team) {
+        return teamManager.canAccept(team);
     }
 
     @Override
-    public void addPlayerToTeam(Player p, QueueTeam team) {
-        teamManager.addPlayer(p, team);  // <-- This is the key
+    public boolean addPlayer(Player p) {
+        // Optional: could show team selection UI here
+        return teamManager.addPlayer(p, teamManager.getTeams().getFirst());
+    }
+
+    @Override
+    public boolean addPlayerToTeam(Player p, QueueTeam team) {
+        return teamManager.addPlayer(p, team);  // <-- This is the key
     }
 
     @Override

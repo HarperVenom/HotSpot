@@ -13,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -24,6 +23,7 @@ import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.game.listeners.ExplosionListener.createExplosion;
 import static me.harpervenom.hotspot.game.vault.loot.CustomItems.*;
 import static me.harpervenom.hotspot.utils.Utils.*;
+import org.bukkit.util.Vector;
 
 public class ArmorListener implements Listener {
 
@@ -253,52 +253,7 @@ public class ArmorListener implements Listener {
     }
 
     public static void spawnExplosionParticles(Player player, float explosionRadius) {
-        World world = player.getWorld();
-        Location center = player.getLocation().add(0, 1, 0); // slightly above player
-        Random random = new Random();
-
-        double[] radii = {
-                explosionRadius * 0.4,
-                explosionRadius * 0.7,
-                explosionRadius
-        };
-
-        Particle.DustOptions[] colors = {
-                new Particle.DustOptions(Color.fromRGB(255, 255, 0), 2f),  // yellow
-                new Particle.DustOptions(Color.fromRGB(255, 165, 0), 2f),  // orange
-                new Particle.DustOptions(Color.fromRGB(255, 0, 0), 2f),    // red
-        };
-
-        final int totalTicks = 4; // duration of effect
-        final int[] tick = {0};    // use array to mutate inside lambda
-
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (tick[0] > totalTicks) return; // stop after duration
-
-            for (int i = 0; i < radii.length; i++) {
-                double radius = radii[i];
-                Particle.DustOptions dust = colors[i];
-
-                int points = (int) (explosionRadius * 30); // points per sphere
-                for (int j = 0; j < points; j++) {
-                    double theta = 2 * Math.PI * j / points;
-                    double phi = Math.acos(2 * random.nextDouble() - 1);
-                    double x = radius * Math.sin(phi) * Math.cos(theta);
-                    double y = radius * Math.sin(phi) * Math.sin(theta);
-                    double z = radius * Math.cos(phi);
-
-                    Location particleLoc = center.clone().add(x, y, z);
-                    world.spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, 0, dust, true);
-                }
-            }
-
-            tick[0]++;
-
-            // Final explosion trigger
-            if (tick[0] == totalTicks) {
-                world.spawnParticle(Particle.EXPLOSION, center, 2);
-            }
-        }, 0L, 2L); // every 2 ticks (~0.1 sec)
+        spawnBeautifulExplosion(player.getEyeLocation(), 10);
     }
 
     private static float getPlatePower(double damage) {
@@ -386,5 +341,132 @@ public class ArmorListener implements Listener {
     public static boolean isWearingTankPlate(Player player) {
         ItemStack chestplate = player.getInventory().getChestplate();
         return hasItemId(chestplate, tankPlateId);
+    }
+
+    private static void spawnExplosionFlash(Location center) {
+        World w = center.getWorld();
+        if (w == null) return;
+
+        // White flash
+        w.spawnParticle(
+                Particle.FLASH,
+                center,
+                2,
+                Color.WHITE
+        );
+
+        // Bright core
+        w.spawnParticle(
+                Particle.DUST,
+                center,
+                20,
+                0.1, 0.1, 0.1,
+                new Particle.DustOptions(Color.fromRGB(255, 230, 180), 2.5f)
+        );
+    }
+
+    public static void spawnShockwave(Location center, double maxRadius, int durationTicks) {
+        World w = center.getWorld();
+        if (w == null) return;
+
+        new BukkitRunnable() {
+            int tick = 0;
+
+            @Override
+            public void run() {
+                if (tick > durationTicks) {
+                    cancel();
+                    return;
+                }
+
+                double radius = maxRadius * (tick / (double) durationTicks);
+                int points = (int) (radius * 80);
+
+                for (int i = 0; i < points; i++) {
+                    double theta = Math.acos(2 * Math.random() - 1);
+                    double phi = 2 * Math.PI * Math.random();
+
+                    double x = radius * Math.sin(theta) * Math.cos(phi);
+                    double y = radius * Math.cos(theta);
+                    double z = radius * Math.sin(theta) * Math.sin(phi);
+
+                    Location loc = center.clone().add(x, y, z);
+
+                    w.spawnParticle(
+                            Particle.DUST,
+                            loc,
+                            1,
+                            0, 0, 0,
+                            0,
+                            new Particle.DustOptions(Color.fromRGB(255, 120, 40), 3),
+                            true // ✅ FORCE VISIBILITY
+                    );
+                }
+
+                tick++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private static void spawnExplosionDebris(Location center, double force) {
+        World w = center.getWorld();
+        if (w == null) return;
+
+        for (int i = 0; i < 120; i++) {
+            Vector dir = randomUnitVector().multiply(force * (0.4 + Math.random()));
+
+            w.spawnParticle(
+                    Particle.CRIT,
+                    center,
+                    1,
+                    dir.getX(),
+                    dir.getY(),
+                    dir.getZ(),
+                    0.15
+            );
+        }
+    }
+
+    private static Vector randomUnitVector() {
+        double theta = Math.acos(2 * Math.random() - 1);
+        double phi = 2 * Math.PI * Math.random();
+
+        return new Vector(
+                Math.sin(theta) * Math.cos(phi),
+                Math.cos(theta),
+                Math.sin(theta) * Math.sin(phi)
+        );
+    }
+
+    private static void spawnExplosionSmoke(Location center, double radius) {
+        World w = center.getWorld();
+        if (w == null) return;
+
+        new BukkitRunnable() {
+            int ticks = 0;
+
+            @Override
+            public void run() {
+                if (ticks++ > 15) {
+                    cancel();
+                    return;
+                }
+
+                w.spawnParticle(
+                        Particle.SMOKE,
+                        center,
+                        25,
+                        radius, radius * 0.7, radius,
+                        0.02
+                );
+            }
+        }.runTaskTimer(plugin, 2L, 2L);
+    }
+
+    public static void spawnBeautifulExplosion(Location center, double radius) {
+        spawnExplosionFlash(center);
+        spawnExplosionDebris(center, radius * 0.25);
+        spawnShockwave(center, radius, 2);
+        spawnExplosionSmoke(center, radius * 0.6);
     }
 }

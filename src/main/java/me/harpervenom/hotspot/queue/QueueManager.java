@@ -86,10 +86,6 @@ public class QueueManager implements GameListener {
         for (QueueListener l : listeners) l.onQueueReady(gameQueue);
     }
 
-    public boolean addPlayerToQueue(Player player, GameQueue queue) {
-        return addPlayerToQueue(player, queue, null);
-    }
-
     public boolean addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
         GameQueue lastQueue = getQueue(player);
 
@@ -97,10 +93,12 @@ public class QueueManager implements GameListener {
             return false;
         }
 
+        if (!queue.canAccept(player, team)) return false;
+
         if (lastQueue != null) {
             if (!lastQueue.equals(queue)) {
                 clearQueue(player);
-            } else if (team != null && team.equals(lastQueue.getTeam(player))) {
+            } else if (!queue.getSettings().isCustom() || team != null && team.equals(lastQueue.getTeam(player))) {
                 return false;
             } else {
                 removePlayerFromQueue(player, true);

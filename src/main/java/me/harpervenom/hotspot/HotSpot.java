@@ -75,6 +75,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
 
         queueManager.createQueue(GameModeEnum.NORMAL);
+        queueManager.createQueue(GameModeEnum.RANKED);
 
         LobbyCommand lobbyCommand = new LobbyCommand(lobbyManager);
         getCommand("lobby").setExecutor(lobbyCommand);

@@ -27,8 +27,14 @@ public class QueueTeamManager {
         teams.add(new QueueTeam(color, name));
     }
 
-    public void addPlayer(Player player, QueueTeam team) {
+    public boolean canAccept(QueueTeam team) {
+        return team.getPlayers().size() < queue.getSettings().getMaxTeamPlayers();
+    }
+
+    public boolean addPlayer(Player player, QueueTeam team) {
+        if (team.getPlayers().size() >= queue.getSettings().getMaxTeamPlayers()) return false;
         team.addPlayer(player);
+        return true;
     }
 
     public void removePlayer(Player player) {

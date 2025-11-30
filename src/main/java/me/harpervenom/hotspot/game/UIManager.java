@@ -7,6 +7,7 @@ import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -17,14 +18,10 @@ import java.util.Set;
 
 import static me.harpervenom.hotspot.utils.Utils.formatTime;
 import static me.harpervenom.hotspot.utils.Utils.text;
-import static net.kyori.adventure.text.format.NamedTextColor.BLUE;
-import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public class UIManager {
     private final Game game;
     private final CustomScoreboard scoreboard;
-
-//    private final BossBar bar;
 
     // Three separate bars
     private final BossBar barBlue;
@@ -40,8 +37,6 @@ public class UIManager {
         scoreboard = new CustomScoreboard("game", text("Игра"));
         scoreboard.showHealth();
         scoreboard.setPadding(1);
-
-//        bar = BossBar.bossBar(text("", NamedTextColor.WHITE), 1L, BossBar.Color.WHITE, BossBar.Overlay.PROGRESS);
 
         barBlue = BossBar.bossBar(text(""), 1f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
         barRed = BossBar.bossBar(text(""), 1f, BossBar.Color.RED, BossBar.Overlay.PROGRESS);
@@ -63,15 +58,6 @@ public class UIManager {
 
         updateBars();
     }
-
-//    private void updateBar() {
-//        int vaultsTime = game.getVaultManager().getTime();
-//        Component info =
-//                text(formatTime(game.getElapsedTicks() / 20), NamedTextColor.WHITE)
-//                        .append(text(" | ", NamedTextColor.GRAY))
-//                        .append(text("Хранилища: ")).append(text(formatTime(vaultsTime)));
-//        bar.name(info);
-//    }
 
     // Updates all bars with the same content
     private void updateBars() {
@@ -130,12 +116,6 @@ public class UIManager {
         }
     }
 
-//    public void removeBar() {
-//        for (Player player : game.getPlayers()) {
-//            bar.removeViewer(player);
-//        }
-//    }
-
     private Component buildTeamLine(GameTeam team, int maxPoints) {
         PointManager pm = game.getPointManager();
         Component blocksLine = pm.buildPointsLine(team, maxPoints);
@@ -181,7 +161,4 @@ public class UIManager {
     public Scoreboard getScoreboard() {
         return scoreboard.getScoreboard();
     }
-//    public BossBar getBar() {
-//        return bar;
-//    }
 }

@@ -16,7 +16,6 @@ import me.harpervenom.hotspot.queue.players.team.QueueTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -174,7 +173,11 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
                 queueManager.removePlayerFromQueue(player, true);
                 updateLobbyButtons(player, false);
             } else {
-                addPlayerToQueue(player, queue, team);
+                boolean success = addPlayerToQueue(player, queue, team);
+                if (!success) {
+                    player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+                    return;
+                }
             }
             window.update();
 //            updateLobbyButtons(player, false);
@@ -245,23 +248,27 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
                 return;
             }
 
-            addPlayerToQueue(player, queue);
+            boolean success = addPlayerToQueue(player, queue);
+            if (!success) {
+                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+            }
         });
 
         return button;
     }
 
-    private void addPlayerToQueue(Player player, GameQueue queue) {
-        addPlayerToQueue(player, queue, null);
+    private boolean addPlayerToQueue(Player player, GameQueue queue) {
+        return addPlayerToQueue(player, queue, null);
     }
 
-    private void addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
+    private boolean addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
         boolean added = queueManager.addPlayerToQueue(player, queue, team);
 
         if (added) {
             updateLobbyButtons(player, false);
             playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 1.5f, queue.getPlayers());
         }
+        return added;
     }
 
     private void onCustomQueueClick(Player player, GameQueue queue) {
@@ -286,10 +293,13 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
                 .append(settings.getName()), lore);
 
         Button button = new Button(itemStack);
-
         button.setOnPersonalClick(player -> {
-            updateLobbyButtons(player);
-            game.connect(player);
+            boolean success = game.connect(player);
+            if (!success) {
+                game.getPlayerManager().connectSpectator(player);
+                sendMessage(text(player.getName() + " наблюдает", NamedTextColor.GRAY), game.getPlayers());
+//                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+            }
         });
 
         return button;

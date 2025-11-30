@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class GameTeam {
@@ -55,6 +56,11 @@ public class GameTeam {
         Player player = profile.getPlayer();
         if (player != null) {
             team.addEntity(player);
+
+            player.setHealth(1);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                player.setHealth(20);
+            }, 1);
         }
     }
 

@@ -54,7 +54,7 @@ public class PlayerManager {
         smallest.addProfile(profile);
     }
 
-    public void connect(Player player) {
+    public boolean connect(Player player) {
         GameProfile profile = profileMap.get(player.getUniqueId());
         if (profile != null) {
             profile.getTeam().spawn(player);
@@ -65,6 +65,8 @@ public class PlayerManager {
                 playSound(Sound.BLOCK_NOTE_BLOCK_BIT, 0.5f, 1f, getConnectedPlayers());
             }
         } else {
+            if (game.hasStarted() && !game.getSettings().isCanJoinMidGame()) return false;
+            if (profileMap.size() >= game.getSettings().getMaxPlayers()) return false;
             profile = createProfile(player);
             if (game.hasStarted()) {
                 sendMessage( text(player.getName()).append(text(" присоединился к команде ", NamedTextColor.GRAY)
@@ -72,6 +74,7 @@ public class PlayerManager {
                 playSound(Sound.BLOCK_NOTE_BLOCK_BIT, 0.5f, 1f, getConnectedPlayers());
             }
         }
+
         game.updateScoreBoardViewers();
 
         if (game.hasStarted()) {
@@ -79,6 +82,7 @@ public class PlayerManager {
         }
 
         game.getUiManager().refreshBarViewers();
+        return true;
     }
 
     public void connectSpectator(Player player) {
@@ -95,8 +99,10 @@ public class PlayerManager {
             profile.setConnected(false);
             sendMessage(profile.getName().append(text(" покинул игру", NamedTextColor.GRAY)), game.getPlayers());
             playSound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 1f, getConnectedPlayers());
+        } else {
+            spectators.removePlayer(player);
+            sendMessage(text(player.getName() + " больше не наблюдает", NamedTextColor.GRAY), game.getPlayers());
         }
-        spectators.removePlayer(player);
 
         game.getUiManager().refreshBarViewers();
     }

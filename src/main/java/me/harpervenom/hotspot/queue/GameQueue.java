@@ -67,7 +67,7 @@ public class GameQueue {
         if (mode.getSettings().isCustom()) {
             organizer = new TeamQueueOrganizer(this);
         } else {
-            organizer = new SimpleQueueOrganizer();
+            organizer = new SimpleQueueOrganizer(this);
         }
     }
 
@@ -80,12 +80,19 @@ public class GameQueue {
         }, 1L);
     }
 
-    public void addPlayer(Player player, QueueTeam team) {
+    public boolean canAccept(Player player, QueueTeam team) {
+        return organizer.canAccept(player, team);
+    }
+
+    public boolean addPlayer(Player player, QueueTeam team) {
+        boolean success;
         if (team != null) {
-            organizer.addPlayerToTeam(player, team);
+            success = organizer.addPlayerToTeam(player, team);
         } else {
-            organizer.addPlayer(player);
+            success = organizer.addPlayer(player);
         }
+
+        if (!success) return false;
 
         List<Player> players = organizer.getAllPlayers();
 
@@ -100,6 +107,7 @@ public class GameQueue {
         }
 
         updateScoreboard();
+        return true;
     }
 
     public void removePlayer(Player player, boolean silent) {
@@ -146,7 +154,7 @@ public class GameQueue {
 
         int numberSkipping = skippingPlayers.size();
         int totalPlayers = getPlayers().size();
-        int numberPlayersNeeded = Math.max(2, (int) Math.ceil(totalPlayers * 0.8));
+        int numberPlayersNeeded = Math.max(settings.getMinPlayers(), (int) Math.ceil(totalPlayers * 0.8));
         actionBarMessage(text("Пропуск ожидания " + numberSkipping + "/" + numberPlayersNeeded, NamedTextColor.YELLOW));
         canSkip = totalPlayers > 1 && numberSkipping >= numberPlayersNeeded;
 
@@ -231,8 +239,9 @@ public class GameQueue {
     }
 
     public void clean() {
-       scoreboard.setViewers(new ArrayList<>());
-       timer.cancel();
+        viewers.clear();
+        scoreboard.setViewers(new ArrayList<>());
+        timer.cancel();
     }
 
     public GameSettings getSettings() {

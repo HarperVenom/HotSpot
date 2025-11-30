@@ -6,10 +6,9 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 public interface QueuePlayerOrganizer {
-    void addPlayer(Player p);                 // generic entry, optional
+    boolean canAccept(Player p, QueueTeam team);
+    boolean addPlayer(Player p);
+    boolean addPlayerToTeam(Player p, QueueTeam team);// generic entry, optional
     void removePlayer(Player p);
     List<Player> getAllPlayers();
-
-    // New:
-    void addPlayerToTeam(Player p, QueueTeam team);
 }
