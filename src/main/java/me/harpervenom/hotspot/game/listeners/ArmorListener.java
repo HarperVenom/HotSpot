@@ -253,7 +253,7 @@ public class ArmorListener implements Listener {
     }
 
     public static void spawnExplosionParticles(Player player, float explosionRadius) {
-        spawnBeautifulExplosion(player.getEyeLocation(), 10);
+        spawnBeautifulExplosion(player.getEyeLocation(), explosionRadius);
     }
 
     private static float getPlatePower(double damage) {
@@ -341,6 +341,13 @@ public class ArmorListener implements Listener {
     public static boolean isWearingTankPlate(Player player) {
         ItemStack chestplate = player.getInventory().getChestplate();
         return hasItemId(chestplate, tankPlateId);
+    }
+
+    public static void spawnBeautifulExplosion(Location center, double radius) {
+        spawnExplosionFlash(center);
+        spawnExplosionDebris(center, radius * 0.25);
+        spawnShockwave(center, radius, 2);
+        spawnExplosionSmoke(center, radius * 0.6);
     }
 
     private static void spawnExplosionFlash(Location center) {
@@ -461,12 +468,5 @@ public class ArmorListener implements Listener {
                 );
             }
         }.runTaskTimer(plugin, 2L, 2L);
-    }
-
-    public static void spawnBeautifulExplosion(Location center, double radius) {
-        spawnExplosionFlash(center);
-        spawnExplosionDebris(center, radius * 0.25);
-        spawnShockwave(center, radius, 2);
-        spawnExplosionSmoke(center, radius * 0.6);
     }
 }

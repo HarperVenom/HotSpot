@@ -20,6 +20,7 @@ public class GameProfile {
     private final EconomyManager economyManager;
     private final EquipmentManager equipmentManager;
     private final LootManager lootManager;
+    private final GameStats gameStats;
 
     private boolean isProtected = false;
 
@@ -29,6 +30,7 @@ public class GameProfile {
         economyManager = new EconomyManager(this);
         equipmentManager = new EquipmentManager(this);
         lootManager = new LootManager(this);
+        gameStats = new GameStats();
 
         upgradesManager.setLevel(TradeType.PICKAXE, 1);
 
@@ -71,6 +73,9 @@ public class GameProfile {
     }
     public LootManager getLootManager() {
         return lootManager;
+    }
+    public GameStats getStats() {
+        return gameStats;
     }
 
     public void setProtected(boolean isProtected) {

@@ -39,7 +39,7 @@ public class MenuEventListener implements Listener {
 
         if (hasJustClicked(player)) return;
 
-        if (manager.handleHandClick(player)) {
+        if (manager.getLobbyController().handleHandClick(player)) {
             e.setCancelled(true);
         }
     }

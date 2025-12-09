@@ -97,14 +97,6 @@ public class DamageManager {
 
         Entity entity = e.getEntity();
 
-//        if (entity instanceof Player victim) {
-//            double damage = e.getFinalDamage();
-//            if (isWearingTankPlate(victim)) {
-//                damage -= damageReduction * damage;
-//                e.setDamage(damage);
-//            }
-//        }
-
         if (!e.isCancelled()) {
             assignLastDamager(entity, exploderProfile);
         }
@@ -119,19 +111,23 @@ public class DamageManager {
             return;
         }
 
-        GameProfile profile = lastDamager.get(entity.getUniqueId());
-        if (profile == null) return;
-
-        if (entity instanceof Player victim) {
-            victim.setKiller(profile.getPlayer().getPlayer());
-
-            GameProfile victimProfile = game.getPlayerManager().getProfile(victim);
-            if (victimProfile != null && victimProfile.equals(profile)) return;
-        }
+        GameProfile damagerProfile = lastDamager.get(entity.getUniqueId());
+        if (damagerProfile == null) return;
 
         double damage = Math.min(entity.getHealth(), e.getFinalDamage());
 
-        Player damager = profile.getPlayer();
+        if (entity instanceof Player victim) {
+            victim.setKiller(damagerProfile.getPlayer().getPlayer());
+
+            GameProfile victimProfile = game.getPlayerManager().getProfile(victim);
+            if (victimProfile != null) {
+                if (victimProfile.equals(damagerProfile)) return;
+                victimProfile.getStats().addTakenDamage(damage);
+                victimProfile.getStats().addPreventedDamage(e.getDamage() - damage);
+            }
+        }
+
+        Player damager = damagerProfile.getPlayer();
         if (isWearingTankPlate(damager)) {
             damage -= damageReduction * damage;
             e.setDamage(damage);
@@ -139,7 +135,8 @@ public class DamageManager {
 
         if (e.getCause() == EntityDamageEvent.DamageCause.KILL) return;
 
-        profile.getEconomyManager().transferToBalance(damage);
+        damagerProfile.getEconomyManager().transferToBalance(damage);
+        damagerProfile.getStats().addDealtDamage(damage);
     }
 
     public void assignLastDamager(Entity entity, Player player) {

@@ -9,7 +9,6 @@ import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
@@ -18,7 +17,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.time.Duration;
-import java.util.UUID;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.game.listeners.ArmorListener.activateExplosionChest;
@@ -37,12 +35,30 @@ public class GameDeathHandler {
         GameProfile gameProfile = game.getPlayerManager().getProfile(player);
         handleDeath(e, gameProfile);
 
+        gameProfile.getStats().addDeath();
+
         Component victimName = gameProfile.getName();
 
-        GameProfile lastDamager = game.getDamageManager().getLastDamager(player);
+        GameProfile killerProfile = game.getDamageManager().getLastDamager(player);
         Component deathMessage;
-        if (lastDamager != null) {
-            deathMessage = victimName.append(text(" был убит ", NamedTextColor.GRAY)).append(lastDamager.getName());
+        if (killerProfile != null) {
+            killerProfile.getStats().addKill();
+
+            int bounty = gameProfile.getStats().getBounty();
+            gameProfile.getStats().resetBounty();
+
+            killerProfile.getEconomyManager().addBalance(bounty);
+
+            deathMessage = victimName.append(text(" был убит ", NamedTextColor.GRAY)).append(killerProfile.getName());
+            if (bounty >= 10) {
+                deathMessage = deathMessage.append(text(" (Награда: " + bounty + ")", NamedTextColor.GOLD));
+            }
+
+            if (bounty > 0) {
+                Player killer = killerProfile.getPlayer();
+                killer.sendActionBar(text("+" + bounty, NamedTextColor.GOLD));
+                killer.playSound(killer, Sound.BLOCK_CHAIN_BREAK, 1, 0.8f);
+            }
         } else {
             deathMessage = victimName.append(text(" погиб", NamedTextColor.GRAY));
         }

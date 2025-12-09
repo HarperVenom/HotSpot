@@ -122,7 +122,9 @@ public class UIManager {
 
         int score = team.getScore();
         NamedTextColor scoreColor = score < 10 ? NamedTextColor.YELLOW : NamedTextColor.WHITE;
-        boolean hasArrow = game.getScoreManager().getScoreLoss(team) != 0;
+
+        int loss = Math.abs(game.getScoreManager().getScoreLoss(team));
+        boolean hasArrow = loss != 0;
 
         // Format score as 3 digits with leading zeros
         String scoreStr = String.format("%03d", score);
@@ -149,10 +151,27 @@ public class UIManager {
             );
         }
 
+        if (hasArrow) {
+            formattedScore = formattedScore.append(
+                    text(" ↓", lossToColor(loss))
+            );
+        }
+
         return Component.text().append(blocksLine).append(Component.space())
                 .append(formattedScore)
-                .append(text(hasArrow ? " ↓" : ""))
                 .build();
+    }
+
+    private static TextColor lossToColor(int loss) {
+        int maxLossForFullRed = 5;
+        double t = Math.min(loss / (double) maxLossForFullRed, 1.0);
+        if (loss == 1) return NamedTextColor.WHITE;
+
+        int r = 255;
+        int g = (int) (255 * (1.0 - t));
+        int b = (int) (255 * (1.0 - t));
+
+        return TextColor.color(r, g, b);
     }
 
     public void setViewers(List<Player> viewers) {

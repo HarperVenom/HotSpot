@@ -8,4 +8,5 @@ public interface QueueListener {
     default void onPlayerLeave(Player player, GameQueue queue) {}
     default void onQueueReady(GameQueue queue) {}
     default void onQueueRemove(GameQueue queue) {}
+    default void onTimerTick(GameQueue queue) {}
 }

@@ -26,6 +26,10 @@ public class Utils {
 
     private final static NamespacedKey key = new NamespacedKey(plugin, "custom_id");
 
+    public static Location getLocationFromConfig(String path) {
+        return getLocationFromConfig(path, false);
+    }
+
     public static Location getLocationFromConfig(String path, boolean isBottom) {
         FileConfiguration config = plugin.getConfig(); // from your plugin
         if (!config.contains(path)) {
@@ -54,10 +58,6 @@ public class Utils {
         float pitch = (float) config.getDouble(path + ".pitch", 0.0);
 
         return new Location(world, x, y, z, yaw, pitch);
-    }
-
-    public static Location getLocationFromConfig(String path) {
-        return getLocationFromConfig(path, false);
     }
 
     public static ItemStack createItemStack(Material material, Component title, List<Component> lore) {

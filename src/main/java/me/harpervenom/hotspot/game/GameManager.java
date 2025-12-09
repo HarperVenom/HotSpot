@@ -3,12 +3,14 @@ package me.harpervenom.hotspot.game;
 import me.harpervenom.hotspot.game.map.MapManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import me.harpervenom.hotspot.queue.QueueListener;
+import me.harpervenom.hotspot.statistics.StatsManager;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
@@ -16,12 +18,14 @@ import static me.harpervenom.hotspot.HotSpot.plugin;
 public class GameManager implements GameListener, QueueListener {
 
     private final MapManager mapManager;
+    private final StatsManager statsManager;
     private final List<Game> games = new ArrayList<>();
     private final List<GameListener> listeners = new ArrayList<>();
 //    private final PartyManager partyManager;
 
-    public GameManager(MapManager mapManager) {
+    public GameManager(MapManager mapManager, StatsManager statsManager) {
         this.mapManager = mapManager;
+        this.statsManager = statsManager;
         listeners.add(this);
     }
 
@@ -39,7 +43,7 @@ public class GameManager implements GameListener, QueueListener {
                 game.setMap(map);
                 game.setup();
 
-                List<Player> players = queue.getPlayers();
+                List<Player> players = queue.getPlayers(false);
                 Collections.shuffle(players);
 
                 for (Player player : players) {
@@ -93,7 +97,17 @@ public class GameManager implements GameListener, QueueListener {
     }
 
     public List<Game> getGames() {
-        return Collections.unmodifiableList(games);
+        return games.stream()
+                .sorted(Comparator.comparingInt(q -> modePriority(q.getMode())))
+                .toList();
+    }
+
+    private static int modePriority(GameModeEnum mode) {
+        return switch (mode) {
+            case NORMAL -> 0;
+            case RANKED -> 1;
+            case CUSTOM -> 2;
+        };
     }
 
     @Override
@@ -103,6 +117,9 @@ public class GameManager implements GameListener, QueueListener {
 
     public void close() {
         mapManager.close();
+    }
+    public StatsManager getStatsManager() {
+        return statsManager;
     }
 }
 

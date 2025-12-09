@@ -56,9 +56,11 @@ public class GameQueue {
                 (seconds) -> {
                     updateScoreboard();
                     if (seconds <= 5) {
+                        isSkipped = true;
                         sendTitle(text(seconds + "", NamedTextColor.YELLOW), text(""), getPlayers());
                         playSound(Sound.BLOCK_NOTE_BLOCK_COW_BELL, 0.5f, 0.5f, getPlayers());
                     }
+                    queueManager.callTickEvent(this);
                 }
         );
 
@@ -97,7 +99,7 @@ public class GameQueue {
         List<Player> players = organizer.getAllPlayers();
 
         if (!getSettings().isCustom()) {
-            if (players.size() == 1) {
+            if (players.size() == settings.getMinPlayers()) {
                 timer.start();
             } else if (players.size() >= 2) {
                 if (timer.getTimeLeft() > 60) {
@@ -136,7 +138,7 @@ public class GameQueue {
     }
 
     public void checkSkips() {
-        boolean canSkip = true;
+        boolean canSkip;
 
         if (settings.isCustom()) {
             canSkip = skippingPlayers.contains(owner);
@@ -155,16 +157,17 @@ public class GameQueue {
         int numberSkipping = skippingPlayers.size();
         int totalPlayers = getPlayers().size();
         int numberPlayersNeeded = Math.max(settings.getMinPlayers(), (int) Math.ceil(totalPlayers * 0.8));
-        actionBarMessage(text("Пропуск ожидания " + numberSkipping + "/" + numberPlayersNeeded, NamedTextColor.YELLOW));
         canSkip = totalPlayers > 1 && numberSkipping >= numberPlayersNeeded;
 
         // tests
         canSkip = true;
-
         if (canSkip) {
             isSkipped = true;
             timer.skip(settings.isCustom() ? 5 : 3);
             updateScoreboard();
+            sendActionBarMessage(text(""), getPlayers(true));
+        } else {
+            actionBarMessage(text("Пропуск ожидания " + numberSkipping + "/" + numberPlayersNeeded, NamedTextColor.YELLOW));
         }
     }
 
@@ -221,10 +224,14 @@ public class GameQueue {
     }
 
     public void updateScoreboard() {
-        Component timeLeftLine = isReady ? text("Запуск...") : text("Начало: " + formatTime(timer.getTimeLeft()));
+        Component timeLeftLine = isReady ? text("Запуск...") : text("До начала: " + formatTime(timer.getTimeLeft()));
 
-        if (!isReady && owner != null && !timer.isRunning()) {
+        if (!isReady && settings.isCustom() && !timer.isRunning()) {
             timeLeftLine = text("Ожидание");
+        }
+
+        if (!isReady && !timer.isRunning() && !settings.isCustom()) {
+            timeLeftLine = text("Мин. игроков: " + settings.getMinPlayers());
         }
 
         scoreboard.updateLines(List.of(
@@ -244,10 +251,14 @@ public class GameQueue {
         timer.cancel();
     }
 
+    public CountdownTimer getTimer() {
+        return timer;
+    }
+
     public GameSettings getSettings() {
         return settings;
     }
-    public GameModeEnum getGameMode() {
+    public GameModeEnum getMode() {
         return gameMode;
     }
     public QueuePlayerOrganizer getOrganizer() {

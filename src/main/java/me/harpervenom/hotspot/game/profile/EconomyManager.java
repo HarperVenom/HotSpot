@@ -1,6 +1,5 @@
 package me.harpervenom.hotspot.game.profile;
 
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class EconomyManager {
@@ -9,7 +8,6 @@ public class EconomyManager {
 
     private int balance;
 
-    private double lifeDamage = 0;
     private double lastDealtDamage;
 
     public EconomyManager(GameProfile profile) {
@@ -19,27 +17,23 @@ public class EconomyManager {
     public void transferToBalance(double damage) {
         double multiplier = 1;
 
-//        dealtDamage += damage;
-
         lastDealtDamage += multiplier * damage;
 
         if (lastDealtDamage > 2.0) {
             double remaining = lastDealtDamage % 2.0;
-            updateBalance((int) lastDealtDamage / 2);
+            addBalance((int) lastDealtDamage / 2);
             lastDealtDamage = remaining;
         }
-
-        lifeDamage += multiplier * damage;
     }
 
     public boolean takePayment(int payment) {
         if (payment > getBalance()) return false;
 
-        updateBalance(-payment);
+        addBalance(-payment);
         return true;
     }
 
-    public void updateBalance(int update) {
+    public void addBalance(int update) {
         Player player = profile.getPlayer();
         if (player == null) return;
         balance += update;

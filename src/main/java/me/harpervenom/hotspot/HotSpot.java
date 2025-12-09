@@ -2,6 +2,7 @@ package me.harpervenom.hotspot;
 
 import me.harpervenom.hotspot.chat.ChatManager;
 import me.harpervenom.hotspot.commands.LobbyCommand;
+import me.harpervenom.hotspot.database.Database;
 import me.harpervenom.hotspot.game.GameEventListener;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.GameModeEnum;
@@ -12,10 +13,14 @@ import me.harpervenom.hotspot.game.vault.VaultListener;
 import me.harpervenom.hotspot.game.point.PointListener;
 import me.harpervenom.hotspot.lobby.LobbyEventListener;
 import me.harpervenom.hotspot.lobby.LobbyManager;
+import me.harpervenom.hotspot.lobby.top_list.TopListListener;
+import me.harpervenom.hotspot.lobby.top_list.TopListManager;
 import me.harpervenom.hotspot.menu.MenuEventListener;
 import me.harpervenom.hotspot.menu.MenuManager;
 import me.harpervenom.hotspot.queue.QueueEventListener;
 import me.harpervenom.hotspot.queue.QueueManager;
+import me.harpervenom.hotspot.statistics.StatsListener;
+import me.harpervenom.hotspot.statistics.StatsManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,12 +39,17 @@ public final class HotSpot extends JavaPlugin implements Listener {
 
         saveDefaultConfig();
 
+        Database db = new Database();
+        db.init();
+        StatsManager statsManager = new StatsManager(db);
+
         MapManager mapManager = new MapManager();
 
         LobbyManager lobbyManager = new LobbyManager();
         QueueManager queueManager = new QueueManager(mapManager);
-        GameManager gameManager = new GameManager(mapManager);
-        MenuManager menuManager = new MenuManager(queueManager, gameManager, mapManager);
+        GameManager gameManager = new GameManager(mapManager, statsManager);
+        MenuManager menuManager = new MenuManager(queueManager, gameManager, mapManager, statsManager);
+        TopListManager topListManager = new TopListManager(db, lobbyManager);
 
         lobbyManager.addListener(menuManager);
 
@@ -49,6 +59,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
         gameManager.addListener(lobbyManager);
         gameManager.addListener(queueManager);
         gameManager.addListener(menuManager);
+        gameManager.addListener(topListManager);
 
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new LobbyEventListener(lobbyManager), this);
@@ -73,6 +84,8 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new TridentListener(), this);
         getServer().getPluginManager().registerEvents(new GeneralListener(), this);
         getServer().getPluginManager().registerEvents(new ChatManager(lobbyManager, gameManager), this);
+        getServer().getPluginManager().registerEvents(new StatsListener(statsManager), this);
+        getServer().getPluginManager().registerEvents(new TopListListener(topListManager, lobbyManager), this);
 
         queueManager.createQueue(GameModeEnum.NORMAL);
         queueManager.createQueue(GameModeEnum.RANKED);

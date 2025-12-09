@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -74,7 +75,7 @@ public class QueueManager implements GameListener {
 
         if (!queue.getSettings().isCustom()) {
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                createQueue(queue.getGameMode());
+                createQueue(queue.getMode());
             }, 3 * 20);
         }
 
@@ -154,13 +155,28 @@ public class QueueManager implements GameListener {
         return queueWindows.get(queue);
     }
 
+    public void callTickEvent(GameQueue queue) {
+        for (QueueListener l : listeners) l.onTimerTick(queue);
+    }
+
     public void addListener(QueueListener queueListener) {
         listeners.add(queueListener);
     }
 
     public List<GameQueue> getQueues() {
-        return gameQueues;
+        return gameQueues.stream()
+                .sorted(Comparator.comparingInt(q -> modePriority(q.getMode())))
+                .toList();
     }
+
+    private static int modePriority(GameModeEnum mode) {
+        return switch (mode) {
+            case NORMAL -> 0;
+            case RANKED -> 1;
+            case CUSTOM -> 2;
+        };
+    }
+
     @Override
     public void onGameStart(Game game) {
         removeQueue(game.getQueue());

@@ -4,3 +4,15 @@ lobby-spawn:
   z: 0
   yaw:
   pitch:
+
+top_lists:
+  damage_dealt:
+    title: "Нанесенный урон"
+    x: 0
+    y: 3
+    z: 0
+  kills:
+    title: "Убийства"
+    x: 5
+    y: 3
+    z: 0

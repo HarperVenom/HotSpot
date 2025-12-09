@@ -1,10 +1,10 @@
 package me.harpervenom.hotspot.game.point;
 
 import me.harpervenom.hotspot.game.Game;
+import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -58,6 +58,10 @@ public class PointManager {
                     player.sendActionBar(text("Вы не можете захватить эту точку", NamedTextColor.RED));
 
             case SUCCESS -> {
+                GameProfile profile = game.getPlayerManager().getProfile(player);
+                if (profile != null) {
+                    profile.getStats().addCapture();
+                }
                 if (point.getTeam() != null) {
                     playSound(Sound.BLOCK_BEACON_DEACTIVATE, 1, 2, point.getTeam().getPlayers());
                 }

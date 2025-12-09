@@ -1,5 +1,7 @@
 package me.harpervenom.hotspot.game;
 
+import me.harpervenom.hotspot.game.profile.GameProfile;
+import me.harpervenom.hotspot.game.profile.GameStats;
 import me.harpervenom.hotspot.game.trader.TraderManager;
 import me.harpervenom.hotspot.game.vault.VaultManager;
 import me.harpervenom.hotspot.game.map.GameMap;
@@ -9,6 +11,7 @@ import me.harpervenom.hotspot.game.team.GameTeamManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -24,6 +27,7 @@ public class Game {
 
     private final GameManager gameManager;
     private final GameQueue queue;
+    private final GameModeEnum mode;
     private final GameSettings settings;
 
     private GameMap map;
@@ -50,6 +54,7 @@ public class Game {
     public Game(GameManager gameManager, GameQueue queue) {
         this.gameManager = gameManager;
         this.queue = queue;
+        this.mode = queue.getMode();
         this.settings = queue.getSettings();
         this.ownerId = queue.getOwner() == null ? null : queue.getOwner().getUniqueId();
 
@@ -114,6 +119,10 @@ public class Game {
         gameManager.removeGame(this);
 
         updateScoreBoardViewers();
+    }
+
+    public boolean canConnect(Player player) {
+        return playerManager.canConnect(player);
     }
 
     public boolean connect(Player player) {
@@ -198,10 +207,46 @@ public class Game {
             sendTitle(text("Поражение", NamedTextColor.RED), text(""), loser.getPlayers());
             sendTitle(text("Победа", NamedTextColor.GOLD), text(""), winner.getPlayers());
             sendTitle(winner.getName(), text("одержали победу"), getPlayerManager().getSpectators());
+
+            winner.getProfiles().forEach(profile -> {
+                double currentRank = gameManager.getStatsManager().getStats(profile.getPlayer()).getRank();
+                profile.getStats().finalizeMatch(currentRank, true, mode == GameModeEnum.RANKED);
+            });
+            loser.getProfiles().forEach(profile -> {
+                double currentRank = gameManager.getStatsManager().getStats(profile.getPlayer()).getRank();
+                profile.getStats().finalizeMatch(currentRank, false, mode == GameModeEnum.RANKED);
+            });
         }
         playSound(Sound.ENTITY_WITHER_SPAWN, 0.5f, 1f, getPlayers());
 
         Bukkit.getScheduler().runTaskLater(plugin, this::end, 5 * 20);
+
+        showStats();
+    }
+
+    private void showStats() {
+        List<GameProfile> profiles = playerManager.getProfileMap().values().stream().toList();
+
+        StatsLeaderboard.Leaderboards lb =
+                StatsLeaderboard.buildLeaderboards(profiles);
+
+        for (GameProfile profile : profiles) {
+            Player player = profile.getPlayer();
+            GameStats stats = profile.getStats();
+            player.sendMessage(
+                    StatsLeaderboard.buildPersonalStatsMessage(lb, profile)
+            );
+            player.sendMessage(text("Опыт: +" + stats.getExp()));
+            if (mode == GameModeEnum.RANKED) {
+                double delta = stats.getRankChange();
+                player.sendMessage(text("Ранг: " + (delta > 0 ? "+" : "") + String.format("%.2f", delta)));
+            }
+        }
+
+        gameManager.getStatsManager().updateProfiles(profiles);
+
+        plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(
+                StatsLeaderboard.buildPersonalStatsMessage(lb, null)));
     }
 
     public List<Player> getPlayers() {
@@ -262,6 +307,9 @@ public class Game {
     }
     public boolean hasEnded() {
         return hasEnded;
+    }
+    public GameModeEnum getMode() {
+        return mode;
     }
 }
 

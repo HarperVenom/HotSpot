@@ -54,6 +54,15 @@ public class PlayerManager {
         smallest.addProfile(profile);
     }
 
+    public boolean canConnect(Player player) {
+        GameProfile profile = profileMap.get(player.getUniqueId());
+        if (profile == null) {
+            if (game.hasStarted() && !game.getSettings().isCanJoinMidGame()) return false;
+            return profileMap.size() < game.getSettings().getMaxPlayers();
+        }
+        return true;
+    }
+
     public boolean connect(Player player) {
         GameProfile profile = profileMap.get(player.getUniqueId());
         if (profile != null) {
@@ -91,6 +100,8 @@ public class PlayerManager {
         player.setGameMode(GameMode.SPECTATOR);
         game.updateScoreBoardViewers();
         game.getUiManager().refreshBarViewers();
+
+        sendMessage(text(player.getName() + " наблюдает", NamedTextColor.GRAY), game.getPlayers());
     }
 
     public void disconnect(Player player) {

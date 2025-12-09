@@ -65,7 +65,7 @@ public class WorldEditManager {
             return future;
         }
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 com.sk89q.worldedit.world.World weWorld = FaweAPI.getWorld(world.getName());
 
