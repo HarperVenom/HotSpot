@@ -50,6 +50,7 @@ public final class HotSpot extends JavaPlugin implements Listener {
         GameManager gameManager = new GameManager(mapManager, statsManager);
         MenuManager menuManager = new MenuManager(queueManager, gameManager, mapManager, statsManager);
         TopListManager topListManager = new TopListManager(db, lobbyManager);
+        statsManager.setGameManager(gameManager);
 
         lobbyManager.addListener(menuManager);
 

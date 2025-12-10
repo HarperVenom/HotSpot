@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static me.harpervenom.hotspot.statistics.Stats.*;
 import static me.harpervenom.hotspot.utils.Utils.createItemStack;
 import static me.harpervenom.hotspot.utils.Utils.text;
 
@@ -174,8 +175,14 @@ public final class LobbyMenuController {
                 window.clear();
 
                 List<Component> lore = new ArrayList<>();
-                lore.add(text("Опыт: ", NamedTextColor.GRAY).append(text("" + stats.getExp(), NamedTextColor.WHITE)));
-                lore.add(text("Ранг: ", NamedTextColor.GRAY).append(text(String.format("%.2f", stats.getRank()), NamedTextColor.WHITE)));
+                lore.add(text("Опыт: ", NamedTextColor.GRAY)
+                        .append(levelSymbolFromExp(stats.getExp()))
+                        .append(text(" " + getProgressString(stats.getExp()) + " "))
+                        .append(levelSymbol(getLevelFromPoints(stats.getExp()) + 1)));
+
+                lore.add(text("Ранг: ", NamedTextColor.GRAY).append(rankSymbol(stats.getRank()))
+                        .append(text(" " + stats.getRankProgress() + "% ").append(rankSymbol(stats.getRank() + 1))));
+
                 lore.add(text(""));
                 lore.add(text("Всего игр: ", NamedTextColor.GRAY).append(text("" + stats.getGamesPlayed(), NamedTextColor.WHITE)));
                 lore.add(text("Побед: ", NamedTextColor.GRAY).append(text("" + stats.getGamesWon(), NamedTextColor.WHITE)));

@@ -120,16 +120,20 @@ public class QueueController {
         Button button = new Button(itemStack);
         button.setOnPersonalClick(player -> {
             QueueTeam lastTeam = queue.getTeam(player);
-            if (lastTeam != null && lastTeam.equals(team) && queue.isOwner(player)) {
-                queueManager.removePlayerFromQueue(player, true);
-                menuManager.getLobbyController().update(player, false);
-            } else {
-                boolean success = addPlayerToQueue(player, queue, team);
-                if (!success) {
-                    player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
-                    return;
+
+            if (queue.getTimer().getTimeLeft() > 5) {
+                if (lastTeam != null && lastTeam.equals(team) && queue.isOwner(player)) {
+                    queueManager.removePlayerFromQueue(player, true);
+                    menuManager.getLobbyController().update(player, false);
+                } else {
+                    boolean success = addPlayerToQueue(player, queue, team);
+                    if (!success) {
+                        player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+                        return;
+                    }
                 }
             }
+
             window.update();
         });
         return button;
