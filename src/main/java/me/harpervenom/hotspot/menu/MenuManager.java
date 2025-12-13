@@ -15,6 +15,7 @@ import me.harpervenom.hotspot.statistics.StatsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -90,15 +91,15 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         ItemStack itemStack = createItemStack(settings.getQueueMaterial(), text("Очередь ").append(settings.getName()), lore);
         Button button = new Button(itemStack);
         button.setOnPersonalClick(player -> {
-            if (settings.isCustom()) {
+            if (settings.canChooseTeam()) {
                 queueManager.getQueueWindow(queue).open(player);
                 return;
             }
 
-            boolean success = queueController.addPlayerToQueue(player, queue);
-            if (!success) {
-                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
-            }
+            queueController.addPlayerToQueue(player, queue);
+//            if (!success) {
+//                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+//            }
         });
 
         return button;

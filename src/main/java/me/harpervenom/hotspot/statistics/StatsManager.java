@@ -7,6 +7,7 @@ import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class StatsManager {
         this.gameManager = gameManager;
     }
 
-    public void loadStats(Player player) {
+    public void loadStats(OfflinePlayer player) {
         UUID id = player.getUniqueId();
         db.players.getOrCreateStats(id).thenAccept(stats -> {
             allStats.put(id, stats);
@@ -38,7 +39,7 @@ public class StatsManager {
         });
     }
 
-    public Stats getStats(Player player) {
+    public Stats getStats(OfflinePlayer player) {
         UUID id = player.getUniqueId();
         Stats stats = this.allStats.get(id);
         if (stats == null) {
@@ -61,21 +62,26 @@ public class StatsManager {
             Stats stats = getStats(player);
             if (stats == null) return;
 
-            Component name = text(player.getName());
-            if (gameManager != null) {
-                Game game = gameManager.getGame(player);
-                if (game != null) {
-                    GameTeam team = game.getPlayerManager().getTeam(player);
-                    if (team != null) {
-                        name = name.color(team.getColor());
-                    }
+            player.playerListName(
+                    stats.getLevelIcon()
+                            .append(stats.getRankIcon())
+                            .append(stats.getSkillIcon())
+                            .append(text(" ").append(getName(player))));
+        });
+    }
+
+    public Component getName(OfflinePlayer offlinePlayer) {
+        Component name = text(offlinePlayer.getName());
+        if (!(offlinePlayer instanceof Player player)) return name;
+        if (gameManager != null) {
+            Game game = gameManager.getGame(player);
+            if (game != null) {
+                GameTeam team = game.getPlayerManager().getTeam(player);
+                if (team != null) {
+                    name = name.color(team.getColor());
                 }
             }
-
-            player.playerListName(
-                    levelSymbolFromExp(stats.getExp())
-                    .append(rankSymbol(stats.getRank()))
-                    .append(text(" ").append(name)));
-        });
+        }
+        return name;
     }
 }

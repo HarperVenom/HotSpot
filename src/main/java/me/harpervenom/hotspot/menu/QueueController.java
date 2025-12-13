@@ -12,6 +12,7 @@ import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
 import me.harpervenom.hotspot.queue.players.team.QueueTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -54,14 +55,20 @@ public class QueueController {
             Button createButton = new Button(createItemStack);
             createButton.setOnPersonalClick(player -> {
                 GameQueue queue = queueManager.createQueue(mode, player);
-                if (settings.isCustom()) {
+                if (settings.canChooseTeam()) {
                     queueManager.setWindow(queue, makeQueueWindow(queue));
                 } else {
                     addPlayerToQueue(player, queue);
                 }
                 menuManager.getLobbyController().update(player);
                 player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BANJO, 0.5f, 1);
-                queueManager.getQueueWindow(queue).open(player);
+
+                Window queueWindow = queueManager.getQueueWindow(queue);
+                if (queueWindow != null) {
+                    queueWindow.open(player);
+                } else {
+                    menuManager.getGamesWindow().open(player);
+                }
             });
 
             ItemStack mapItemStack = createItemStack(settings.getMapData().getMaterial(),
@@ -71,12 +78,27 @@ public class QueueController {
                 makeMapWindow(player, settings, window).open(player);
             });
 
+            ItemStack teamsItemStack = getTeamSettingItem(settings.canChooseTeam());
+            Button teamsButton = new Button(teamsItemStack);
+            teamsButton.setOnPersonalClick(player -> {
+                settings.setCanChooseTeam(!settings.canChooseTeam());
+                window.update();
+            });
+
             window.addButton(mapButton, 4);
+            window.addButton(teamsButton, 5);
             window.addButton(createButton, 22);
         });
         window.update();
 
         return window;
+    }
+
+    private ItemStack getTeamSettingItem(boolean canChooseTeam) {
+        Material material = canChooseTeam ? Material.GREEN_BANNER : Material.RED_BANNER;
+        Component name = canChooseTeam ? text("Можно выбирать команду", NamedTextColor.GREEN)
+                : text("Нельзя выбирать команду", NamedTextColor.RED);
+        return createItemStack(material, name, null);
     }
 
     private Window makeMapWindow(Player player, GameSettings setting, Window lastWindow) {
@@ -126,11 +148,7 @@ public class QueueController {
                     queueManager.removePlayerFromQueue(player, true);
                     menuManager.getLobbyController().update(player, false);
                 } else {
-                    boolean success = addPlayerToQueue(player, queue, team);
-                    if (!success) {
-                        player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
-                        return;
-                    }
+                    addPlayerToQueue(player, queue, team);
                 }
             }
 
@@ -139,17 +157,18 @@ public class QueueController {
         return button;
     }
 
-    public boolean addPlayerToQueue(Player player, GameQueue queue) {
-        return addPlayerToQueue(player, queue, null);
+    public void addPlayerToQueue(Player player, GameQueue queue) {
+        addPlayerToQueue(player, queue, null);
     }
 
-    public boolean addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
-        boolean added = queueManager.addPlayerToQueue(player, queue, team);
+    public void addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
+        QueueManager.AddPlayerResult result = queueManager.addPlayerToQueue(player, queue, team);
 
-        if (added) {
+        if (result == QueueManager.AddPlayerResult.NOT_ALLOWED) {
+            player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
+        } else if (result == QueueManager.AddPlayerResult.SUCCESS) {
             menuManager.getLobbyController().update(player, false);
             playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 1.5f, queue.getPlayers());
         }
-        return added;
     }
 }

@@ -66,7 +66,7 @@ public class GameQueue {
 
         this.owner = owner;
 
-        if (mode.getSettings().isCustom()) {
+        if (mode.getSettings().canChooseTeam()) {
             organizer = new TeamQueueOrganizer(this);
         } else {
             organizer = new SimpleQueueOrganizer(this);
@@ -84,6 +84,10 @@ public class GameQueue {
 
     public boolean canAccept(Player player, QueueTeam team) {
         return organizer.canAccept(player, team);
+    }
+
+    public boolean addPlayer(Player player) {
+        return addPlayer(player, null);
     }
 
     public boolean addPlayer(Player player, QueueTeam team) {

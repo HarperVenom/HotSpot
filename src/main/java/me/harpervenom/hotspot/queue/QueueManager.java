@@ -18,6 +18,12 @@ import static me.harpervenom.hotspot.HotSpot.plugin;
 
 public class QueueManager implements GameListener {
 
+    public enum AddPlayerResult {
+        SUCCESS,              // Joined successfully
+        ALREADY_JOINED,       // Already in this queue (with same team or can't change)
+        NOT_ALLOWED           // Can't join for any other reason (full, can't accept, etc.)
+    }
+
     private final MapManager mapManager;
 
     private final List<GameQueue> gameQueues = new ArrayList<>();
@@ -87,20 +93,20 @@ public class QueueManager implements GameListener {
         for (QueueListener l : listeners) l.onQueueReady(gameQueue);
     }
 
-    public boolean addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
+    public AddPlayerResult addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
         GameQueue lastQueue = getQueue(player);
 
         if (queue.isFull()) {
-            return false;
+            return AddPlayerResult.NOT_ALLOWED;
         }
 
-        if (!queue.canAccept(player, team)) return false;
+        if (!queue.canAccept(player, team)) return AddPlayerResult.NOT_ALLOWED;
 
         if (lastQueue != null) {
             if (!lastQueue.equals(queue)) {
                 clearQueue(player);
-            } else if (!queue.getSettings().isCustom() || team != null && team.equals(lastQueue.getTeam(player))) {
-                return false;
+            } else if (!queue.getSettings().canChooseTeam() || (team != null && team.equals(lastQueue.getTeam(player)))) {
+                return AddPlayerResult.ALREADY_JOINED;
             } else {
                 removePlayerFromQueue(player, true);
             }
@@ -111,12 +117,12 @@ public class QueueManager implements GameListener {
 
         playerQueues.put(player, queue);
 
-        if (queue.getSettings().isCustom()) {
+        if (queue.getSettings().canChooseTeam()) {
             queueWindows.get(queue).update();
         }
 
         for (QueueListener l : listeners) l.onPlayerJoin(player, queue);
-        return true;
+        return AddPlayerResult.SUCCESS;
     }
 
     public void removePlayerFromQueue(Player player) {

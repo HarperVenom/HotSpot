@@ -236,14 +236,18 @@ public class Game {
             player.sendMessage(
                     StatsLeaderboard.buildPersonalStatsMessage(lb, profile)
             );
-            player.sendMessage(text("Опыт: +" + stats.getExp()));
-            if (mode == GameModeEnum.RANKED) {
-                double delta = stats.getRankChange();
-                player.sendMessage(text("Ранг: " + (delta > 0 ? "+" : "") + String.format("%.2f", delta)));
+            if (!settings.isCustom()) {
+                player.sendMessage(text("Опыт: +" + stats.getExp()));
+                if (mode == GameModeEnum.RANKED) {
+                    double rankChange = stats.getRankChange() * 100;
+                    player.sendMessage(text("Ранг: " + (rankChange > 0 ? "+" : "") + ((rankChange * 100) / 100)));
+                }
             }
         }
 
-        gameManager.getStatsManager().updateProfiles(profiles);
+        if (!settings.isCustom()) {
+            gameManager.getStatsManager().updateProfiles(profiles);
+        }
 
         plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(
                 StatsLeaderboard.buildPersonalStatsMessage(lb, null)));

@@ -115,7 +115,7 @@ public class CustomItems {
         addLoreLine(thunderRelic, text("Призывает грозовую погоду на " + thunderDuration + " секунд"));
         makeConsumable(thunderRelic);
 
-        pillarRelic = createItemStack(Material.BROWN_DYE, text("Вознесение", TextColor.color(255, 166, 77)), null);
+        pillarRelic = createItemStack(Material.BROWN_DYE, text("Вознесение", TextColor.color(204, 134, 63)), null);
         addLoreLine(pillarRelic, text("Поднимает под тобой столб грязи"));
         makeConsumable(pillarRelic);
 

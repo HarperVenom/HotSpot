@@ -4,7 +4,8 @@ import me.harpervenom.hotspot.game.profile.GameStats;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
+
+import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class Stats {
 
@@ -96,18 +97,32 @@ public class Stats {
         return capturedPoints;
     }
 
-    public int getRankProgress() {
-        return (int) ((rank - Math.floor(rank)) * 100);
+    public Component getLevelIcon() {
+        return text("[" + getLevelFromPoints(exp) + "]", TextColor.color(217, 255, 217));
     }
 
-    public static Component rankSymbol(double rank) {
+    public Component getRankIcon() {
+        return getRankIcon(rank);
+    }
+
+    public Component getSkillIcon() {
+        double kd = (double) kills / deaths;
+        String formatted = String.format("%.2f", kd);
+        return text("[" + formatted + "]", TextColor.color(230, 207, 207));
+    }
+
+    public static String getRankProgressString(double rank) {
+        return ((int) ((rank - Math.floor(rank)) * 100)) + "/100";
+    }
+
+    public static Component getRankIcon(double rank) {
         int r = Math.max(0, (int) Math.floor(rank));
 
         TextColor color = switch (r) {
-            case 0 -> TextColor.color(184, 155, 104);
-            case 1 -> TextColor.color(150, 150, 150);
-            case 2 -> TextColor.color(217, 129, 94);
-            case 3 -> TextColor.color(230, 250, 230);
+            case 0 -> TextColor.color(179, 179, 179);
+            case 1 -> TextColor.color(184, 155, 104);
+            case 2 -> TextColor.color(230, 250, 230);
+            case 3 -> TextColor.color(217, 129, 94);
             case 4 -> TextColor.color(255, 215, 0);
             case 5 -> TextColor.color(0, 255, 233);
             case 6 -> TextColor.color(74, 218, 86);
@@ -117,17 +132,17 @@ public class Stats {
         return Component.text("[" + r + "]", color);
     }
 
-    public static Component levelSymbolFromExp(int exp) {
-        return levelSymbol(getLevelFromPoints(exp));
-    }
-
-    public static Component levelSymbol(int level) {
-        return Component.text("[" + level + "]", TextColor.color(217, 255, 217));
-    }
-
-    public static String getProgressString(int points) {
+    public static String getLevelProgressString(int points) {
         int level = getLevelFromPoints(points);
         return (points - totalPointsRequiredForLevel(level)) + "/" + pointsRequiredForLevel(level + 1);
+    }
+
+    public static Component levelIconFromExp(int exp) {
+        return levelIcon(getLevelFromPoints(exp));
+    }
+
+    public static Component levelIcon(int level) {
+        return Component.text("[" + level + "]", TextColor.color(217, 255, 217));
     }
 
     public static int getLevelFromPoints(int points) {

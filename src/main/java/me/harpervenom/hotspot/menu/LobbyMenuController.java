@@ -12,7 +12,7 @@ import me.harpervenom.hotspot.statistics.Stats;
 import me.harpervenom.hotspot.statistics.StatsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -66,7 +66,7 @@ public final class LobbyMenuController {
         set.setButton(2, getStatsButton());
 
         if (queue != null) {
-            if (queue.getSettings().isCustom()) {
+            if (queue.getSettings().canChooseTeam()) {
                 set.setButton(4, getTeamsButton(queue, player));
             }
 
@@ -174,58 +174,39 @@ public final class LobbyMenuController {
             window.setOnUpdate(() -> {
                 window.clear();
 
-                List<Component> lore = new ArrayList<>();
-                lore.add(text("Опыт: ", NamedTextColor.GRAY)
-                        .append(levelSymbolFromExp(stats.getExp()))
-                        .append(text(" " + getProgressString(stats.getExp()) + " "))
-                        .append(levelSymbol(getLevelFromPoints(stats.getExp()) + 1)));
+                TextColor fieldColor = TextColor.color(153, 148, 122);
 
-                lore.add(text("Ранг: ", NamedTextColor.GRAY).append(rankSymbol(stats.getRank()))
-                        .append(text(" " + stats.getRankProgress() + "% ").append(rankSymbol(stats.getRank() + 1))));
+                List<Component> lore = new ArrayList<>();
+                lore.add(text("Уровень: ", fieldColor)
+                        .append(levelIconFromExp(stats.getExp()))
+                        .append(text(" " + getLevelProgressString(stats.getExp()) + " "))
+                        .append(levelIcon(getLevelFromPoints(stats.getExp()) + 1)));
+
+                lore.add(text("Ранг: ", fieldColor)
+                        .append(getRankIcon(stats.getRank()))
+                        .append(text(" " + getRankProgressString(stats.getRank()) + " "))
+                        .append(getRankIcon(stats.getRank() + 1)));
+
+                lore.add(text("Скилл: ", fieldColor).append(stats.getSkillIcon()));
 
                 lore.add(text(""));
-                lore.add(text("Всего игр: ", NamedTextColor.GRAY).append(text("" + stats.getGamesPlayed(), NamedTextColor.WHITE)));
-                lore.add(text("Побед: ", NamedTextColor.GRAY).append(text("" + stats.getGamesWon(), NamedTextColor.WHITE)));
-                lore.add(text("Убийств: ", NamedTextColor.GRAY).append(text("" + stats.getKills(), NamedTextColor.WHITE)));
-                lore.add(text("Смертей: ", NamedTextColor.GRAY).append(text("" + stats.getDeaths(), NamedTextColor.WHITE)));
-                lore.add(text("Нанесено урона: ", NamedTextColor.GRAY)
+                lore.add(text("Всего игр: ", fieldColor).append(text("" + stats.getGamesPlayed(), NamedTextColor.WHITE)));
+                lore.add(text("Побед: ", fieldColor).append(text("" + stats.getGamesWon(), NamedTextColor.WHITE)));
+                lore.add(text("Убийств: ", fieldColor).append(text("" + stats.getKills(), NamedTextColor.WHITE)));
+                lore.add(text("Смертей: ", fieldColor).append(text("" + stats.getDeaths(), NamedTextColor.WHITE)));
+                lore.add(text("Нанесено урона: ", fieldColor)
                         .append(text("" + Math.round(stats.getDealtDamage() * 100.0) / 100.0, NamedTextColor.WHITE)));
-                lore.add(text("Получено урона: ", NamedTextColor.GRAY)
+                lore.add(text("Получено урона: ", fieldColor)
                         .append(text("" + Math.round(stats.getTakenDamage() * 100.0) / 100.0, NamedTextColor.WHITE)));
-                lore.add(text("Предотвращено урона: ", NamedTextColor.GRAY)
+                lore.add(text("Предотвращено урона: ", fieldColor)
                         .append(text("" + Math.round(stats.getPreventedDamage() * 100.0) / 100.0, NamedTextColor.WHITE)));
-                lore.add(text("Захвачено точек: ", NamedTextColor.GRAY).append(text("" + stats.getCapturedPoints(), NamedTextColor.WHITE)));
-//                lore.add(text("Скилл: ", NamedTextColor.AQUA).append(text("" + stats.getSkillValue(), NamedTextColor.AQUA)));
+                lore.add(text("Захвачено точек: ", fieldColor).append(text("" + stats.getCapturedPoints(), NamedTextColor.WHITE)));
 
                 ItemStack statsItemStack = createItemStack(Material.PAPER, text("Твоя статистика:", NamedTextColor.GOLD), lore);
 
                 Button statsButton = new Button(statsItemStack);
 
                 window.addButton(statsButton, 4);
-
-                double currentRankValue = stats.getRank(); // or however you access the player's current rank value
-//                PlayerRank currentRank = PlayerRank.fromValue(currentRankValue);
-//                PlayerRank nextRank = currentRank.getNext();
-//                double min = currentRank.getRequiredValue();
-//                double max = nextRank != null ? nextRank.getRequiredValue() : currentRankValue + 1;
-//                double percent = (currentRankValue - min) / (max - min);
-//                percent = Math.min(1.0, Math.max(0.0, percent));
-//
-//                int slot = 18; // bottom row
-//                for (PlayerRank rank : PlayerRank.values()) {
-//                    Material mat = Material.BLACK_STAINED_GLASS_PANE;
-//                    List<Component> rankLore = new ArrayList<>();
-//                    Component name = rank.getDisplayName();
-//
-//                    if (rank == currentRank) {
-//                        mat = rank.getDisplayMaterial();
-//                        rankLore.add(text(min + " ... ", NamedTextColor.DARK_GRAY).append(text(currentRankValue + "")
-//                                .append(text(" ... " + max, NamedTextColor.DARK_GRAY))));
-//                    }
-//
-//                    ItemStack rankItem = createItemStack(mat, name, rankLore);
-//                    addButton(new Button(rankItem), slot++);
-//                }
             });
             window.update();
             window.open(player);

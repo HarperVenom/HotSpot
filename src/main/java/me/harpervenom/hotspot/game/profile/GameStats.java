@@ -33,7 +33,7 @@ public class GameStats {
         if (isWinner) exp += 15;
 
         if (!isRanked) return;
-        double baseDelta = 0.1;
+        double baseDelta = 0.3;
         double rankFloor = Math.floor(currentRank);
         double scaling = 1.0 / Math.pow(1.0 + rankFloor, 0.7);
         double lossMultiplier = 1.0 + (rankFloor * 0.15);
@@ -43,7 +43,6 @@ public class GameStats {
                 : -baseDelta * scaling * lossMultiplier;
 
         rankChange = clamp(delta, -0.3, 0.3);
-
     }
 
     private double clamp(double v, double min, double max) {

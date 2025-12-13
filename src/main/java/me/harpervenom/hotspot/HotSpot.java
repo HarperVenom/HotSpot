@@ -17,11 +17,14 @@ import me.harpervenom.hotspot.lobby.top_list.TopListListener;
 import me.harpervenom.hotspot.lobby.top_list.TopListManager;
 import me.harpervenom.hotspot.menu.MenuEventListener;
 import me.harpervenom.hotspot.menu.MenuManager;
+import me.harpervenom.hotspot.placeholder.HotSpotExpansion;
 import me.harpervenom.hotspot.queue.QueueEventListener;
 import me.harpervenom.hotspot.queue.QueueManager;
 import me.harpervenom.hotspot.statistics.StatsListener;
 import me.harpervenom.hotspot.statistics.StatsManager;
+import me.harpervenom.hotspot.utils.ChangelogUtil;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerListPingEvent;
@@ -39,6 +42,8 @@ public final class HotSpot extends JavaPlugin implements Listener {
 
         saveDefaultConfig();
 
+        ChangelogUtil.loadChangelog(this);
+
         Database db = new Database();
         db.init();
         StatsManager statsManager = new StatsManager(db);
@@ -51,6 +56,10 @@ public final class HotSpot extends JavaPlugin implements Listener {
         MenuManager menuManager = new MenuManager(queueManager, gameManager, mapManager, statsManager);
         TopListManager topListManager = new TopListManager(db, lobbyManager);
         statsManager.setGameManager(gameManager);
+
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new HotSpotExpansion(statsManager).register();
+        }
 
         lobbyManager.addListener(menuManager);
 
@@ -94,7 +103,6 @@ public final class HotSpot extends JavaPlugin implements Listener {
         LobbyCommand lobbyCommand = new LobbyCommand(lobbyManager);
         getCommand("lobby").setExecutor(lobbyCommand);
         getCommand("spawn").setExecutor(lobbyCommand);
-
     }
 
     @Override

@@ -10,27 +10,30 @@ public class GameSettings {
     private final Material queueMaterial, gameMaterial;
     private MapData mapData;
     private final int maxTeamPlayers;
-    private final boolean isCustomTeams;
+    private boolean canChooseTeam;
+    private final boolean isCustom;
     private final boolean canJoinMidGame;
     private final int minPlayers;
 
     public GameSettings(Component name, Material queueMaterial, Material gameMaterial,
-                        int maxTeamPlayers, boolean isCustomTeams, boolean canJoinMidGame, int minPlayers) {
+                        int maxTeamPlayers, boolean canChooseTeam, boolean isCustom, boolean canJoinMidGame, int minPlayers) {
         this.name = name;
         this.queueMaterial = queueMaterial;
         this.gameMaterial = gameMaterial;
         this.maxTeamPlayers = maxTeamPlayers;
-        this.isCustomTeams = isCustomTeams;
+        this.canChooseTeam = canChooseTeam;
+        this.isCustom = isCustom;
         this.canJoinMidGame = canJoinMidGame;
         this.minPlayers = minPlayers;
     }
 
-    public GameSettings(Component name, Material queueMaterial, Material gameMaterial, boolean isCustomTeams) {
+    public GameSettings(Component name, Material queueMaterial, Material gameMaterial, boolean isCustom) {
         this.name = name;
         this.queueMaterial = queueMaterial;
         this.gameMaterial = gameMaterial;
         this.maxTeamPlayers = 15;
-        this.isCustomTeams = isCustomTeams;
+        this.canChooseTeam = false;
+        this.isCustom = isCustom;
         this.canJoinMidGame = true;
         this.minPlayers = 2;
     }
@@ -51,7 +54,13 @@ public class GameSettings {
         return maxTeamPlayers * 2;
     }
     public boolean isCustom() {
-        return isCustomTeams;
+        return isCustom;
+    }
+    public void setCanChooseTeam(boolean canChooseTeam) {
+        this.canChooseTeam = canChooseTeam;
+    }
+    public boolean canChooseTeam() {
+        return canChooseTeam;
     }
     public boolean isCanJoinMidGame() {
         return canJoinMidGame;
