@@ -10,6 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityTransformEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
+import static me.harpervenom.hotspot.game.trader.Trader.openShopWindow;
+
 public class TraderListener implements Listener {
 
     private final GameManager gameManager;
@@ -32,7 +34,7 @@ public class TraderListener implements Listener {
         GameProfile profile = game.getPlayerManager().getProfile(e.getPlayer());
         if (profile == null) return;
 
-        me.harpervenom.hotspot.game.trader.Trader.openShopWindow(profile);
+        openShopWindow(profile);
     }
 
     @EventHandler

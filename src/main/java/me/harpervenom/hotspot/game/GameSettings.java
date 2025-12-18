@@ -8,15 +8,18 @@ public class GameSettings {
 
     private final Component name;
     private final Material queueMaterial, gameMaterial;
-    private MapData mapData;
     private final int maxTeamPlayers;
-    private boolean canChooseTeam;
     private final boolean isCustom;
-    private final boolean canJoinMidGame;
     private final int minPlayers;
 
+    private MapData mapData;
+    private boolean canChooseTeam;
+    private boolean canJoinMidGame;
+    private boolean pointsInOrder;
+
     public GameSettings(Component name, Material queueMaterial, Material gameMaterial,
-                        int maxTeamPlayers, boolean canChooseTeam, boolean isCustom, boolean canJoinMidGame, int minPlayers) {
+                        int maxTeamPlayers, boolean canChooseTeam, boolean isCustom,
+                        boolean canJoinMidGame, int minPlayers, boolean pointsInOrder) {
         this.name = name;
         this.queueMaterial = queueMaterial;
         this.gameMaterial = gameMaterial;
@@ -25,6 +28,7 @@ public class GameSettings {
         this.isCustom = isCustom;
         this.canJoinMidGame = canJoinMidGame;
         this.minPlayers = minPlayers;
+        this.pointsInOrder = pointsInOrder;
     }
 
     public GameSettings(Component name, Material queueMaterial, Material gameMaterial, boolean isCustom) {
@@ -36,6 +40,20 @@ public class GameSettings {
         this.isCustom = isCustom;
         this.canJoinMidGame = true;
         this.minPlayers = 2;
+        this.pointsInOrder = false;
+    }
+
+    public GameSettings(GameSettings other) {
+        this.name = other.name;
+        this.queueMaterial = other.queueMaterial;
+        this.gameMaterial = other.gameMaterial;
+        this.mapData = other.mapData;
+        this.maxTeamPlayers = other.maxTeamPlayers;
+        this.canChooseTeam = other.canChooseTeam;
+        this.isCustom = other.isCustom;
+        this.canJoinMidGame = other.canJoinMidGame;
+        this.minPlayers = other.minPlayers;
+        this.pointsInOrder = other.pointsInOrder;
     }
 
     public Component getName() {
@@ -73,5 +91,12 @@ public class GameSettings {
     }
     public MapData getMapData() {
         return mapData;
+    }
+
+    public void setPointsInOrder(boolean pointsInOrder) {
+        this.pointsInOrder = pointsInOrder;
+    }
+    public boolean isPointsInOrder() {
+        return pointsInOrder;
     }
 }

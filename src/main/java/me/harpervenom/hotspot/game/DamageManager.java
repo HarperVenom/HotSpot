@@ -117,7 +117,7 @@ public class DamageManager {
         double damage = Math.min(entity.getHealth(), e.getFinalDamage());
 
         if (entity instanceof Player victim) {
-            victim.setKiller(damagerProfile.getPlayer().getPlayer());
+            victim.setKiller(damagerProfile.getPlayer());
 
             GameProfile victimProfile = game.getPlayerManager().getProfile(victim);
             if (victimProfile != null) {

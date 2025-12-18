@@ -15,9 +15,7 @@ import me.harpervenom.hotspot.statistics.StatsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -97,9 +95,6 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             }
 
             queueController.addPlayerToQueue(player, queue);
-//            if (!success) {
-//                player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 1);
-//            }
         });
 
         return button;
@@ -115,7 +110,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         for (GameProfile profile : gameProfiles) {
             TextColor color = NamedTextColor.GRAY;
             if (!profile.isConnected()) color = TextColor.color(130, 35, 30);
-            lore.add(text(profile.getPlayer().getName(), color));
+            lore.add(profile.getName().color(color));
         }
 
         GameQueue queue = game.getQueue();
@@ -131,7 +126,9 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         Button button = new Button(itemStack);
         button.setOnPersonalClick(player -> {
             if (!game.canConnect(player)) {
-                game.getPlayerManager().connectSpectator(player);
+                queueManager.clearQueue(player);
+                game.connectSpectator(player);
+//                game.getPlayerManager().connectSpectator(player);
             } else {
                 makeOptionWindow(game).open(player);
             }
@@ -150,12 +147,13 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         ItemStack spectateItemStack = createItemStack(Material.GLASS, text("Наблюдать"), null);
         Button spectateButton = new Button(spectateItemStack);
         spectateButton.setOnPersonalClick(player -> {
-            game.getPlayerManager().connectSpectator(player);
+            queueManager.clearQueue(player);
+            game.connectSpectator(player);
         });
 
         window.setOnUpdate(() -> {
             window.addButton(joinButton, 12);
-            window.addButton(spectateButton, 15);
+            window.addButton(spectateButton, 14);
         });
         window.update();
 

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.ToDoubleFunction;
 
+import static net.kyori.adventure.text.Component.newline;
 import static net.kyori.adventure.text.Component.text;
 
 public final class StatsLeaderboard {
@@ -63,7 +64,7 @@ public final class StatsLeaderboard {
             Leaderboards lb,
             GameProfile viewer
     ) {
-        return Component.empty()
+        return Component.empty().append(newline())
                 .append(renderStat("Нанесенный Урон", lb.dealtDamage(), viewer, ""))
 //                .append(Component.newline())
                 .append(renderStat("Полученный Урон", lb.takenDamage(), viewer, ""))
@@ -103,7 +104,7 @@ public final class StatsLeaderboard {
         if (pos > 3) {
             StatEntry self = sorted.get(pos - 1);
             comp = comp.append(
-                    text("§7#" + pos + " You §7- " + (int) self.value() + suffix + "\n")
+                    text("§7#" + pos + " Вы §7- " + (int) self.value() + suffix + "\n")
             );
         }
 

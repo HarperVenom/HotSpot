@@ -26,6 +26,10 @@ repositories {
     maven {
         url = 'https://repo.extendedclip.com/releases/'
     }
+
+    maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
+
+    maven { url = uri("https://repo.codemc.io/repository/maven-snapshots/") }
 }
 
 dependencies {
@@ -35,7 +39,8 @@ dependencies {
     implementation(platform("com.intellectualsites.bom:bom-newest:1.55")) // Ref: https://github.com/IntellectualSites/bom
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit")
-    compileOnly 'me.clip:placeholderapi:2.11.7'
+    compileOnly("me.clip:placeholderapi:2.11.7")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.11.0")
 }
 
 jar {

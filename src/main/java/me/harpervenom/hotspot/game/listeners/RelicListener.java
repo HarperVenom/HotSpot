@@ -134,7 +134,7 @@ public class RelicListener implements Listener {
                     // place block under target (during lift AND extra phase)
                     Location below = target.getLocation().clone().subtract(0, 1, 0).getBlock().getLocation();
                     Block b = below.getBlock();
-                    if (map.canPlace(b) && b.getType().isAir()) {
+                    if (world.equals(b.getWorld()) && map.canPlace(b) && b.getType().isAir()) {
                         b.setType(Material.BROWN_CONCRETE_POWDER);
 
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {

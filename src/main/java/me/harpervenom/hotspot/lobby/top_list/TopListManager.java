@@ -76,14 +76,23 @@ public class TopListManager implements GameListener {
 
         map.forEach((id, score) -> {
             OfflinePlayer p = Bukkit.getOfflinePlayer(id);
+
+            String formatted;
+            if (score % 1 == 0) {
+                formatted = String.valueOf(score.intValue());
+            } else {
+                formatted = String.valueOf(score);
+            }
+
             lines.put(
                     text(p.getName()),
-                    text(String.valueOf(score), TextColor.color(176, 224, 230))
+                    text(formatted, TextColor.color(176, 224, 230))
             );
         });
 
         return lines;
     }
+
 
     public void update() {
         topLists.keySet().forEach(this::updateList);

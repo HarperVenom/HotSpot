@@ -1,6 +1,5 @@
 package me.harpervenom.hotspot.game.listeners;
 
-import io.papermc.paper.event.entity.EntityMoveEvent;
 import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.map.GameMap;
@@ -13,23 +12,19 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.game.map.GameMap.immuneMaterials;
-import static me.harpervenom.hotspot.game.vault.loot.CustomItems.mudBombId;
-import static me.harpervenom.hotspot.game.vault.loot.CustomItems.vacuumBombId;
+import static me.harpervenom.hotspot.game.vault.loot.CustomItems.*;
 import static me.harpervenom.hotspot.utils.Utils.getItemId;
 import static me.harpervenom.hotspot.utils.Utils.playSound;
 
@@ -57,7 +52,7 @@ public class BombsListener implements Listener {
         String itemId = getItemId(used);
         if (itemId == null) return;
 
-        if (!itemId.equals(mudBombId) && !itemId.equals(vacuumBombId)) return;
+        if (!itemId.equals(blockBombId) && !itemId.equals(vacuumBombId)) return;
 
         // ✅ single source of truth
         NamespacedKey key = new NamespacedKey(plugin, "custom_id");
@@ -141,17 +136,12 @@ public class BombsListener implements Listener {
         String id = getCustomId(projectile);
         if (id == null) return;
 
-//        Bukkit.broadcastMessage("[BombCCD] ACTIVATED via " +
-//                (projectile.isDead() ? "EVENT" : "CCD") +
-//                " id=" + id +
-//                " speed=" + projectile.getVelocity().length());
-
         Player shooter = null;
         if (projectile.getShooter() instanceof Player player) {
             shooter = player;
         }
 
-        if (id.equals(mudBombId)) {
+        if (id.equals(blockBombId)) {
             activateMudBomb(impact);
         }
         else if (id.equals(vacuumBombId) && shooter != null) {
@@ -182,13 +172,13 @@ public class BombsListener implements Listener {
                         if (map.canPlace(loc.getBlock())
                                 && isReplaceable(loc.getBlock())) {
 
-                            world.getBlockAt(loc).setType(Material.MUD);
+                            world.getBlockAt(loc).setType(blockBombMaterial);
 
                             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                                 world.spawnParticle(Particle.BLOCK,
                                         loc.clone().add(0.3, 0.3, 0.3),
                                         20, 0.5, 0.5, 0.5, 0.1,
-                                        Bukkit.createBlockData(Material.MUD)
+                                        Bukkit.createBlockData(blockBombMaterial)
                                 );
                             }, 1);
 
@@ -227,7 +217,7 @@ public class BombsListener implements Listener {
                     if (entity instanceof Player player) {
                         if (player.getGameMode() == GameMode.SPECTATOR) continue;
                         GameProfile profile = game.getPlayerManager().getProfile(player);
-                        if (profile.isProtected()) continue;
+                        if (profile != null && profile.isProtected()) continue;
                     }
                     if (game.getPlayerManager().areSameTeam(shooter, entity)) continue;
 //                    if (p != null && p.getTeam() != null && team != null && team.equals(p.getTeam())) continue;

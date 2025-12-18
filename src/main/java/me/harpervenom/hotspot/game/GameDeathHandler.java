@@ -79,6 +79,7 @@ public class GameDeathHandler {
 
         killPlayer(gameProfile);
         playDeathEffects(player);
+        game.getVaultManager().resetForPlayer(player);
     }
 
     private void handleDeathState(PlayerDeathEvent e, Player player) {
@@ -98,7 +99,7 @@ public class GameDeathHandler {
         player.setGameMode(org.bukkit.GameMode.SPECTATOR);
 
         new BukkitRunnable() {
-            int seconds = 3;
+            int seconds = 5;
 
             @Override
             public void run() {
@@ -127,7 +128,7 @@ public class GameDeathHandler {
         }
 
         profile.reset();
-        addProtection(profile, 15 * 20);
+        addProtection(profile, 20 * 20);
 
         GameTeam gameTeam = profile.getTeam();
         gameTeam.spawn(player);
@@ -160,7 +161,7 @@ public class GameDeathHandler {
         profile.setProtected(false);
 
         Player player = profile.getPlayer();
-
+        if (player == null) return;
         player.getAttribute(Attribute.KNOCKBACK_RESISTANCE).setBaseValue(
                 player.getAttribute(Attribute.KNOCKBACK_RESISTANCE).getDefaultValue());
     }

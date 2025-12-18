@@ -31,7 +31,7 @@ public class ScoreManager {
             if (loss < 0) {
                 team.setScore(team.getScore() + loss);
                 if (team.getScore() < 10) {
-                    playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1, 0.5f, team.getPlayers());
+                    playSound(Sound.BLOCK_NOTE_BLOCK_HAT, 1, 0.5f, team.getConnectedPlayers());
                 }
             }
         }

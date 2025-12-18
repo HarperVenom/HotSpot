@@ -31,35 +31,32 @@ public class StatsManager {
         this.gameManager = gameManager;
     }
 
-    public void loadStats(OfflinePlayer player) {
-        UUID id = player.getUniqueId();
+    public void loadStats(UUID id) {
         db.players.getOrCreateStats(id).thenAccept(stats -> {
             allStats.put(id, stats);
             updateTab();
         });
     }
 
-    public Stats getStats(OfflinePlayer player) {
-        UUID id = player.getUniqueId();
+    public Stats getStats(UUID id) {
         Stats stats = this.allStats.get(id);
         if (stats == null) {
-            loadStats(player);
+            loadStats(id);
         }
         return stats;
     }
 
     public void updateProfiles(List<GameProfile> profiles) {
         for (GameProfile profile : profiles) {
-            Player player = profile.getPlayer();
-            Stats stats = allStats.get(player.getUniqueId());
+            Stats stats = allStats.get(profile.getId());
             stats.addGameStats(profile.getStats());
-            db.players.updateStats(player.getUniqueId(), stats);
+            db.players.updateStats(profile.getId(), stats);
         }
     }
 
     public void updateTab() {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            Stats stats = getStats(player);
+            Stats stats = getStats(player.getUniqueId());
             if (stats == null) return;
 
             player.playerListName(
@@ -77,7 +74,7 @@ public class StatsManager {
             Game game = gameManager.getGame(player);
             if (game != null) {
                 GameTeam team = game.getPlayerManager().getTeam(player);
-                if (team != null) {
+                if (!game.getPlayerManager().isSpectator(player) && team != null) {
                     name = name.color(team.getColor());
                 }
             }

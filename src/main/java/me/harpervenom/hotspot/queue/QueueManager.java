@@ -46,8 +46,7 @@ public class QueueManager implements GameListener {
             clearQueue(owner);
         }
         GameQueue queue = new GameQueue(this, mode, owner);
-
-        mode.getSettings().setMapData(mapManager.getMaps().getFirst());
+        queue.getSettings().setMapData(mapManager.getMaps().getFirst());
         queue.updateScoreboard();
 
         if (owner != null) {

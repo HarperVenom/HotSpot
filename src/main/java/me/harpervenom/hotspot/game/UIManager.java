@@ -2,7 +2,8 @@ package me.harpervenom.hotspot.game;
 
 import me.harpervenom.hotspot.game.point.PointManager;
 import me.harpervenom.hotspot.game.team.GameTeam;
-import me.harpervenom.hotspot.utils.CustomScoreboard;
+import me.harpervenom.hotspot.utils.scoreboard.CustomSidebar;
+import me.harpervenom.hotspot.utils.scoreboard.PacketSidebar;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -21,7 +22,8 @@ import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class UIManager {
     private final Game game;
-    private final CustomScoreboard scoreboard;
+//    private final CustomSidebar scoreboard;
+    private final PacketSidebar sidebar;
 
     // Three separate bars
     private final BossBar barBlue;
@@ -34,9 +36,10 @@ public class UIManager {
 
     public UIManager(Game game) {
         this.game = game;
-        scoreboard = new CustomScoreboard("game", text("Игра"));
-        scoreboard.showHealth();
-        scoreboard.setPadding(1);
+        sidebar = new PacketSidebar("game", text("Игра"));
+//        scoreboard = new CustomSidebar("game", text("Игра"));
+//        scoreboard.showHealth();
+//        scoreboard.setPadding(1);
 
         barBlue = BossBar.bossBar(text(""), 1f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
         barRed = BossBar.bossBar(text(""), 1f, BossBar.Color.RED, BossBar.Overlay.PROGRESS);
@@ -44,19 +47,48 @@ public class UIManager {
     }
 
     public void update() {
+        sidebar.update(
+                "spectators",
+                new HashSet<>(game.getPlayerManager().getSpectators()),
+                getLinesForTeam(null)
+        );
+
+        for (GameTeam team : game.getTeams()) {
+            sidebar.update(
+                    team.getId(),
+                    new HashSet<>(team.getConnectedPlayers()),
+                    getLinesForTeam(team)
+            );
+        }
+
+//        List<Component> lines = new ArrayList<>();
+//        lines.add(text(""));
+//
+//
+//        for (GameTeam team : game.getTeams()) {
+//            Component line = buildTeamLine(team, maxPoints);
+//            lines.add(line);
+//            lines.add(text(""));
+//            sidebar.update(new HashSet<>(team.getConnectedPlayers()), lines);
+//        }
+
+
+//        sidebar.update();
+//        scoreboard.updateLines(lines);
+
+        updateBars();
+    }
+
+    private List<Component> getLinesForTeam(GameTeam team) {
         List<Component> lines = new ArrayList<>();
         lines.add(text(""));
-
         int maxPoints = game.getPointManager().getPoints().size();
-        for (GameTeam team : game.getTeams()) {
-            Component line = buildTeamLine(team, maxPoints);
+        for (GameTeam currentTeam : game.getTeams()) {
+            Component line = buildTeamLine(currentTeam, maxPoints, currentTeam.equals(team));
             lines.add(line);
         }
         lines.add(text(""));
-
-        scoreboard.updateLines(lines);
-
-        updateBars();
+        return lines;
     }
 
     // Updates all bars with the same content
@@ -116,7 +148,7 @@ public class UIManager {
         }
     }
 
-    private Component buildTeamLine(GameTeam team, int maxPoints) {
+    private Component buildTeamLine(GameTeam team, int maxPoints, boolean addMark) {
         PointManager pm = game.getPointManager();
         Component blocksLine = pm.buildPointsLine(team, maxPoints);
 
@@ -133,7 +165,7 @@ public class UIManager {
 
         if (score == 0) {
             // All zeros: first two gray, last one red
-            formattedScore = formattedScore.append(text("00", NamedTextColor.DARK_GRAY))
+            formattedScore = formattedScore.append(text("00", NamedTextColor.GRAY))
                     .append(text("0", TextColor.color(204, 61, 61)));
         } else {
             // Score > 0: gray leading zeros, remaining digits in score color
@@ -142,7 +174,7 @@ public class UIManager {
 
             if (firstNonZero > 0) {
                 formattedScore = formattedScore.append(
-                        text(scoreStr.substring(0, firstNonZero), NamedTextColor.DARK_GRAY)
+                        text(scoreStr.substring(0, firstNonZero), NamedTextColor.GRAY)
                 );
             }
 
@@ -157,8 +189,15 @@ public class UIManager {
             );
         }
 
-        return Component.text().append(blocksLine).append(Component.space())
+        if (addMark) {
+            formattedScore = formattedScore.append(text(" (Вы)", NamedTextColor.GRAY));
+        }
+
+        return Component.text()
+                .append(text(" "))
+                .append(blocksLine).append(Component.space())
                 .append(formattedScore)
+                .append(text(" "))
                 .build();
     }
 
@@ -174,10 +213,18 @@ public class UIManager {
         return TextColor.color(r, g, b);
     }
 
-    public void setViewers(List<Player> viewers) {
-        scoreboard.setViewers(viewers);
-    }
-    public Scoreboard getScoreboard() {
-        return scoreboard.getScoreboard();
+//    public void setViewers(List<Player> viewers) {
+//        scoreboard.setViewers(viewers);
+//    }
+//    public Scoreboard getSidebar() {
+//        return scoreboard.getScoreboard();
+//    }
+//    public PacketSidebar getSideBar() {
+//        return sidebar;
+//    }
+
+    public void clear() {
+        sidebar.clearAll();
+        removeAllBars();
     }
 }

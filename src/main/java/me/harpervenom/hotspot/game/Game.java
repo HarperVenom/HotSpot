@@ -92,7 +92,8 @@ public class Game {
         if (ownerId != null) {
             Player owner = Bukkit.getPlayer(ownerId);
             if (owner != null && playerManager.getTeam(owner) == null) {
-             playerManager.connectSpectator(owner);
+                connectSpectator(owner);
+//             playerManager.connectSpectator(owner);
             }
         }
 
@@ -118,6 +119,9 @@ public class Game {
         pointManager.remove();
         gameManager.removeGame(this);
 
+        for (Player player : getPlayers()) {
+            playerManager.disconnect(player, true);
+        }
         updateScoreBoardViewers();
     }
 
@@ -125,11 +129,24 @@ public class Game {
         return playerManager.canConnect(player);
     }
 
-    public boolean connect(Player player) {
-        boolean success = playerManager.connect(player);
+    public void connect(Player player) {
+        connect(player, false);
+    }
+
+    public void connectSpectator(Player player) {
+        connect(player, true);
+    }
+
+    public boolean connect(Player player, boolean isSpectator) {
+        boolean success = true;
+        if (isSpectator) {
+            playerManager.connectSpectator(player);
+        } else {
+            success = playerManager.connect(player);
+        }
+        pointManager.updateDisplay();
         if (!success) return false;
         gameManager.updateGames();
-        pointManager.updateDisplay();
         return true;
     }
 
@@ -157,12 +174,10 @@ public class Game {
     public void updateScoreBoardViewers() {
 //        if (!hasStarted) return;
         if (hasEnded) {
-            uiManager.setViewers(new ArrayList<>());
-            uiManager.removeAllBars();
+            uiManager.clear();
             return;
         }
-
-        uiManager.setViewers(getPlayers());
+        uiManager.update();
     }
 
     private void tickSecond() {
@@ -204,16 +219,16 @@ public class Game {
                     .orElseThrow(() -> new IllegalStateException("No loser team found"));
 
             sendMessage(winner.getName().append(text(" одержали победу")), getPlayers());
-            sendTitle(text("Поражение", NamedTextColor.RED), text(""), loser.getPlayers());
-            sendTitle(text("Победа", NamedTextColor.GOLD), text(""), winner.getPlayers());
+            sendTitle(text("Поражение", NamedTextColor.RED), text(""), loser.getConnectedPlayers());
+            sendTitle(text("Победа", NamedTextColor.GOLD), text(""), winner.getConnectedPlayers());
             sendTitle(winner.getName(), text("одержали победу"), getPlayerManager().getSpectators());
 
             winner.getProfiles().forEach(profile -> {
-                double currentRank = gameManager.getStatsManager().getStats(profile.getPlayer()).getRank();
+                double currentRank = gameManager.getStatsManager().getStats(profile.getId()).getRank();
                 profile.getStats().finalizeMatch(currentRank, true, mode == GameModeEnum.RANKED);
             });
             loser.getProfiles().forEach(profile -> {
-                double currentRank = gameManager.getStatsManager().getStats(profile.getPlayer()).getRank();
+                double currentRank = gameManager.getStatsManager().getStats(profile.getId()).getRank();
                 profile.getStats().finalizeMatch(currentRank, false, mode == GameModeEnum.RANKED);
             });
         }
@@ -232,6 +247,7 @@ public class Game {
 
         for (GameProfile profile : profiles) {
             Player player = profile.getPlayer();
+            if (player == null) continue;
             GameStats stats = profile.getStats();
             player.sendMessage(
                     StatsLeaderboard.buildPersonalStatsMessage(lb, profile)
@@ -243,6 +259,12 @@ public class Game {
                     player.sendMessage(text("Ранг: " + (rankChange > 0 ? "+" : "") + ((rankChange * 100) / 100)));
                 }
             }
+        }
+
+        for (Player spectator : playerManager.getSpectators()) {
+            spectator.sendMessage(
+                    StatsLeaderboard.buildPersonalStatsMessage(lb, null)
+            );
         }
 
         if (!settings.isCustom()) {

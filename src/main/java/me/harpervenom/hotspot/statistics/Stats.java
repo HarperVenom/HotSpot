@@ -33,7 +33,7 @@ public class Stats {
             int capturedPoints
     ) {
         this.exp = exp;
-        this.rank = rank;
+        this.rank = Math.max(0, rank);
         this.gamesPlayed = gamesPlayed;
         this.gamesWon = gamesWon;
         this.kills = kills;
@@ -46,7 +46,7 @@ public class Stats {
 
     public void addGameStats(GameStats stats) {
         this.exp += stats.getExp();
-        this.rank += stats.getRankChange();
+        this.rank = Math.max(0, rank + stats.getRankChange());
         this.gamesPlayed++;
         this.gamesWon += stats.isWinner() ? 1 : 0;
         this.kills += stats.getKills();

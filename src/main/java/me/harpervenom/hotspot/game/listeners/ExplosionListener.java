@@ -136,14 +136,14 @@ public class ExplosionListener implements Listener {
         };
     }
 
-    public static void createExplosion(Player player, float power) {
+    public static void createExplosion(Player player, Location location, float power) {
         explosions.put(player.getUniqueId(), player);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             explosions.remove(player.getUniqueId());
         }, 80);
 
-        player.getWorld().createExplosion(player.getLocation(), power, true, true, player);
+        player.getWorld().createExplosion(location, power, true, true, player);
     }
 }
 

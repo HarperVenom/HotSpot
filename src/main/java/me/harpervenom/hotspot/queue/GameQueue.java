@@ -7,7 +7,7 @@ import me.harpervenom.hotspot.queue.players.SimpleQueueOrganizer;
 import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
 import me.harpervenom.hotspot.queue.players.team.QueueTeam;
 import me.harpervenom.hotspot.utils.CountdownTimer;
-import me.harpervenom.hotspot.utils.CustomScoreboard;
+import me.harpervenom.hotspot.utils.scoreboard.CustomSidebar;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
@@ -25,7 +25,7 @@ public class GameQueue {
     private final QueueManager queueManager;
     private final GameModeEnum gameMode;
     private final QueuePlayerOrganizer organizer;
-    private final CustomScoreboard scoreboard;
+    private final CustomSidebar sidebar;
     private final GameSettings settings;
     private final CountdownTimer timer;
     private boolean isReady;
@@ -44,10 +44,10 @@ public class GameQueue {
 
     public GameQueue(QueueManager queueManager, GameModeEnum mode, Player owner) {
         this.queueManager = queueManager;
-        scoreboard = new CustomScoreboard("queue", mode.getSettings().getName());
-        scoreboard.setPadding(1);
+        sidebar = new CustomSidebar("queue", mode.getSettings().getName());
+        sidebar.setPadding(1);
         gameMode = mode;
-        settings = mode.getSettings();
+        settings = new GameSettings(mode.getSettings());
         timer = new CountdownTimer(settings.isCustom() ? 6 : 60,
                 () -> {
                     sendTitle(text("Запуск...", NamedTextColor.YELLOW), text(""), getPlayers());
@@ -163,8 +163,10 @@ public class GameQueue {
         int numberPlayersNeeded = Math.max(settings.getMinPlayers(), (int) Math.ceil(totalPlayers * 0.8));
         canSkip = totalPlayers > 1 && numberSkipping >= numberPlayersNeeded;
 
-        // tests
-        canSkip = true;
+        if (skippingPlayers.getFirst().isOp()) {
+            canSkip = true;
+        }
+
         if (canSkip) {
             isSkipped = true;
             timer.skip(settings.isCustom() ? 5 : 3);
@@ -205,12 +207,12 @@ public class GameQueue {
 
     public void addViewer(Player player) {
         viewers.add(player);
-        scoreboard.setViewers(viewers);
+        sidebar.setViewers(viewers);
     }
 
     public void removeViewer(Player player) {
         viewers.remove(player);
-        scoreboard.setViewers(viewers);
+        sidebar.setViewers(viewers);
     }
 
     public List<Player> getPlayers() {
@@ -238,7 +240,7 @@ public class GameQueue {
             timeLeftLine = text("Мин. игроков: " + settings.getMinPlayers());
         }
 
-        scoreboard.updateLines(List.of(
+        sidebar.updateLines(List.of(
                 text(""),
                 text("Карта: ").append(text(settings.getMapData().getDisplayName(), NamedTextColor.YELLOW)),
                 text(""),
@@ -251,7 +253,7 @@ public class GameQueue {
 
     public void clean() {
         viewers.clear();
-        scoreboard.setViewers(new ArrayList<>());
+        sidebar.setViewers(new ArrayList<>());
         timer.cancel();
     }
 

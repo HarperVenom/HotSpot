@@ -3,6 +3,7 @@ package me.harpervenom.hotspot.game.listeners;
 import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.profile.GameProfile;
+import org.apache.maven.model.Profile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -83,10 +84,13 @@ public class PotionListener implements Listener {
             for (PotionEffect effect : potion.getEffects()) {
                 PotionEffectType type = effect.getType();
 
-                if (!effectShouldApply(type, sameTeam,
-                        entity instanceof Player player &&
-                        game.getPlayerManager().getProfile(player).isProtected()
-                        )) continue;
+                Player player = entity instanceof Player p ? p : null;
+                boolean isProtected = false;
+                if (player != null) {
+                    GameProfile profile = game.getPlayerManager().getProfile(player);
+                    isProtected = profile != null && profile.isProtected();
+                }
+                if (!effectShouldApply(type, sameTeam, isProtected)) continue;
 
                 if (type.equals(PotionEffectType.INSTANT_HEALTH)) {
                     double amount = 4 * (effect.getAmplifier() + 1) * intensity;
@@ -141,10 +145,14 @@ public class PotionListener implements Listener {
         for (Entity entity : immediateNearby) {
             if (entity instanceof LivingEntity livingEntity) {
                 for (PotionEffect effect : effects) {
-                    if (!effectShouldApply(effect.getType(), game.getPlayerManager().areSameTeam(thrower, entity),
-                            entity instanceof Player player
-                                    && game.getPlayerManager().getProfile(player).isProtected()
-                    )) continue;
+
+                    Player player = entity instanceof Player p ? p : null;
+                    boolean isProtected = false;
+                    if (player != null) {
+                        GameProfile profile = game.getPlayerManager().getProfile(player);
+                        isProtected = profile != null && profile.isProtected();
+                    }
+                    if (!effectShouldApply(effect.getType(), game.getPlayerManager().areSameTeam(thrower, entity), isProtected)) continue;
 
                     livingEntity.addPotionEffect(effect);
                 }
@@ -196,12 +204,13 @@ public class PotionListener implements Listener {
             for (PotionEffect effect : cloud.getCustomEffects()) {
                 PotionEffectType type = effect.getType();
 
-                if (!effectShouldApply(type, sameTeam,
-                        entity instanceof Player player
-                                && game.getPlayerManager().getProfile(player).isProtected()
-                )) {
-                    continue;
+                Player player = entity instanceof Player p ? p : null;
+                boolean isProtected = false;
+                if (player != null) {
+                    GameProfile profile = game.getPlayerManager().getProfile(player);
+                    isProtected = profile != null && profile.isProtected();
                 }
+                if (!effectShouldApply(effect.getType(), game.getPlayerManager().areSameTeam(thrower, entity), isProtected)) continue;
 
                 if (type.equals(PotionEffectType.INSTANT_HEALTH)) {
                     double amount = 4 * (effect.getAmplifier() + 1);

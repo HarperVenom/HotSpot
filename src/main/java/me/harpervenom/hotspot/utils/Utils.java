@@ -291,7 +291,9 @@ public class Utils {
 
     public static void playSound(Sound sound, float volume, float pitch, List<Player> players) {
         for (Player player : players) {
-            player.playSound(player, sound, volume, pitch);
+            if (player != null) {
+                player.playSound(player, sound, volume, pitch);
+            }
         }
     }
 

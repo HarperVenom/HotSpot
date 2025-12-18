@@ -169,7 +169,7 @@ public final class LobbyMenuController {
         ItemStack itemStack = createItemStack(Material.PAPER, text("Статистика"), null);
         Button button = new Button(itemStack);
         button.setOnPersonalClick(player -> {
-            Stats stats = statsManager.getStats(player);
+            Stats stats = statsManager.getStats(player.getUniqueId());
             Window window = new Window("Статистика", 27);
             window.setOnUpdate(() -> {
                 window.clear();

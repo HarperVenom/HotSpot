@@ -31,8 +31,9 @@ public class CustomItems {
 
     private final static String breakableKeyword = "breakable";
 
-    public static ItemStack mudBomb;
-    public static String mudBombId = "mudBomb";
+    public static ItemStack blockBomb;
+    public static String blockBombId = "blockBomb";
+    public static Material blockBombMaterial = Material.CLAY;
 
     public static ItemStack vacuumBomb;
     public static String vacuumBombId = "vacuumBomb";
@@ -89,15 +90,15 @@ public class CustomItems {
     public static ItemStack turboShovel;
 
     public static void createCustomItems() {
-        mudBomb = new ItemStack(Material.EGG);
-        ItemMeta mudBombMeta = mudBomb.getItemMeta();
+        blockBomb = new ItemStack(Material.EGG);
+        ItemMeta mudBombMeta = blockBomb.getItemMeta();
 
         if (mudBombMeta != null) {
-            mudBombMeta.displayName(text("Грязевая Бомба", TextColor.color(162, 165, 179)));
-            mudBomb.setItemMeta(mudBombMeta);
+            mudBombMeta.displayName(text("Глиняная Бомба", TextColor.color(162, 165, 179)));
+            blockBomb.setItemMeta(mudBombMeta);
         }
         // id hard repeated in the listener
-        setItemId(mudBomb, mudBombId);
+        setItemId(blockBomb, blockBombId);
 
 
         vacuumBomb = new ItemStack(Material.SNOWBALL);

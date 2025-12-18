@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -18,7 +19,7 @@ import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class VaultManager {
 
-    public static int lootBoxCooldown = 10;
+    public static int lootBoxCooldown = 60;
 
     private final Game game;
 
@@ -48,6 +49,12 @@ public class VaultManager {
             playSound(Sound.BLOCK_VAULT_INSERT_ITEM, 0.5f, 1, game.getPlayers());
 
             time = lootBoxCooldown;
+        }
+    }
+
+    public void resetForPlayer(Player player) {
+        for (Vault vault : vaults) {
+            vault.resetForPlayer(player);
         }
     }
 

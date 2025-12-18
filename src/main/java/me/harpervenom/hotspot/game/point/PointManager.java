@@ -63,10 +63,10 @@ public class PointManager {
                     profile.getStats().addCapture();
                 }
                 if (point.getTeam() != null) {
-                    playSound(Sound.BLOCK_BEACON_DEACTIVATE, 1, 2, point.getTeam().getPlayers());
+                    playSound(Sound.BLOCK_BEACON_DEACTIVATE, 1, 2, point.getTeam().getConnectedPlayers());
                 }
                 point.setTeam(team);
-                playSound(Sound.BLOCK_BEACON_ACTIVATE, 1, 2, team.getPlayers());
+                playSound(Sound.BLOCK_BEACON_ACTIVATE, 1, 2, team.getConnectedPlayers());
                 game.getUiManager().update();
                 updateDisplay();
             }
@@ -80,7 +80,7 @@ public class PointManager {
         }
 
         // First point: always capturable
-        if (team.getFirstPoint().equals(point)) {
+        if (!game.getSettings().isPointsInOrder() || team.getFirstPoint().equals(point)) {
             return CaptureResult.SUCCESS;
         }
 
@@ -117,7 +117,7 @@ public class PointManager {
         // Empty squares
         int emptyCount = maxPoints - points;
         for (int i = 0; i < emptyCount; i++) {
-            NamedTextColor color = (points == 0 && i == 0) ? team.getColor() : NamedTextColor.DARK_GRAY;
+            NamedTextColor color = (points == 0 && i == 0) ? team.getColor() : NamedTextColor.GRAY;
             line = line.append(text("□", color));
         }
 
@@ -132,7 +132,7 @@ public class PointManager {
                 CaptureResult result = checkCapture(point, team);
 //                if (getTeamPoints(team).size() > points.size() / 2) continue;
                 if (result == CaptureResult.SUCCESS) {
-                    viewers.addAll(team.getPlayers());
+                    viewers.addAll(team.getConnectedPlayers());
                 }
             }
             point.setViewers(viewers);

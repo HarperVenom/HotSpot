@@ -65,7 +65,7 @@ public class GameMap {
     }
 
     public boolean canBrake(Block b) {
-        if (b.getType().getHardness() == 0.0) return true;
+        if (b.getType().getHardness() == 0.0 || b.getType() == Material.ICE) return true;
         return blocks.contains(b);
     }
 

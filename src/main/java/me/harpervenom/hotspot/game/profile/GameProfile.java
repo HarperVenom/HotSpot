@@ -4,6 +4,7 @@ import me.harpervenom.hotspot.game.team.GameTeam;
 import me.harpervenom.hotspot.game.trader.TradeType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -33,6 +34,9 @@ public class GameProfile {
         gameStats = new GameStats();
 
         upgradesManager.setLevel(TradeType.PICKAXE, 1);
+        upgradesManager.setLevel(TradeType.HELMET, 1);
+        upgradesManager.setLevel(TradeType.LEGGINGS, 1);
+        upgradesManager.setLevel(TradeType.BOOTS, 1);
 
         reset();
     }
@@ -49,17 +53,26 @@ public class GameProfile {
     public GameTeam getTeam() {
         return gameTeam;
     }
+    public UUID getId() {
+        return playerId;
+    }
     public Player getPlayer() {
         return Bukkit.getPlayer(playerId);
     }
+    public OfflinePlayer getOfflinePlayer() {
+        return Bukkit.getOfflinePlayer(playerId);
+    }
     public void setConnected(boolean isConnected) {
         this.isConnected = isConnected;
+        if (!isConnected) {
+            isProtected = false;
+        }
     }
     public boolean isConnected() {
         return isConnected;
     }
     public Component getName() {
-        return text(getPlayer().getName(), gameTeam.getColor());
+        return text(getOfflinePlayer().getName(), gameTeam.getColor());
     }
 
     public UpgradesManager getUpgradesManager() {

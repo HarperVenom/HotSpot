@@ -16,7 +16,7 @@ public class PlayersManager {
 
             try (Statement statement = connection.createStatement()) {
                 String sql = "CREATE TABLE IF NOT EXISTS players (" +
-                        "id TEXT NOT NULL, " +
+                        "id TEXT PRIMARY KEY, " +
                         "exp INTEGER NOT NULL DEFAULT 0, " +
                         "rank DOUBLE NOT NULL DEFAULT 0.0, " +
                         "games_played INTEGER NOT NULL, " +
@@ -122,8 +122,6 @@ public class PlayersManager {
                 ps.setDouble(10, stats.getCapturedPoints());
                 ps.setString(11, id.toString());
                 ps.executeUpdate();
-
-                System.out.println(stats.getCapturedPoints());
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -184,47 +182,5 @@ public class PlayersManager {
             return result;
         });
     }
-
-
-//    public CompletableFuture<List<UUID>> getTopPlayersByStat(String statColumn, int limit) {
-//        return CompletableFuture.supplyAsync(() -> {
-//            List<UUID> result = new ArrayList<>();
-//
-//            // IMPORTANT: whitelist columns to avoid SQL injection
-//            if (!Set.of(
-//                    "damage_dealt",
-//                    "damage_taken",
-//                    "damage_prevented",
-//                    "kills",
-//                    "deaths",
-//                    "points_captured",
-//                    "games_won",
-//                    "games_played"
-//            ).contains(statColumn)) {
-//                throw new IllegalArgumentException("Invalid stat column: " + statColumn);
-//            }
-//
-//            String sql = """
-//            SELECT id
-//            FROM players
-//            ORDER BY %s DESC
-//            LIMIT ?
-//        """.formatted(statColumn);
-//
-//            try (PreparedStatement ps = connection.prepareStatement(sql)) {
-//                ps.setInt(1, limit);
-//
-//                try (ResultSet rs = ps.executeQuery()) {
-//                    while (rs.next()) {
-//                        result.add(UUID.fromString(rs.getString("id")));
-//                    }
-//                }
-//            } catch (SQLException e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            return result;
-//        });
-//    }
 }
 

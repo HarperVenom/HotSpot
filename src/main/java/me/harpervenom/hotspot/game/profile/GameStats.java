@@ -43,6 +43,7 @@ public class GameStats {
                 : -baseDelta * scaling * lossMultiplier;
 
         rankChange = clamp(delta, -0.3, 0.3);
+        if (currentRank == 0) rankChange = 0;
     }
 
     private double clamp(double v, double min, double max) {
@@ -100,8 +101,8 @@ public class GameStats {
     }
 
     public int getBounty() {
-        return Math.min(100, (int) (lastDealtDamage * 0.1
+        return Math.min(100, (int) (lastDealtDamage * 0.01
                 + lastKills * 5
-                + lastCapturedPoints));
+                + lastCapturedPoints * 0.5));
     }
 }

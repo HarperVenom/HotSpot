@@ -8,7 +8,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,11 +61,9 @@ public class ChatManager implements Listener {
         if (isGlobal) {
             prefix = text("[Сервер] ", serverColor);
             viewers = new ArrayList<>(plugin.getServer().getOnlinePlayers());
-
         } else if (lobbyManager.isLobby(world)) {
             prefix = text("[Лобби] ", lobbyColor);
             viewers = world.getPlayers();
-
         } else {
             Game game = gameManager.getGame(world);
             if (game == null) return;
@@ -86,7 +83,8 @@ public class ChatManager implements Listener {
                 viewers = game.getPlayers();
             } else {
                 prefix = text("[Команда] ", teamColor);
-                viewers = game.getPlayerManager().getTeam(player).getPlayers();
+                game.getPlayerManager().getSpectators();
+                viewers = game.getPlayerManager().getTeam(player).getConnectedPlayers();
             }
         }
 

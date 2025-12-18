@@ -1,5 +1,8 @@
 package me.harpervenom.hotspot.game.team;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateAttributes;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateHealth;
 import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.point.Point;
 import net.kyori.adventure.text.Component;
@@ -7,11 +10,13 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -21,9 +26,7 @@ import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class GameTeam {
 
-    private static int lastId;
-
-    private final int id;
+    private final String id;
     private final NamedTextColor color;
     private final String name;
     private Team team;
@@ -33,21 +36,24 @@ public class GameTeam {
 
     private Point firstPoint;
 
-    private int score = 100;
+    private int score = 500;
 
     public GameTeam(NamedTextColor color, String name, Location spawn) {
-        this.id = lastId;
-        lastId++;
+        this.id = "team_" + color.toString().toLowerCase();
         this.color = color;
         this.name = name;
         this.spawn = spawn;
     }
 
-    public void register(Scoreboard scoreboard) {
-        team = scoreboard.registerNewTeam(id + "");
-        team.displayName(getName());
-        team.color(color);
-        team.setAllowFriendlyFire(false);
+//    public void register(Scoreboard scoreboard) {
+//        team = scoreboard.registerNewTeam(id + "");
+//        team.displayName(getName());
+//        team.color(color);
+//        team.setAllowFriendlyFire(false);
+//    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 
     public void addProfile(GameProfile profile) {
@@ -55,13 +61,25 @@ public class GameTeam {
 
         Player player = profile.getPlayer();
         if (player != null) {
-            team.addEntity(player);
-
-            player.setHealth(1);
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                player.setHealth(20);
-            }, 1);
+            connect(player);
         }
+    }
+
+    public void connect(Player player) {
+        team.addEntity(player);
+        Scoreboard scoreboard = team.getScoreboard();
+        if (scoreboard != null) {
+            player.setScoreboard(team.getScoreboard());
+        }
+
+        player.setHealth(1);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.setHealth(20);
+        }, 2);
+    }
+
+    public void disconnect(Player player) {
+        team.removePlayer(player);
     }
 
     // Move to player manager
@@ -104,8 +122,10 @@ public class GameTeam {
     public List<GameProfile> getProfiles() {
         return profiles.values().stream().toList();
     }
-    public List<Player> getPlayers() {
-        return profiles.values().stream().map(GameProfile::getPlayer).toList();
+    public List<Player> getConnectedPlayers() {
+        return profiles.values().stream()
+                .filter(GameProfile::isConnected)
+                .map(GameProfile::getPlayer).toList();
     }
     public NamedTextColor getColor() {
         return color;
@@ -123,5 +143,8 @@ public class GameTeam {
             case "BLUE" -> Material.BLUE_CONCRETE;
             default -> Material.WHITE_CONCRETE;
         };
+    }
+    public String getId() {
+        return id;
     }
 }

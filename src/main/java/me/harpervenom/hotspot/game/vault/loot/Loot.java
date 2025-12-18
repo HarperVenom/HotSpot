@@ -45,7 +45,6 @@ public class Loot {
                 LootEntry.makeBookEntry(Enchantment.THORNS, 3, 1)
         );
 
-
         bootsEnchants = List.of(
                 LootEntry.makeBookEntry(Enchantment.DEPTH_STRIDER, 3, 0.1),
                 LootEntry.makeBookEntry(Enchantment.FEATHER_FALLING, 4, 1),
@@ -57,7 +56,7 @@ public class Loot {
         equipment = List.of(
                 LootEntry.makeItemEntry(Material.SHIELD, 1, 1, 0.05),
 
-                LootEntry.makeItemEntry(mudBomb, 1.2),
+                LootEntry.makeItemEntry(blockBomb, 1.2),
                 LootEntry.makeItemEntry(pillarRelic, 1),
                 LootEntry.makeItemEntry(reflectionRelic, 0.8),
                 LootEntry.makeItemEntry(vacuumBomb, 0.8),
@@ -84,7 +83,7 @@ public class Loot {
                 LootEntry.makeItemEntry(diamondPlate, 0.6),
 
                 LootEntry.makeItemEntry(chainPlate, 0.4),
-                LootEntry.makeItemEntry(explosionPlate, 110.4),
+                LootEntry.makeItemEntry(explosionPlate, 0.4),
 
                 LootEntry.makeItemEntry(tankPlate, 0.1),
 

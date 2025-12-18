@@ -1,10 +1,9 @@
-package me.harpervenom.hotspot.utils;
+package me.harpervenom.hotspot.utils.scoreboard;
 
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
@@ -13,7 +12,7 @@ import java.util.*;
 
 import static me.harpervenom.hotspot.utils.Utils.text;
 
-public class CustomScoreboard {
+public class CustomSidebar {
 
     private final Scoreboard scoreboard;
     private final Objective objective;
@@ -25,7 +24,7 @@ public class CustomScoreboard {
     private int spaceCount = 0; // for unique empty lines
     private int padding = 0;    // horizontal padding
 
-    public CustomScoreboard(String name, Component title) {
+    public CustomSidebar(String name, Component title) {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         this.scoreboard = manager.getNewScoreboard();
 

@@ -241,10 +241,12 @@ public class ArmorListener implements Listener {
 
         float power = getPlatePower(totalDamage);
 
+        Location deathLoc = player.getLocation().clone().add(0, 1, 0);
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            createExplosion(player, power);
-            spawnExplosionParticles(player, power * 1.2f);
-            player.getLocation().getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1, 0.8f);
+            createExplosion(player, deathLoc, power);
+            spawnExplosionParticles(deathLoc, power * 1.2f);
+            deathLoc.getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_TWINKLE, 1, 0.8f);
 
             // Reset stored damage
             data.set(DAMAGE_KEY, PersistentDataType.DOUBLE, 0.0);
@@ -252,8 +254,8 @@ public class ArmorListener implements Listener {
         }, 1);
     }
 
-    public static void spawnExplosionParticles(Player player, float explosionRadius) {
-        spawnBeautifulExplosion(player.getEyeLocation(), explosionRadius);
+    public static void spawnExplosionParticles(Location location, float explosionRadius) {
+        spawnBeautifulExplosion(location, explosionRadius);
     }
 
     private static float getPlatePower(double damage) {

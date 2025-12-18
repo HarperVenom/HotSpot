@@ -1,5 +1,8 @@
 package me.harpervenom.hotspot;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.harpervenom.hotspot.chat.ChatManager;
 import me.harpervenom.hotspot.commands.LobbyCommand;
 import me.harpervenom.hotspot.database.Database;
@@ -23,6 +26,7 @@ import me.harpervenom.hotspot.queue.QueueManager;
 import me.harpervenom.hotspot.statistics.StatsListener;
 import me.harpervenom.hotspot.statistics.StatsManager;
 import me.harpervenom.hotspot.utils.ChangelogUtil;
+import me.harpervenom.hotspot.utils.glow.EntityMetadataListener;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -39,6 +43,8 @@ public final class HotSpot extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         plugin = this;
+
+        PacketEvents.getAPI().init();
 
         saveDefaultConfig();
 
@@ -106,7 +112,22 @@ public final class HotSpot extends JavaPlugin implements Listener {
     }
 
     @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        //On Bukkit, calling this here is essential, hence the name "load"
+        PacketEvents.getAPI().load();
+
+        PacketEvents.getAPI().getEventManager().registerListener(
+                new EntityMetadataListener()
+        );
+
+//        PacketEvents.getAPI().getEventManager().registerListener(
+//                new EntityMetadataListener(), PacketListenerPriority.NORMAL);
+    }
+
+    @Override
     public void onDisable() {
+        PacketEvents.getAPI().terminate();
     }
 
     @EventHandler

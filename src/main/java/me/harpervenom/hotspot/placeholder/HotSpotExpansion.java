@@ -48,7 +48,7 @@ public class HotSpotExpansion extends PlaceholderExpansion {//
 
         if (params.equalsIgnoreCase("player_info")) {
 
-            Stats stats = statsManager.getStats(player);
+            Stats stats = statsManager.getStats(player.getUniqueId());
 
             Component level = stats.getLevelIcon();
             Component rank = stats.getRankIcon();
