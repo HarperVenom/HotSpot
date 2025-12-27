@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 
 public class GameMap {
 
-    private final String name;
-    private final String displayName;
-    private final Material material;
+    private final MapData mapData;
     private final World world;
 
     private final List<Location> spawns;
@@ -29,9 +27,7 @@ public class GameMap {
 
     public GameMap(MapData mapData, World world) {
         this.world = world;
-        name = mapData.getName();
-        displayName = mapData.getDisplayName();
-        material = mapData.getMaterial();
+        this.mapData = mapData;
 
         spawns = mapData.getSpawns().stream()
                 .map(loc -> new Location(world, loc.x+0.5, loc.y+1, loc.z+0.5, loc.yaw, 0))
@@ -77,11 +73,14 @@ public class GameMap {
         blocks.remove(b);
     }
 
+    public MapData getMapData() {
+        return mapData;
+    }
     public String getName() {
-        return name;
+        return mapData.getName();
     }
     public String getDisplayName() {
-        return displayName;
+        return mapData.getDisplayName();
     }
 
     public World getWorld() {

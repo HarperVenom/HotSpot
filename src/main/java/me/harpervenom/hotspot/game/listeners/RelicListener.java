@@ -4,6 +4,7 @@ import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.map.GameMap;
 import me.harpervenom.hotspot.game.profile.GameProfile;
+import me.harpervenom.hotspot.game.team.GameTeam;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -131,18 +132,26 @@ public class RelicListener implements Listener {
                         return;
                     }
 
+                    Material material;
+                    GameTeam gameTeam = game.getPlayerManager().getTeam(player);
+                    if (gameTeam != null) {
+                        material = gameTeam.getStructureMaterial();
+                    } else {
+                        material = Material.WHITE_CONCRETE_POWDER;
+                    }
+
                     // place block under target (during lift AND extra phase)
                     Location below = target.getLocation().clone().subtract(0, 1, 0).getBlock().getLocation();
                     Block b = below.getBlock();
                     if (world.equals(b.getWorld()) && map.canPlace(b) && b.getType().isAir()) {
-                        b.setType(Material.BROWN_CONCRETE_POWDER);
+                        b.setType(material);
 
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {
                             world.spawnParticle(
                                     Particle.BLOCK,
                                     b.getLocation().clone().add(0.3, 0.3, 0.3),
                                     20, 0.5, 0.5, 0.5, 0.1,
-                                    Bukkit.createBlockData(Material.BROWN_CONCRETE_POWDER)
+                                    Bukkit.createBlockData(material)
                             );
                         }, 1);
 
@@ -192,7 +201,7 @@ public class RelicListener implements Listener {
         Entity target = damagerEntity.getVehicle() != null ? damagerEntity.getVehicle() : damagerEntity;
 
         // Apply knockback
-        double multiplier = Math.max(2, e.getFinalDamage() * 0.3);
+        double multiplier = Math.max(2, e.getFinalDamage() * 0.25);
         Vector direction = damagerEntity.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize().multiply(multiplier);
         direction.setY(Math.max(1, direction.getY()));
 

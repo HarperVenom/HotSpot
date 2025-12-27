@@ -103,6 +103,8 @@ public final class HotSpot extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new StatsListener(statsManager), this);
         getServer().getPluginManager().registerEvents(new TopListListener(topListManager, lobbyManager), this);
 
+        getServer().getPluginManager().registerEvents(db.players, this);
+
         queueManager.createQueue(GameModeEnum.NORMAL);
         queueManager.createQueue(GameModeEnum.RANKED);
 

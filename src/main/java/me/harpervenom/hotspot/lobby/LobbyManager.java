@@ -27,7 +27,7 @@ public class LobbyManager implements GameListener {
         if (world == null) world = Bukkit.getWorlds().getFirst();
         this.world = world;
 
-        Location spawn = getLocationFromConfig("lobby-spawn", true);
+        Location spawn = getLocationFromConfig("lobby_spawn", true);
         if (spawn == null) spawn = world.getBlockAt(0, 100, 0).getLocation();
         this.spawnLoc = spawn;
 

@@ -60,10 +60,8 @@ public class TopListManager implements GameListener {
     private void updateList(String statName) {
         TopList list = topLists.get(statName);
         if (list == null) return;
-
         db.players.getTopPlayersByStat(statName, 10).thenAccept(map -> {
             Map<Component, Component> newLines = buildLines(map);
-
             Bukkit.getScheduler().runTask(plugin, () -> {
                 list.setLines(newLines);
                 list.update();
@@ -74,21 +72,34 @@ public class TopListManager implements GameListener {
     private Map<Component, Component> buildLines(Map<UUID, Double> map) {
         Map<Component, Component> lines = new LinkedHashMap<>();
 
-        map.forEach((id, score) -> {
-            OfflinePlayer p = Bukkit.getOfflinePlayer(id);
+        try {
+            map.forEach((id, score) -> {
+                OfflinePlayer offline = Bukkit.getOfflinePlayer(id);
+                String name = offline.getName();
 
-            String formatted;
-            if (score % 1 == 0) {
-                formatted = String.valueOf(score.intValue());
-            } else {
-                formatted = String.valueOf(score);
-            }
+                // Fallback name if never joined / name unknown
+                String displayName = (name != null) ? name : id.toString().substring(0, 8) + "...";
 
-            lines.put(
-                    text(p.getName()),
-                    text(formatted, TextColor.color(176, 224, 230))
-            );
-        });
+                String formatted;
+                if (score % 1 == 0) {
+                    formatted = String.valueOf(score.intValue());
+                } else {
+                    formatted = String.valueOf(score);
+                }
+
+                lines.put(
+                        text(displayName),
+                        text(formatted, TextColor.color(176, 224, 230))
+                );
+            });
+        } catch (Exception e) {
+            plugin.getLogger().severe("ERROR in buildLines() while processing top list");
+            plugin.getLogger().severe("Map size: " + map.size());
+            e.printStackTrace();  // This will show the full stack trace in console
+
+            // Optional: return empty map or fallback to prevent chain failure
+            return new LinkedHashMap<>();  // or throw if you want to fail loudly
+        }
 
         return lines;
     }

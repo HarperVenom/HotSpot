@@ -1,4 +1,6 @@
-lobby-spawn:
+scoreboard_line: "offmine.ru"
+
+lobby_spawn:
   x: 0
   y: 0
   z: 0

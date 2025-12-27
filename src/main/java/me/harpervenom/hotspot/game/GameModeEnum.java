@@ -15,7 +15,7 @@ public enum GameModeEnum {
             3, false, false, false, 6, true),
     CUSTOM(text("[КАСТОМ]", NamedTextColor.LIGHT_PURPLE),
             Material.PURPLE_STAINED_GLASS, Material.PURPLE_CONCRETE,
-            15, true, true, false, 2, false),
+            15, true, true, true, 2, false),
     ;
 
     private final GameSettings gameSettings;
@@ -31,6 +31,6 @@ public enum GameModeEnum {
     }
 
     public GameSettings getSettings() {
-        return gameSettings;
+        return new GameSettings(gameSettings);
     }
 }

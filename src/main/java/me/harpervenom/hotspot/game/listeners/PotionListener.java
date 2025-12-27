@@ -270,15 +270,28 @@ public class PotionListener implements Listener {
 
     static {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            // Safe copy - good practice (you already do this)
             Set<LivingEntity> slowedCopy = new HashSet<>(slowed);
+
             for (LivingEntity entity : slowedCopy) {
+                // 1. Entity must still exist and be alive
+                if (!entity.isValid() || entity.isDead()) {
+                    slowed.remove(entity);
+                    continue;
+                }
+
+                // 2. Check if it still has the effect (your original logic)
                 if (!entity.hasPotionEffect(PotionEffectType.SLOWNESS)) {
                     slowed.remove(entity);
-                    entity.getAttribute(Attribute.JUMP_STRENGTH).setBaseValue(
-                            entity.getAttribute(Attribute.JUMP_STRENGTH).getDefaultValue());
+
+                    // 3. Safely reset jump strength ONLY if the entity supports it
+                    AttributeInstance jumpAttr = entity.getAttribute(Attribute.JUMP_STRENGTH);
+                    if (jumpAttr != null) {
+                        jumpAttr.setBaseValue(jumpAttr.getDefaultValue());
+                    }
                 }
             }
-        }, 0, 10);
+        }, 0L, 10L);
     }
 
     private static boolean effectShouldApply(PotionEffectType type, boolean isAlly, boolean isProtected) {

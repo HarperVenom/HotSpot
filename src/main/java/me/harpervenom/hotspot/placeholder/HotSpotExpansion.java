@@ -55,8 +55,8 @@ public class HotSpotExpansion extends PlaceholderExpansion {//
             Component skill = stats.getSkillIcon();
 
             Component combined = Component.empty()
-                    .append(level)
-                    .append(rank)
+//                    .append(level)
+//                    .append(rank)
                     .append(skill);
 
             return mm.serialize(combined);

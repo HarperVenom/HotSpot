@@ -38,17 +38,17 @@ public class GameQueue {
 
     private final Player owner;
 
-    public GameQueue(QueueManager queueManager, GameModeEnum mode) {
-        this(queueManager, mode, null);
+    public GameQueue(QueueManager queueManager, GameModeEnum mode, GameSettings settings) {
+        this(queueManager, mode, settings, null);
     }
 
-    public GameQueue(QueueManager queueManager, GameModeEnum mode, Player owner) {
+    public GameQueue(QueueManager queueManager, GameModeEnum mode, GameSettings settings, Player owner) {
         this.queueManager = queueManager;
         sidebar = new CustomSidebar("queue", mode.getSettings().getName());
         sidebar.setPadding(1);
         gameMode = mode;
-        settings = new GameSettings(mode.getSettings());
-        timer = new CountdownTimer(settings.isCustom() ? 6 : 60,
+        this.settings = Objects.requireNonNullElseGet(settings, () -> new GameSettings(mode.getSettings()));
+        timer = new CountdownTimer(this.settings.isCustom() ? 6 : 60,
                 () -> {
                     sendTitle(text("Запуск...", NamedTextColor.YELLOW), text(""), getPlayers());
                     ready();
@@ -66,7 +66,7 @@ public class GameQueue {
 
         this.owner = owner;
 
-        if (mode.getSettings().canChooseTeam()) {
+        if (this.settings.canChooseTeam()) {
             organizer = new TeamQueueOrganizer(this);
         } else {
             organizer = new SimpleQueueOrganizer(this);
@@ -76,6 +76,10 @@ public class GameQueue {
     private void ready() {
         isReady = true;
         updateScoreboard();
+
+        if (settings.getMapData() == null) {
+
+        }
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             queueManager.readyQueue(this);
@@ -163,7 +167,7 @@ public class GameQueue {
         int numberPlayersNeeded = Math.max(settings.getMinPlayers(), (int) Math.ceil(totalPlayers * 0.8));
         canSkip = totalPlayers > 1 && numberSkipping >= numberPlayersNeeded;
 
-        if (skippingPlayers.getFirst().isOp()) {
+        if (!skippingPlayers.isEmpty() && skippingPlayers.getFirst().isOp()) {
             canSkip = true;
         }
 
@@ -230,25 +234,29 @@ public class GameQueue {
     }
 
     public void updateScoreboard() {
-        Component timeLeftLine = isReady ? text("Запуск...") : text("До начала: " + formatTime(timer.getTimeLeft()));
+        List<Component> info = new ArrayList<>();
 
+        info.add(text(""));
+        if (settings.getMapData() != null) {
+            info.add(text("Карта: ").append(text(settings.getMapData().getDisplayName(), NamedTextColor.YELLOW)));
+            info.add(text(""));
+        }
+        info.add(text("Игроки: ").append(text(organizer.getAllPlayers().size() + "/" + settings.getMaxPlayers(), NamedTextColor.YELLOW)));
+        info.add(text(""));
+
+        Component timeLeftLine = isReady ? text("Запуск...") : text("До начала: " + formatTime(timer.getTimeLeft()));
         if (!isReady && settings.isCustom() && !timer.isRunning()) {
             timeLeftLine = text("Ожидание");
         }
-
         if (!isReady && !timer.isRunning() && !settings.isCustom()) {
             timeLeftLine = text("Мин. игроков: " + settings.getMinPlayers());
         }
+        info.add(timeLeftLine);
 
-        sidebar.updateLines(List.of(
-                text(""),
-                text("Карта: ").append(text(settings.getMapData().getDisplayName(), NamedTextColor.YELLOW)),
-                text(""),
-                text("Игроки: ").append(text(organizer.getAllPlayers().size() + "/" + settings.getMaxPlayers(), NamedTextColor.YELLOW)),
-                text(""),
-                timeLeftLine,
-                text("")
-        ));
+        info.add(text(""));
+//        info.add(getScoreboardLine(info));
+
+        sidebar.updateLines(info);
     }
 
     public void clean() {

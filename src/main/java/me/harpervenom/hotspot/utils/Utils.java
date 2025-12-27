@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -316,5 +317,39 @@ public class Utils {
             return Color.fromRGB(255, 255, 0); // Yellow
         }
         return null; // Return null if not one of the specified colors
+    }
+
+    public static Component getScoreboardLine(List<Component> lines) {
+        Component configLine = text(
+                plugin.getConfig().getString("scoreboard_line"),
+                TextColor.color(179, 161, 89)
+        );
+
+        int longest = lines.stream()
+                .mapToInt(Utils::visibleLength)
+                .max()
+                .orElse(0);
+
+        int targetLength = longest + 3;
+        return padToLength(configLine, targetLength);
+    }
+
+    private static int visibleLength(Component component) {
+        return PlainTextComponentSerializer.plainText()
+                .serialize(component)
+                .length();
+    }
+
+    private static Component padToLength(Component component, int targetLength) {
+        String text = PlainTextComponentSerializer.plainText().serialize(component);
+        int diff = targetLength - text.length();
+        if (diff <= 0) return component;
+
+        int left = diff / 2;
+        int right = diff - left;
+
+        return Component.text("-".repeat(left))
+                .append(component)
+                .append(Component.text("-".repeat(right)));
     }
 }

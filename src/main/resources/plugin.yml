@@ -1,12 +1,17 @@
 name: HotSpot
-version: '1.0.1'
+version: '1.4'
 main: me.harpervenom.hotspot.HotSpot
 api-version: '1.21'
+depend:
+  - packetevents
 dependencies:
   server:
     PlaceholderAPI:
       load: BEFORE #
       required: false
+    PacketEvents:
+      load: BEFORE
+      required: true
 commands:
   lobby:
     description: "Перемещает в Лобби"

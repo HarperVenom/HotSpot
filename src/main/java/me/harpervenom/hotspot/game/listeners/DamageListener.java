@@ -38,7 +38,7 @@ public class DamageListener implements Listener {
         game.getDamageManager().handleProjectileDamage(e);
     }
 
-    @EventHandler (priority = EventPriority.HIGHEST)
+    @EventHandler (priority = EventPriority.HIGH)
     public void onEntityDamage(EntityDamageEvent e) {
         Game game = gameManager.getGame(e.getEntity().getWorld());
         if (game == null) return;

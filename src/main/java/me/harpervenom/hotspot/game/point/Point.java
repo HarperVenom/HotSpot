@@ -62,7 +62,7 @@ public class Point {
         } else {
 //            team.playSound(Sound.BLOCK_BEACON_ACTIVATE, 1, 1.5f);
             spectatorSound(Sound.BLOCK_BEACON_ACTIVATE, 1, 1.5f);
-            material = team.getMaterial();
+            material = team.getPointMaterial();
         }
 
         block.setType(material);

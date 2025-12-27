@@ -20,10 +20,10 @@ import java.util.List;
 import static me.harpervenom.hotspot.utils.Utils.*;
 
 public enum TradeType {
-    PICKAXE("pickaxe", 30, 1.5, null, false, Material.WOODEN_PICKAXE, Material.COPPER_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE),
-    LEGGINGS("leggings", 15, 1.5, EquipmentSlot.LEGS, false, Material.LEATHER_LEGGINGS, Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS),
-    HELMET("helmet", 10, 1.5, EquipmentSlot.HEAD, false, Material.LEATHER_HELMET, Material.COPPER_HELMET, Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET),
-    BOOTS("boots", 10, 1.5, EquipmentSlot.FEET, false, Material.LEATHER_BOOTS, Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS),
+    PICKAXE("pickaxe", 30, 1.4, null, false, Material.WOODEN_PICKAXE, Material.COPPER_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE),
+    LEGGINGS("leggings", 15, 1.3, EquipmentSlot.LEGS, false, Material.LEATHER_LEGGINGS, Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS),
+    HELMET("helmet", 10, 1.3, EquipmentSlot.HEAD, false, Material.LEATHER_HELMET, Material.COPPER_HELMET, Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET),
+    BOOTS("boots", 10, 1.3, EquipmentSlot.FEET, false, Material.LEATHER_BOOTS, Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS),
 
     FOOD("food", 3, 0, null, true, Material.COOKED_BEEF),
     BLOCKS("blocks", 3, 0, null, true, Material.ROOTED_DIRT);
@@ -62,7 +62,10 @@ public enum TradeType {
         if (quantitative) {
             ItemStack shopItemStack;
             shopItemStack = item.clone();
-            if (this == BLOCKS) item.setAmount(8);
+            if (this == BLOCKS) {
+                shopItemStack = new ItemStack(profile.getTeam().getBlockMaterial());
+                shopItemStack.setAmount(8);
+            }
             addLoreLine(shopItemStack, text("Цена: " + basePrice, NamedTextColor.AQUA));
             return shopItemStack;
         }
@@ -113,7 +116,7 @@ public enum TradeType {
                     addItemToInventory(player, new ItemStack(Material.COOKED_BEEF, 1));
                 }
                 if (this == BLOCKS) {
-                    addItemToInventory(player, new ItemStack(Material.ROOTED_DIRT, 8));
+                    addItemToInventory(player, new ItemStack(profile.getTeam().getBlockMaterial(), 8));
                 }
             }
             return successful;

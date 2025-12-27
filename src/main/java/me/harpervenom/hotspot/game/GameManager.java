@@ -36,6 +36,8 @@ public class GameManager implements GameListener, QueueListener {
     public void createGame(GameQueue queue) {
         Game game = new Game(this, queue);
 
+//        System.out.println(queue.getSettings().getMapData().getDisplayName());
+
         mapManager.createMap(game).thenAccept(map -> {
             if (map == null) return;
 
@@ -43,7 +45,7 @@ public class GameManager implements GameListener, QueueListener {
                 game.setMap(map);
                 game.setup();
 
-                List<Player> players = queue.getPlayers(false);
+                List<Player> players = queue.getPlayers();
                 Collections.shuffle(players);
 
                 for (Player player : players) {

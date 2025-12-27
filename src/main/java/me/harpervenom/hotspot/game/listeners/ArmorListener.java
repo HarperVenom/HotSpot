@@ -58,7 +58,7 @@ public class ArmorListener implements Listener {
         } else {
             e.setDamage(0);
             absorption -= damage;
-            player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 20 * 5, 0, false, true));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 20 * sunPlateDuration, 0, false, true));
             player.setAbsorptionAmount(absorption);
         }
 
@@ -341,6 +341,7 @@ public class ArmorListener implements Listener {
     }
 
     public static boolean isWearingTankPlate(Player player) {
+        if (player == null) return false;
         ItemStack chestplate = player.getInventory().getChestplate();
         return hasItemId(chestplate, tankPlateId);
     }

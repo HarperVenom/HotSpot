@@ -4,22 +4,27 @@ import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameManager;
 import me.harpervenom.hotspot.game.map.GameMap;
 import me.harpervenom.hotspot.game.profile.GameProfile;
+import me.harpervenom.hotspot.game.team.GameTeam;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
@@ -39,6 +44,47 @@ public class BombsListener implements Listener {
         runProjectileScanning();
     }
 
+    private final Map<UUID, ItemStack> usedItems = new HashMap<>();
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPreThrow(PlayerInteractEvent e) {
+        if (e.getAction() != Action.RIGHT_CLICK_AIR
+                && e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
+        Player p = e.getPlayer();
+        if (e.getHand() == null) return;
+        usedItems.put(p.getUniqueId(), p.getInventory().getItem(e.getHand()));
+    }
+
+//    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+//    public void onProjectileLaunch(ProjectileLaunchEvent e) {
+//        if (!(e.getEntity().getShooter() instanceof Player player)) return;
+//
+//        Projectile projectile = e.getEntity();
+//        if (!(projectile instanceof Snowball || projectile instanceof Egg)) return;
+//
+//        ItemStack item = usedItems.remove(player.getUniqueId());
+//        if (item == null) return;
+//
+//        String itemId = getItemId(item);
+//        if (itemId == null) return;
+//
+//        if (!itemId.equals(blockBombId) && !itemId.equals(vacuumBombId)) return;
+//
+//        NamespacedKey customIdKey = new NamespacedKey(plugin, "custom_id");
+//        projectile.getPersistentDataContainer().set(customIdKey, PersistentDataType.STRING, itemId);
+//
+//        // NEW: Store the thrower UUID
+//        NamespacedKey throwerKey = new NamespacedKey(plugin, "bomb_thrower");
+//        projectile.getPersistentDataContainer().set(
+//                throwerKey,
+//                PersistentDataType.STRING,
+//                player.getUniqueId().toString()
+//        );
+//
+//        tracked.put(projectile, projectile.getLocation().clone());
+//    }
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
         if (!(e.getEntity().getShooter() instanceof Player player)) return;
@@ -46,10 +92,10 @@ public class BombsListener implements Listener {
         Projectile projectile = e.getEntity();
         if (!(projectile instanceof Snowball || projectile instanceof Egg)) return;
 
-        ItemStack used = player.getInventory().getItemInMainHand();
-        if (used.getType().isAir()) return;
+        ItemStack item = usedItems.remove(player.getUniqueId());
+        if (item == null) return;
 
-        String itemId = getItemId(used);
+        String itemId = getItemId(item);
         if (itemId == null) return;
 
         if (!itemId.equals(blockBombId) && !itemId.equals(vacuumBombId)) return;
@@ -142,14 +188,14 @@ public class BombsListener implements Listener {
         }
 
         if (id.equals(blockBombId)) {
-            activateMudBomb(impact);
+            activateBlockBomb(impact, shooter);
         }
         else if (id.equals(vacuumBombId) && shooter != null) {
             activateVacuumBomb(impact, shooter);
         }
     }
 
-    private void activateMudBomb(Location location) {
+    private void activateBlockBomb(Location location, Player shooter) {
         World world = location.getWorld();
 
         Game game = gameManager.getGame(world);
@@ -158,6 +204,14 @@ public class BombsListener implements Listener {
 
         location.getWorld().playSound(location, Sound.BLOCK_MUD_PLACE, 3, 0.4f);
         playSound(Sound.BLOCK_MUD_PLACE, 0.2f, 0.4f, game.getPlayers());
+
+        Material material;
+        GameTeam team = game.getPlayerManager().getTeam(shooter);
+        if (team != null) {
+            material = team.getStructureMaterial();
+        } else {
+            material = Material.WHITE_CONCRETE_POWDER;
+        }
 
         int radius = 2;
         // Loop through a cubic region, but only place blocks within a spherical radius
@@ -172,13 +226,13 @@ public class BombsListener implements Listener {
                         if (map.canPlace(loc.getBlock())
                                 && isReplaceable(loc.getBlock())) {
 
-                            world.getBlockAt(loc).setType(blockBombMaterial);
+                            world.getBlockAt(loc).setType(material);
 
                             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                                 world.spawnParticle(Particle.BLOCK,
                                         loc.clone().add(0.3, 0.3, 0.3),
                                         20, 0.5, 0.5, 0.5, 0.1,
-                                        Bukkit.createBlockData(blockBombMaterial)
+                                        Bukkit.createBlockData(material)
                                 );
                             }, 1);
 

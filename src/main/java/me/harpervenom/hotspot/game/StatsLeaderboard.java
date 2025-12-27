@@ -64,18 +64,25 @@ public final class StatsLeaderboard {
             Leaderboards lb,
             GameProfile viewer
     ) {
-        return Component.empty().append(newline())
-                .append(renderStat("Нанесенный Урон", lb.dealtDamage(), viewer, ""))
-//                .append(Component.newline())
-                .append(renderStat("Полученный Урон", lb.takenDamage(), viewer, ""))
-//                .append(Component.newline())
-                .append(renderStat("Предотвращенный Урон", lb.preventedDamage(), viewer, ""))
-//                .append(Component.newline())
-                .append(renderStat("Убийства", lb.kills(), viewer, ""))
-//                .append(Component.newline())
-                .append(renderStat("Смерти", lb.deaths(), viewer, ""))
-//                .append(Component.newline())
-                .append(renderStat("Захваченные Точки", lb.capturedPoints(), viewer, ""));
+        List<Component> stats = List.of(
+                renderStat("Нанесенный урон", lb.dealtDamage(), viewer, ""),
+                renderStat("Полученный урон", lb.takenDamage(), viewer, ""),
+                renderStat("Предотвращенный урон", lb.preventedDamage(), viewer, ""),
+                renderStat("Убийства", lb.kills(), viewer, ""),
+                renderStat("Смерти", lb.deaths(), viewer, ""),
+                renderStat("Захваченные точки", lb.capturedPoints(), viewer, "")
+        );
+
+        Component result = Component.empty().append(newline());
+
+        for (int i = 0; i < stats.size(); i++) {
+            result = result.append(stats.get(i));
+            if (i < stats.size() - 1) {
+                result = result.append(newline());
+            }
+        }
+
+        return result;
     }
 
     private static Component renderStat(
@@ -84,18 +91,24 @@ public final class StatsLeaderboard {
             @Nullable GameProfile viewer,
             String suffix
     ) {
-        Component comp = text(title + ":\n", NamedTextColor.AQUA);
+        Component comp = text(title + ":", NamedTextColor.YELLOW).append(newline());
 
         for (int i = 0; i < Math.min(3, sorted.size()); i++) {
             StatEntry e = sorted.get(i);
+
             comp = comp.append(
                     text("#" + (i + 1) + " ", NamedTextColor.YELLOW)
-                            .append(e.profile().getName().color(e.profile.getTeam().getColor()))
-                            .append(text(" - " + (int) e.value() + suffix + "\n", NamedTextColor.WHITE))
-            );
+                            .append(
+                                    e.profile()
+                                            .getName()
+                                            .color(e.profile().getTeam().getColor())
+                            )
+                            .append(
+                                    text(" - " + (int) e.value() + suffix, NamedTextColor.WHITE)
+                            )
+            ).append(Component.newline());
         }
 
-        // no viewer → no personal placement
         if (viewer == null) {
             return comp;
         }
@@ -103,8 +116,11 @@ public final class StatsLeaderboard {
         int pos = getPosition(sorted, viewer);
         if (pos > 3) {
             StatEntry self = sorted.get(pos - 1);
+
             comp = comp.append(
-                    text("§7#" + pos + " Вы §7- " + (int) self.value() + suffix + "\n")
+                    text("#" + pos + " ", NamedTextColor.DARK_GRAY)
+                            .append(text("Вы", NamedTextColor.GRAY))
+                            .append(text(" - " + (int) self.value() + suffix, NamedTextColor.GRAY))
             );
         }
 

@@ -49,7 +49,7 @@ public class EquipmentManager {
 
         inventory.setItem(1, pickaxe);
         inventory.setItem(2, new ItemStack(Material.COOKED_BEEF, 8));
-        inventory.setItem(3, new ItemStack(Material.ROOTED_DIRT, 32));
+        inventory.setItem(3, new ItemStack( profile.getTeam().getBlockMaterial(), 32));
 
         inventory.setLeggings(getItem(TradeType.LEGGINGS));
         inventory.setHelmet(getItem(TradeType.HELMET));

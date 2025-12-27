@@ -10,7 +10,9 @@ import me.harpervenom.hotspot.game.team.GameTeam;
 import me.harpervenom.hotspot.game.team.GameTeamManager;
 import me.harpervenom.hotspot.queue.GameQueue;
 import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -93,7 +95,6 @@ public class Game {
             Player owner = Bukkit.getPlayer(ownerId);
             if (owner != null && playerManager.getTeam(owner) == null) {
                 connectSpectator(owner);
-//             playerManager.connectSpectator(owner);
             }
         }
 
@@ -108,10 +109,21 @@ public class Game {
         sendActionBarMessage(text(""), getPlayers());
         updateScoreBoardViewers();
         uiManager.update();
+        sendMessage(text("Игра началась!", NamedTextColor.YELLOW), getPlayers());
+//        Component message;
+//        message = text("Карта: ")
+//                .append(text(map.getDisplayName(), NamedTextColor.AQUA));
+//        if (map.getMapData().getAuthor() != null) {
+//            message = message.append(text(" от "))
+//                    .append(text(map.getMapData().getAuthor(), TextColor.color(179, 141, 71)));
+//        }
+//        sendMessage(message, getPlayers());
 
         playSound(Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1, 1, getPlayers());
 
-        plugin.getLogger().info("Game started");
+        plugin.getLogger().info("Game started. Map: " + map.getName());
+
+        scheduleEnd();
     }
 
     public void end() {
@@ -154,6 +166,10 @@ public class Game {
         playerManager.disconnect(player);
         gameManager.updateGames();
 
+        scheduleEnd();
+    }
+
+    private void scheduleEnd() {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             updateScoreBoardViewers();
 
@@ -181,14 +197,25 @@ public class Game {
     }
 
     private void tickSecond() {
-        elapsedTicks++;
+        try {
+            elapsedTicks++;
 
-        if (elapsedTicks % 20 == 0) {
-            scoreManager.updateScores();
-            teamManager.checkWinner();
-            vaultManager.update();
+            if (elapsedTicks % 20 == 0) {
+                scoreManager.updateScores();
+                teamManager.checkWinner();
+                vaultManager.update();
+                uiManager.update();
+            }
+        } catch (Exception e) {  // ← catches everything (RuntimeException + checked)
+            plugin.getLogger().severe("=== CRITICAL ERROR IN SECOND TICK ===");
+            plugin.getLogger().severe("Tick: " + elapsedTicks);
+            plugin.getLogger().severe("Exception: " + e.getClass().getSimpleName());
+            plugin.getLogger().severe("Message: " + e.getMessage());
 
-            uiManager.update();
+            // Print full stack trace — very important!
+            e.printStackTrace();
+
+            plugin.getLogger().severe("====================================");
         }
     }
 
@@ -256,7 +283,7 @@ public class Game {
                 player.sendMessage(text("Опыт: +" + stats.getExp()));
                 if (mode == GameModeEnum.RANKED) {
                     double rankChange = stats.getRankChange() * 100;
-                    player.sendMessage(text("Ранг: " + (rankChange > 0 ? "+" : "") + ((rankChange * 100) / 100)));
+                    player.sendMessage(text("Ранг: " + (rankChange > 0 ? "+" : "") + String.format("%.0f", rankChange)));
                 }
             }
         }

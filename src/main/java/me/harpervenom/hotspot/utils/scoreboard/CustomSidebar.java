@@ -33,16 +33,6 @@ public class CustomSidebar {
         objective.numberFormat(NumberFormat.blank());
     }
 
-    public void showHealth() {
-        Objective healthObjective = scoreboard.registerNewObjective("playersHealth", Criteria.HEALTH, text("❤", NamedTextColor.RED));
-        healthObjective.setDisplaySlot(DisplaySlot.BELOW_NAME);
-        healthObjective.setRenderType(RenderType.HEARTS);
-    }
-
-    public Objective getHealthObjective() {
-        return scoreboard.getObjective("playersHealth");
-    }
-
     public void setPadding(int padding) {
         this.padding = Math.max(0, padding);
     }

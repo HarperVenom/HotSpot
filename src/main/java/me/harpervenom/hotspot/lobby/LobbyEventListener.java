@@ -34,10 +34,24 @@ public class LobbyEventListener implements Listener {
         this.manager = manager;
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            for (Player player1 : manager.getLobbyWorld().getPlayers()) {
-                if (player1.getLocation().getY() < (manager.getSpawnLoc().getY() - 30)) manager.sendToLobby(player1);
-            }
-        }, 0, 5);
+            World world = manager.getLobbyWorld();
+            if (world == null) return;
+
+            double killBelow = manager.getSpawnLoc().getY() - 30; // use Optional or null-safe
+            if (Double.isNaN(killBelow)) return;
+
+            // Snapshot + filter in one go
+            world.getPlayers().stream()
+                    .filter(Player::isOnline)
+                    .filter(p -> p.getLocation().getY() < killBelow)
+                    .forEach(player -> {
+                        try {
+                            manager.sendToLobby(player);
+                        } catch (Exception e) {
+                            plugin.getLogger().severe("Failed to send " + player.getName() + " to lobby: " + e);
+                        }
+                    });
+        }, 0L, 5L);
     }
 
     @EventHandler
@@ -45,6 +59,9 @@ public class LobbyEventListener implements Listener {
         Player player = e.getPlayer();
         manager.sendToLobby(player);
         updateTabMenu();
+
+        String version = plugin.getPluginMeta().getVersion();
+        player.sendMessage(text("HotSpot v" + version, NamedTextColor.GRAY));
     }
 
     @EventHandler

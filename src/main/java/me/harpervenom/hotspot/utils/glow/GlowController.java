@@ -37,11 +37,13 @@ public final class GlowController {
         if (!glowingPlayers.containsKey(target)) return;
         Set<Player> viewers = glowingPlayers.get(target);
         for (Player viewer : viewers) {
+            if (viewer.equals(target)) continue;
             addGlow(viewer, target);
         }
     }
 
     public static void addGlow(Player viewer, Player target) {
+        if (target == null) return;
         int entityId = target.getEntityId();
 
         EntityData data = new EntityData(
@@ -62,6 +64,7 @@ public final class GlowController {
     }
 
     public static void removeGlow(Player viewer, Player target) {
+        if (target == null) return;
         int entityId = target.getEntityId();
 
         EntityData data = new EntityData(

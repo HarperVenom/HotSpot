@@ -34,23 +34,53 @@ public class PickaxeListener implements Listener {
     static {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             Iterator<Map.Entry<UUID, Location>> iterator = teleportOrigins.entrySet().iterator();
+
             while (iterator.hasNext()) {
                 Map.Entry<UUID, Location> entry = iterator.next();
-                Player player = Bukkit.getPlayer(entry.getKey());
-                if (player == null) continue;
+                UUID uuid = entry.getKey();
+                Player player = Bukkit.getPlayer(uuid);
 
-                Location currentLoc = player.getLocation();
-                if (currentLoc.getWorld().equals(entry.getValue().getWorld()) && currentLoc.distanceSquared(entry.getValue()) > 0.1) {
-                    cancelTeleportMessage(player);
+                // Quick exit if player no longer exists
+                if (player == null || !player.isOnline() || !player.isValid()) {
                     iterator.remove();
-                    teleportingPlayers.get(player.getUniqueId()).cancel();
-                    teleportingPlayers.remove(player.getUniqueId());
                     continue;
                 }
 
-                showParticles(player.getLocation(), player.getWorld());
+                try {
+                    Location currentLoc = player.getLocation();
+                    Location origin = entry.getValue();
+
+                    // Extra safety: check world still loaded (rare but possible)
+                    if (currentLoc.getWorld() == null) {
+                        iterator.remove();
+                        continue;
+                    }
+
+                    if (currentLoc.getWorld().equals(origin.getWorld())
+                            && currentLoc.distanceSquared(origin) > 0.1) {
+
+                        cancelTeleportMessage(player);
+                        iterator.remove();
+
+                        BukkitTask task = teleportingPlayers.get(uuid);
+                        if (task != null) {
+                            task.cancel();
+                        }
+                        teleportingPlayers.remove(uuid);
+                    } else {
+                        // Only show particles if still in origin location
+                        showParticles(player.getLocation(), player.getWorld());
+                    }
+
+                } catch (IllegalStateException e) {
+                    iterator.remove();
+                    // plugin.getLogger().fine("Player " + uuid + " invalid during teleport check");
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Unexpected error in teleport check for " + uuid + ": " + e.getMessage());
+                    iterator.remove();
+                }
             }
-        },0, 5);
+        }, 0L, 5L);
     }
 
     private final GameManager gameManager;
@@ -156,6 +186,14 @@ public class PickaxeListener implements Listener {
                 // Player moved
                 Location current = player.getLocation();
                 Location original = teleportOrigins.get(uuid);
+
+                if (!current.getWorld().equals(original.getWorld())) {
+                    teleportingPlayers.get(uuid).cancel();
+                    teleportingPlayers.remove(uuid);
+                    teleportOrigins.remove(uuid);
+                    cancel();
+                    return;
+                }
 
                 if (current.distanceSquared(original) > 0.1) {
                     cancelTeleportMessage(player);

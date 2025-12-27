@@ -19,7 +19,7 @@ public class MapLoader {
 
     private final WorldEditManager worldEditManager;
 
-    private final List<MapData> maps = new ArrayList<>();
+    private final List<MapData> mapsData = new ArrayList<>();
     private final File mapsFolder = new File(plugin.getDataFolder(), "maps");
 
     public MapLoader() {
@@ -46,7 +46,7 @@ public class MapLoader {
                 MapData mapData = loadMapData(folder);
                 if (mapData == null) return;
                 worldEditManager.loadSchematic(folder, mapData);
-                maps.add(mapData);
+                mapsData.add(mapData);
                 plugin.getLogger().info("Map " + mapData.getName() + " loaded.");
             }
         }
@@ -127,8 +127,8 @@ public class MapLoader {
         return worldEditManager.clearWorldAsync(world);
     }
 
-    public List<MapData> getMaps() {
-        return maps;
+    public List<MapData> getMapsData() {
+        return mapsData;
     }
 
     private static Loc getLocFromSection(ConfigurationSection section) {

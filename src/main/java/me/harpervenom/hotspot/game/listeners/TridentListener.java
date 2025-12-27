@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerPickupArrowEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -32,17 +33,25 @@ public class TridentListener implements Listener {
             for (Map.Entry<Trident, Player> map : copy.entrySet()) {
                 Trident trident = map.getKey();
                 Player p = map.getValue();
+                if (p == null) continue;
 
-                if (trident.isDead() || !trident.isValid()) {
+                if (trident == null || trident.isDead() || !trident.isValid()) {
                     shotTridents.remove(trident);
                     returnTasks.remove(trident);
 
-                    trident.remove(); // Remove from world
+                    if (trident != null) trident.remove(); // Remove from world
                     p.getInventory().addItem(trident.getItemStack());
                     p.playSound(p, Sound.ITEM_TRIDENT_RETURN, 0.4f, 1.5f);
                 }
             }
         }, 0, 20);
+    }
+
+    private static void cleanupTrident(Trident trident) {
+        if (trident != null) {
+            shotTridents.remove(trident);
+            returnTasks.remove(trident);
+        }
     }
 
 //    private final GameManager gameManager;

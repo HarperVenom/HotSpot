@@ -17,6 +17,8 @@ public class WorldManager {
     private final Set<World> busyWorlds = new HashSet<>();
     private final World[] worlds = new World[plugin.getConfig().getInt("game_worlds", 3)];
 
+    private int nextWorldIndex = 0;
+
     public void createWorlds() {
         for (int i = 0; i < worlds.length; i++) {
             String worldName = "gameWorld " + i;
@@ -45,6 +47,7 @@ public class WorldManager {
             world.setGameRule(GameRule.DO_INSOMNIA, false);
             world.setGameRule(GameRule.WATER_SOURCE_CONVERSION, false);
             world.setGameRule(GameRule.REDUCED_DEBUG_INFO, true);
+            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
             world.setDifficulty(Difficulty.HARD);
             worlds[i] = world;
         }
@@ -66,16 +69,26 @@ public class WorldManager {
     }
 
     public World pickWorld() {
-        for (World world : worlds) {
-            if (!busyWorlds.contains(world)) {
-                busyWorlds.add(world); // mark as busy
-                world.setTime(1000);
-                world.setWeatherDuration(0);
-                plugin.getLogger().info("World (" + world.getName() + ") is now in use");
-                return world;
-            }
+        int checked = 0;
+
+        while (checked < worlds.length) {
+            World world = worlds[nextWorldIndex];
+
+            nextWorldIndex = (nextWorldIndex + 1) % worlds.length;
+            checked++;
+
+            if (world == null) continue;
+            if (busyWorlds.contains(world)) continue;
+
+            busyWorlds.add(world);
+            world.setTime(1000);
+            world.setWeatherDuration(0);
+
+            plugin.getLogger().info("World (" + world.getName() + ") is now in use");
+            return world;
         }
-        return null;
+
+        return null; // all worlds busy
     }
 
     public World pickWorld(Player p) {

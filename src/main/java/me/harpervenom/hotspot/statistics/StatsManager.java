@@ -61,8 +61,8 @@ public class StatsManager {
 
             player.playerListName(
                     stats.getLevelIcon()
-                            .append(stats.getRankIcon())
-                            .append(stats.getSkillIcon())
+//                            .append(stats.getRankIcon())
+//                            .append(stats.getSkillIcon())
                             .append(text(" ").append(getName(player))));
         });
     }

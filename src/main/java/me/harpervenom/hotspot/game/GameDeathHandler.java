@@ -31,9 +31,9 @@ public class GameDeathHandler {
         startProtectionParticles();
     }
 
-    public void handlePlayerDeath(PlayerDeathEvent e, Player player) {
+    public void handlePlayerDeath(Player player) {
         GameProfile gameProfile = game.getPlayerManager().getProfile(player);
-        handleDeath(e, gameProfile);
+        handleDeath(gameProfile);
 
         gameProfile.getStats().addDeath();
 
@@ -68,24 +68,21 @@ public class GameDeathHandler {
         plugin.getLogger().info(logMessage);
     }
 
-    public void handleDeath(PlayerDeathEvent e, GameProfile gameProfile) {
+    public void handleDeath(GameProfile gameProfile) {
         if (gameProfile == null) return;
 
         Player player = gameProfile.getPlayer();
 
         activateExplosionChest(player);
 
-        handleDeathState(e, player);
+        handleDeathState(player);
 
         killPlayer(gameProfile);
         playDeathEffects(player);
         game.getVaultManager().resetForPlayer(player);
     }
 
-    private void handleDeathState(PlayerDeathEvent e, Player player) {
-        e.setKeepInventory(true); // keep inventory, we’ll remove items manually
-        e.setShouldDropExperience(false); // optional
-        e.setCancelled(true);
+    private void handleDeathState(Player player) {
         player.setVelocity(new Vector(0, 0, 0));
 
         player.setItemOnCursor(null);

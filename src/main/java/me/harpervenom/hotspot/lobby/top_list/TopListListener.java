@@ -1,11 +1,13 @@
 package me.harpervenom.hotspot.lobby.top_list;
 
 import me.harpervenom.hotspot.lobby.LobbyManager;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
 
+import static me.harpervenom.hotspot.HotSpot.plugin;
 import static me.harpervenom.hotspot.lobby.top_list.HoloText.removeTaggedTextDisplays;
 
 public class TopListListener implements Listener {
@@ -24,7 +26,9 @@ public class TopListListener implements Listener {
 
         removeTaggedTextDisplays();
 
-        topListManager.loadLists();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            topListManager.loadLists();
+        }, 1);
 
 //        int x = plugin.getConfig().getInt("info_holo.x");
 //        int y = plugin.getConfig().getInt("info_holo.y");

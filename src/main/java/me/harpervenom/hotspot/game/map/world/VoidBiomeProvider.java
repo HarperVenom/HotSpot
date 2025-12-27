@@ -9,9 +9,7 @@ import java.util.*;
 
 public class VoidBiomeProvider extends BiomeProvider {
     private final String worldName;
-    private final List<Biome> biomes = List.of(
-            Biome.GROVE, Biome.JUNGLE, Biome.PLAINS, Biome.SWAMP, Biome.TAIGA
-    );
+    private final List<Biome> biomes = List.of(Biome.JUNGLE, Biome.PLAINS, Biome.SWAMP, Biome.TAIGA);
 
     private static final Set<Biome> usedBiomes = new HashSet<>();
     private final Biome chosenBiome;

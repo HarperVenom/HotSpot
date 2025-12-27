@@ -57,6 +57,7 @@ public class CustomItems {
     public static String sunPlateId = "sunPlate";
     public static int sunPlateCooldown = 20;
     public static double sunPlateAbsorption = 10;
+    public static int sunPlateDuration = 3;
 
     public static ItemStack explosionPlate;
     public static String explosionPlateId = "explosionPlate";
@@ -79,13 +80,15 @@ public class CustomItems {
 
     public static ItemStack tankPlate;
     public static String tankPlateId = "tankPlate";
-    public static double damageReduction = 0.5;
+    public static double damageReduction = 0.6;
 
     public static ItemStack horseEgg;
     public static String horseEggId = "horseEgg";
 
     public static ItemStack camelEgg;
     public static String camelEggId = "camelEgg";
+
+    public static ItemStack shield;
 
     public static ItemStack turboShovel;
 
@@ -170,7 +173,8 @@ public class CustomItems {
         sunPlate = new ItemStack(Material.GOLDEN_CHESTPLATE);
         setItemId(sunPlate, sunPlateId);
         setCustomName(sunPlate, text("Солнечный Нагрудник", NamedTextColor.YELLOW));
-        addLoreLine(sunPlate, text("Получая урон: ").append(text("+5❤", NamedTextColor.YELLOW)));
+        addLoreLine(sunPlate, text("Получая урон: ").append(text("+5❤", NamedTextColor.YELLOW))
+                .append(text(" на " + sunPlateDuration + " сек.")));
         addLoreLine(sunPlate, text("Перезарядка: " + sunPlateCooldown + " сек."));
         applyArmorTrim(sunPlate, TrimPattern.DUNE, TrimMaterial.GOLD);
         hideArmorTrim(sunPlate);
@@ -244,6 +248,10 @@ public class CustomItems {
         camelEgg = new ItemStack(Material.CAMEL_SPAWN_EGG);
         setItemId(camelEgg, camelEggId);
         setCustomName(camelEgg, text("Верблюд", TextColor.color(255, 179, 71)));
+
+        shield = new ItemStack(Material.SHIELD);
+        shield.setData(DataComponentTypes.MAX_DAMAGE, 50);
+        addItemKeyword(shield, breakableKeyword);
 
         turboShovel = new ItemStack(Material.IRON_SHOVEL);
         addItemKeyword(turboShovel, breakableKeyword);

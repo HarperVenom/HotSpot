@@ -13,18 +13,21 @@ public class TopList {
 
     private final Map<Component, Component> lines;
     private final HoloText holoText;
+    private final String title;
 
     public TopList(Location location, Map<Component, Component> lines, String title) {
         this.lines = lines;
         this.holoText = new HoloText(location);
+        this.title = title;
 
         holoText.addLineSpacing(0.15);
         holoText.addLine(text(title, NamedTextColor.GOLD));
     }
 
     public void setLines(Map<Component, Component> newLines) {
-        this.lines.clear();
-        this.lines.putAll(newLines);
+        lines.clear();
+//        lines.put(text(title, NamedTextColor.GOLD));
+        lines.putAll(newLines);
     }
 
     public void update() {

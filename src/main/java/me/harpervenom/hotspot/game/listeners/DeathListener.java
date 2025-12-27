@@ -35,7 +35,9 @@ public class DeathListener implements Listener {
         Game game = gameManager.getGame(player.getWorld());
         if (game == null) return;
 
-        game.getDeathHandler().handlePlayerDeath(e, player);
+        e.setCancelled(true);
+
+        game.getDeathHandler().handlePlayerDeath(player);
 
         justDied.add(player.getUniqueId());
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -55,7 +57,13 @@ public class DeathListener implements Listener {
     public void onPlayerOutOfTheWorld(EntityDamageEvent e) {
         if (e.getCause() != EntityDamageEvent.DamageCause.VOID) return;
         if (!(e.getEntity() instanceof Player player)) return;
-        player.setHealth(0.1);
+
+        Game game = gameManager.getGame(player.getWorld());
+        if (game == null) return;
+
+        e.setCancelled(true);
+        game.getDamageManager().processVoidDamage(player);
+        game.getDeathHandler().handlePlayerDeath(player);
         handleVoidTeleport(player);
         player.playSound(player, Sound.ENTITY_PLAYER_HURT, 1, 1);
     }

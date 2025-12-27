@@ -17,12 +17,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static me.harpervenom.hotspot.utils.Utils.formatTime;
-import static me.harpervenom.hotspot.utils.Utils.text;
+import static me.harpervenom.hotspot.HotSpot.plugin;
+import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class UIManager {
+
     private final Game game;
-//    private final CustomSidebar scoreboard;
     private final PacketSidebar sidebar;
 
     // Three separate bars
@@ -37,9 +37,6 @@ public class UIManager {
     public UIManager(Game game) {
         this.game = game;
         sidebar = new PacketSidebar("game", text("Игра"));
-//        scoreboard = new CustomSidebar("game", text("Игра"));
-//        scoreboard.showHealth();
-//        scoreboard.setPadding(1);
 
         barBlue = BossBar.bossBar(text(""), 1f, BossBar.Color.BLUE, BossBar.Overlay.PROGRESS);
         barRed = BossBar.bossBar(text(""), 1f, BossBar.Color.RED, BossBar.Overlay.PROGRESS);
@@ -61,35 +58,28 @@ public class UIManager {
             );
         }
 
-//        List<Component> lines = new ArrayList<>();
-//        lines.add(text(""));
-//
-//
-//        for (GameTeam team : game.getTeams()) {
-//            Component line = buildTeamLine(team, maxPoints);
-//            lines.add(line);
-//            lines.add(text(""));
-//            sidebar.update(new HashSet<>(team.getConnectedPlayers()), lines);
-//        }
-
-
-//        sidebar.update();
-//        scoreboard.updateLines(lines);
-
         updateBars();
     }
 
     private List<Component> getLinesForTeam(GameTeam team) {
         List<Component> lines = new ArrayList<>();
         lines.add(text(""));
+        lines.add(text(" Карта: ", NamedTextColor.GRAY)
+                .append(text(game.getMap().getMapData().getDisplayName() + " ")));
+        lines.add(text(""));
+
         int maxPoints = game.getPointManager().getPoints().size();
+
         for (GameTeam currentTeam : game.getTeams()) {
             Component line = buildTeamLine(currentTeam, maxPoints, currentTeam.equals(team));
             lines.add(line);
         }
         lines.add(text(""));
+//        lines.add(getScoreboardLine(lines));
+
         return lines;
     }
+
 
     // Updates all bars with the same content
     private void updateBars() {
@@ -202,26 +192,18 @@ public class UIManager {
     }
 
     private static TextColor lossToColor(int loss) {
-        int maxLossForFullRed = 5;
-        double t = Math.min(loss / (double) maxLossForFullRed, 1.0);
-        if (loss == 1) return NamedTextColor.WHITE;
+        int maxLossForFullYellow = 5;
+
+        if (loss <= 1) return NamedTextColor.WHITE;
+
+        double t = Math.min(loss / (double) maxLossForFullYellow, 1.0);
 
         int r = 255;
-        int g = (int) (255 * (1.0 - t));
+        int g = 255;
         int b = (int) (255 * (1.0 - t));
 
         return TextColor.color(r, g, b);
     }
-
-//    public void setViewers(List<Player> viewers) {
-//        scoreboard.setViewers(viewers);
-//    }
-//    public Scoreboard getSidebar() {
-//        return scoreboard.getScoreboard();
-//    }
-//    public PacketSidebar getSideBar() {
-//        return sidebar;
-//    }
 
     public void clear() {
         sidebar.clearAll();

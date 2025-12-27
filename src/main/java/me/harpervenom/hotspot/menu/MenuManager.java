@@ -15,6 +15,7 @@ import me.harpervenom.hotspot.statistics.StatsManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -66,7 +67,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
     private Button makeQueueButton(GameQueue queue) {
         List<Component> lore = new ArrayList<>();
-        lore.add(text("Игроков: " + queue.getPlayers(false).size()+ "/" + queue.getMaxPlayers()));
+        lore.add(text("Игроки: " + queue.getPlayers(false).size()+ "/" + queue.getMaxPlayers()));
         if (queue.getOrganizer() instanceof TeamQueueOrganizer organizer) {
             for (QueueTeam team : organizer.getTeamManager().getTeams()) {
                 for (Player player : team.getPlayers()) {
@@ -84,7 +85,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             lore.add(text("★ " + queue.getOwner().getName(), TextColor.color(126, 89, 128)));
         }
 
-        GameSettings settings = queue.getMode().getSettings();
+        GameSettings settings = queue.getSettings();
 
         ItemStack itemStack = createItemStack(settings.getQueueMaterial(), text("Очередь ").append(settings.getName()), lore);
         Button button = new Button(itemStack);
@@ -106,7 +107,7 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
         GameSettings settings = game.getSettings();
 
         List<Component> lore = new ArrayList<>();
-        lore.add(text("Игроков: " + gameProfiles.size()+ "/" + settings.getMaxPlayers()));
+        lore.add(text("Игроки: " + gameProfiles.size()+ "/" + settings.getMaxPlayers()));
         for (GameProfile profile : gameProfiles) {
             TextColor color = NamedTextColor.GRAY;
             if (!profile.isConnected()) color = TextColor.color(130, 35, 30);
@@ -128,7 +129,6 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
             if (!game.canConnect(player)) {
                 queueManager.clearQueue(player);
                 game.connectSpectator(player);
-//                game.getPlayerManager().connectSpectator(player);
             } else {
                 makeOptionWindow(game).open(player);
             }
@@ -142,7 +142,10 @@ public class MenuManager implements QueueListener, LobbyListener, GameListener {
 
         ItemStack joinItemStack = createItemStack(Material.LIME_CONCRETE, text("Играть"), null);
         Button joinButton = new Button(joinItemStack);
-        joinButton.setOnPersonalClick(game::connect);
+        joinButton.setOnPersonalClick(player -> {
+            queueManager.clearQueue(player);
+            game.connect(player);
+        });
 
         ItemStack spectateItemStack = createItemStack(Material.GLASS, text("Наблюдать"), null);
         Button spectateButton = new Button(spectateItemStack);

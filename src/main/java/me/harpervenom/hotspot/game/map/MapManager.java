@@ -1,14 +1,13 @@
 package me.harpervenom.hotspot.game.map;
 
 import me.harpervenom.hotspot.game.Game;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static me.harpervenom.hotspot.HotSpot.plugin;
 
@@ -70,10 +69,34 @@ public class MapManager {
         });
     }
 
+    private final Deque<MapData> mapBag = new ArrayDeque<>();
+
+    public MapData pickRandomMapData() {
+        List<MapData> maps = mapLoader.getMapsData();
+        if (maps == null || maps.isEmpty()) {
+            throw new IllegalStateException("No maps available");
+        }
+
+        // Refill & reshuffle when empty or map list changed
+        if (mapBag.isEmpty() || mapBag.size() != maps.size()) {
+            refillBag(maps);
+        }
+
+        return mapBag.pollFirst();
+    }
+
+    private void refillBag(List<MapData> maps) {
+        List<MapData> shuffled = new ArrayList<>(maps);
+        Collections.shuffle(shuffled, ThreadLocalRandom.current());
+
+        mapBag.clear();
+        mapBag.addAll(shuffled);
+    }
+
     public void close() {
         worldManager.deleteWorlds();
     }
-    public List<MapData> getMaps() {
-        return mapLoader.getMaps();
+    public List<MapData> getMapsData() {
+        return mapLoader.getMapsData();
     }
 }

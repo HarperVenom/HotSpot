@@ -38,9 +38,6 @@ public class ScoreManager {
     }
 
     public int getScoreLoss(GameTeam team) {
-        // Return 0 if protection is active
-//        if (protectionActive) return 0;
-
         List<GameTeam> teams = game.getTeams();
         GameTeam t1 = teams.get(0);
         GameTeam t2 = teams.get(1);
@@ -48,15 +45,17 @@ public class ScoreManager {
         int p1 = game.getPointManager().getTeamPoints(t1).size();
         int p2 = game.getPointManager().getTeamPoints(t2).size();
 
-//        if (p1 == p2) {
-//            return -1; // Both lose 1
-//        }
-
+        int diff;
         if (team.equals(t1)) {
-            return Math.min(0, p1 - p2); // Negative if losing, 0 if leading
+            diff = p2 - p1;
         } else {
-            return Math.min(0, p2 - p1);
+            diff = p1 - p2;
         }
+
+        if (diff <= 0) return 0;
+
+        int loss = (diff + 1) / 2; // ceil(diff / 2)
+        return -loss;
     }
 
     public boolean isProtectionActive() {

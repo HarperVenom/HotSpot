@@ -50,7 +50,7 @@ public class HoloText {
         display.setSeeThrough(false);
         display.setShadowed(true);
         display.setAlignment(TextDisplay.TextAlignment.CENTER);
-        display.setPersistent(false);
+        display.setPersistent(true);
         display.setBrightness(new Display.Brightness(15, 15));
 
         display.getPersistentDataContainer()

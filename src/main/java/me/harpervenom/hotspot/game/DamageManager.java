@@ -33,12 +33,6 @@ public class DamageManager {
     public void handleHandDamage(EntityDamageByEntityEvent e) {
         if (!(e.getDamager() instanceof Player damager)) return;
 
-        double damage = e.getFinalDamage();
-        if (isWearingTankPlate(damager)) {
-            damage -= damageReduction * damage;
-            e.setDamage(damage);
-        }
-
         GameProfile damagerProfile = game.getPlayerManager().getProfile(damager);
         if (damagerProfile == null) return;
 
@@ -52,15 +46,9 @@ public class DamageManager {
         if (!(e.getDamager() instanceof Projectile projectile)) return;
         if (!(projectile.getShooter() instanceof Player shooter)) return;
 
-        double damage = e.getFinalDamage();
-
         if (isWearingTankPlate(shooter)) {
-            damage -= damageReduction * damage;
-            e.setDamage(damage);
-
             entity.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 10, 10, true, false, true));
             entity.getWorld().playSound(entity.getLocation(), Sound.BLOCK_BELL_USE, 0.5f, 1.3f);
-
             shooter.playSound(shooter, Sound.BLOCK_BELL_USE, 0.5f, 1.3f);
         }
 
@@ -114,7 +102,15 @@ public class DamageManager {
         GameProfile damagerProfile = lastDamager.get(entity.getUniqueId());
         if (damagerProfile == null) return;
 
-        double damage = Math.min(entity.getHealth(), e.getFinalDamage());
+        double damage = e.getFinalDamage();
+
+        Player damager = damagerProfile.getPlayer();
+        if (isWearingTankPlate(damager)) {
+            damage -= damageReduction * damage;
+            e.setDamage(damage);
+        }
+
+        damage = Math.min(entity.getHealth(), damage);
 
         if (entity instanceof Player victim) {
             victim.setKiller(damagerProfile.getPlayer());
@@ -127,13 +123,25 @@ public class DamageManager {
             }
         }
 
-        Player damager = damagerProfile.getPlayer();
-        if (isWearingTankPlate(damager)) {
-            damage -= damageReduction * damage;
-            e.setDamage(damage);
-        }
-
         if (e.getCause() == EntityDamageEvent.DamageCause.KILL) return;
+
+        damagerProfile.getEconomyManager().transferToBalance(damage);
+        damagerProfile.getStats().addDealtDamage(damage);
+    }
+
+    public void processVoidDamage(Player player) {
+        GameProfile damagerProfile = lastDamager.get(player.getUniqueId());
+        if (damagerProfile == null) return;
+
+        double damage = player.getHealth();
+
+        player.setKiller(damagerProfile.getPlayer());
+        GameProfile victimProfile = game.getPlayerManager().getProfile(player);
+        if (victimProfile != null) {
+            if (victimProfile.equals(damagerProfile)) return;
+            victimProfile.getStats().addTakenDamage(damage);
+            victimProfile.getStats().addPreventedDamage(0);
+        }
 
         damagerProfile.getEconomyManager().transferToBalance(damage);
         damagerProfile.getStats().addDealtDamage(damage);

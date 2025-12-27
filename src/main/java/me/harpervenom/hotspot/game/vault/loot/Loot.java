@@ -54,12 +54,12 @@ public class Loot {
         rocketItem = LootEntry.makeItemEntry(rocket, 1, 2, 0.3);
 
         equipment = List.of(
-                LootEntry.makeItemEntry(Material.SHIELD, 1, 1, 0.05),
+                LootEntry.makeItemEntry(shield, 1, 1, 0.05),
 
                 LootEntry.makeItemEntry(blockBomb, 1.2),
                 LootEntry.makeItemEntry(pillarRelic, 1),
-                LootEntry.makeItemEntry(reflectionRelic, 0.8),
-                LootEntry.makeItemEntry(vacuumBomb, 0.8),
+                LootEntry.makeItemEntry(reflectionRelic, 0.6),
+                LootEntry.makeItemEntry(vacuumBomb, 0.6),
 
                 LootEntry.makeItemEntry(horseEgg, 1, 1, 0.02),
                 LootEntry.makeItemEntry(camelEgg, 1, 1, 0.01),
@@ -136,11 +136,11 @@ public class Loot {
 
         mace = List.of(
                 LootEntry.makeItemEntry(jump5Potion, 0.1),
-                LootEntry.makeItemEntry(Material.WIND_CHARGE, 4, 6, 1)
+                LootEntry.makeItemEntry(Material.WIND_CHARGE, 2, 4, 1)
         );
 
-        int min = 2;
-        int max = 5;
+        int min = 3;
+        int max = 6;
 
         arrows = List.of(
                 LootEntry.makeItemEntry(new ItemStack(Material.ARROW), 5, 10, 10),

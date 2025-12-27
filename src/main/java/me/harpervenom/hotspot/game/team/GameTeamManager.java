@@ -47,7 +47,6 @@ public class GameTeamManager {
 
                 for (Player player : queueTeam.getPlayers()) {
                     game.getPlayerManager().createProfile(player, team);
-//                    scoreboard.addPlayer(player, team.getId());
                 }
             }
             return;

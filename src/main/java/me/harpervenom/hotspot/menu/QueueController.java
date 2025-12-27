@@ -12,7 +12,7 @@ import me.harpervenom.hotspot.queue.players.TeamQueueOrganizer;
 import me.harpervenom.hotspot.queue.players.team.QueueTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -48,13 +48,13 @@ public class QueueController {
 
         GameModeEnum mode = GameModeEnum.CUSTOM;
         GameSettings settings = mode.getSettings();
-        settings.setMapData(mapManager.getMaps().getFirst());
+        settings.setMapData(mapManager.getMapsData().getFirst());
 
         window.setOnUpdate(() -> {
             ItemStack createItemStack = createItemStack(Material.LIME_CONCRETE, text("Создать", NamedTextColor.GREEN), null);
             Button createButton = new Button(createItemStack);
             createButton.setOnPersonalClick(player -> {
-                GameQueue queue = queueManager.createQueue(mode, player);
+                GameQueue queue = queueManager.createQueue(mode, settings, player);
                 if (settings.canChooseTeam()) {
                     queueManager.setWindow(queue, makeQueueWindow(queue));
                 } else {
@@ -103,11 +103,13 @@ public class QueueController {
 
     private Window makeMapWindow(Player player, GameSettings setting, Window lastWindow) {
         Window window = new Window("Выбор карты", InventoryType.CHEST);
-        List<MapData> maps = mapManager.getMaps();
+        List<MapData> maps = mapManager.getMapsData();
         for (int i = 0; i < maps.size(); i++) {
             MapData mapData = maps.get(i);
+            List<Component> lore = new ArrayList<>();
+            lore.add(text("© " + mapData.getAuthor(), TextColor.color(204, 156, 61)));
             ItemStack mapItemStack = createItemStack(mapData.getMaterial(),
-                    text(mapData.getDisplayName()), null);
+                    text(mapData.getDisplayName()), lore);
             Button button = new Button(mapItemStack);
             button.setOnClick(() -> {
                 setting.setMapData(mapData);

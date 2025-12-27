@@ -174,7 +174,7 @@ public final class LobbyMenuController {
             window.setOnUpdate(() -> {
                 window.clear();
 
-                TextColor fieldColor = TextColor.color(153, 148, 122);
+                TextColor fieldColor = TextColor.color(125, 134, 179);
 
                 List<Component> lore = new ArrayList<>();
                 lore.add(text("Уровень: ", fieldColor)

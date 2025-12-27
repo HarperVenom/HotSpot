@@ -1,8 +1,5 @@
 package me.harpervenom.hotspot.game.team;
 
-import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateAttributes;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateHealth;
 import me.harpervenom.hotspot.game.profile.GameProfile;
 import me.harpervenom.hotspot.game.point.Point;
 import net.kyori.adventure.text.Component;
@@ -10,10 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 
@@ -35,7 +29,7 @@ public class GameTeam {
     private final Location spawn;
 
     private Point firstPoint;
-
+    //500
     private int score = 500;
 
     public GameTeam(NamedTextColor color, String name, Location spawn) {
@@ -44,13 +38,6 @@ public class GameTeam {
         this.name = name;
         this.spawn = spawn;
     }
-
-//    public void register(Scoreboard scoreboard) {
-//        team = scoreboard.registerNewTeam(id + "");
-//        team.displayName(getName());
-//        team.color(color);
-//        team.setAllowFriendlyFire(false);
-//    }
 
     public void setTeam(Team team) {
         this.team = team;
@@ -137,11 +124,25 @@ public class GameTeam {
         return score;
     }
 
-    public Material getMaterial() {
+    public Material getPointMaterial() {
         return switch (color.toString().toUpperCase()) {
             case "RED" -> Material.RED_CONCRETE;
             case "BLUE" -> Material.BLUE_CONCRETE;
             default -> Material.WHITE_CONCRETE;
+        };
+    }
+    public Material getBlockMaterial() {
+        return switch (color.toString().toUpperCase()) {
+            case "RED" -> Material.RED_WOOL;
+            case "BLUE" -> Material.BLUE_WOOL;
+            default -> Material.WHITE_WOOL;
+        };
+    }
+    public Material getStructureMaterial() {
+        return switch (color.toString().toUpperCase()) {
+            case "RED" -> Material.RED_CONCRETE_POWDER;
+            case "BLUE" -> Material.BLUE_CONCRETE_POWDER;
+            default -> Material.WHITE_CONCRETE_POWDER;
         };
     }
     public String getId() {

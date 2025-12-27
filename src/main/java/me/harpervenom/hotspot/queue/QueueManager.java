@@ -3,6 +3,7 @@ package me.harpervenom.hotspot.queue;
 import me.harpervenom.hotspot.game.Game;
 import me.harpervenom.hotspot.game.GameListener;
 import me.harpervenom.hotspot.game.GameModeEnum;
+import me.harpervenom.hotspot.game.GameSettings;
 import me.harpervenom.hotspot.game.map.MapManager;
 import me.harpervenom.hotspot.menu.components.Window;
 import me.harpervenom.hotspot.queue.players.team.QueueTeam;
@@ -41,12 +42,18 @@ public class QueueManager implements GameListener {
         return createQueue(mode, null);
     }
 
-    public GameQueue createQueue(GameModeEnum mode, Player owner) {
+    public GameQueue createQueue(GameModeEnum mode, GameSettings settings) {
+        return createQueue(mode, settings, null);
+    }
+
+    public GameQueue createQueue(GameModeEnum mode, GameSettings settings, Player owner) {
         if (owner != null) {
             clearQueue(owner);
         }
-        GameQueue queue = new GameQueue(this, mode, owner);
-        queue.getSettings().setMapData(mapManager.getMaps().getFirst());
+        GameQueue queue = new GameQueue(this, mode, settings, owner);
+//        if (queue.getSettings().getMapData() == null) {
+//            queue.getSettings().setMapData(mapManager.getMaps().getFirst());
+//        }
         queue.updateScoreboard();
 
         if (owner != null) {
@@ -88,12 +95,15 @@ public class QueueManager implements GameListener {
         for (QueueListener l : listeners) l.onQueueRemove(queue);
     }
 
-    public void readyQueue(GameQueue gameQueue) {
-        for (QueueListener l : listeners) l.onQueueReady(gameQueue);
+    public void readyQueue(GameQueue queue) {
+        if (queue.getSettings().getMapData() == null) {
+            queue.getSettings().setMapData(mapManager.pickRandomMapData());
+        }
+        for (QueueListener l : listeners) l.onQueueReady(queue);
     }
 
     public AddPlayerResult addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
-        GameQueue lastQueue = getQueue(player);
+        GameQueue lastQueue = getJoinedQueue(player);
 
         if (queue.isFull()) {
             return AddPlayerResult.NOT_ALLOWED;
@@ -153,6 +163,10 @@ public class QueueManager implements GameListener {
         if (queueOwners.containsKey(player)) {
             return queueOwners.get(player);
         }
+        return playerQueues.get(player);
+    }
+
+    public GameQueue getJoinedQueue(Player player) {
         return playerQueues.get(player);
     }
 

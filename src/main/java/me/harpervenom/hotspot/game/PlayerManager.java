@@ -54,6 +54,7 @@ public class PlayerManager {
                 .orElseThrow();
         profile.setTeam(smallest);
         smallest.addProfile(profile);
+
         gameTeamManager.getScoreboard().addPlayer(profile.getPlayer(), smallest.getId());
     }
 
