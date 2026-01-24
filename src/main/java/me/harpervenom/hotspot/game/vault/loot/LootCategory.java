@@ -18,6 +18,9 @@ public enum LootCategory {
     SWORD_ENCHANTS(swordEnchants),
     AXE_ENCHANT(axeEnchants),
 
+    SPEAR(spear),
+    SPEAR_ENCHANTS(spearEnchants),
+
     TRIDENT(trident),
     TRIDENT_ENCHANTS(tridentEnchants),
 

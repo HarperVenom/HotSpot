@@ -6,7 +6,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +36,8 @@ public class LobbyManager implements GameListener {
 
         this.world.setDifficulty(Difficulty.PEACEFUL);
         this.world.setTime(6000);
-        this.world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-        this.world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+        this.world.setGameRule(GameRules.ADVANCE_TIME, false);
+        this.world.setGameRule(GameRules.ADVANCE_WEATHER, false);
     }
 
     public void sendToLobby(Player player) {
@@ -67,11 +70,6 @@ public class LobbyManager implements GameListener {
     public boolean isLobby(World world) {
         return world.getUID().equals(this.world.getUID());
     }
-
-//    @Override
-//    public void onGameStart(Game game) {
-//
-//    }
 
     @Override
     public void onGameEnd(Game game) {

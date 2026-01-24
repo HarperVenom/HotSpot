@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ArmorMeta;
@@ -54,6 +55,10 @@ public class EquipmentManager {
         inventory.setLeggings(getItem(TradeType.LEGGINGS));
         inventory.setHelmet(getItem(TradeType.HELMET));
         inventory.setBoots(getItem(TradeType.BOOTS));
+
+        profile.getLootManager().addItem(inventory.getItem(EquipmentSlot.HEAD));
+        profile.getLootManager().addItem(inventory.getItem(EquipmentSlot.LEGS));
+        profile.getLootManager().addItem(inventory.getItem(EquipmentSlot.FEET));
     }
 
     public boolean hasChest() {

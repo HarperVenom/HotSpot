@@ -263,6 +263,7 @@ public class GameQueue {
         viewers.clear();
         sidebar.setViewers(new ArrayList<>());
         timer.cancel();
+
     }
 
     public CountdownTimer getTimer() {

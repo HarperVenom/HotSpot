@@ -113,7 +113,6 @@ public class ExplosionListener implements Listener {
     public void updateBlockList(Location loc, List<Block> blocks) {
         Game game = gameManager.getGame(loc.getWorld());
         if (game == null) return;
-
         blocks.removeIf(block -> immuneMaterials.contains(block.getType()) || !game.getMap().canBrake(block));
     }
 

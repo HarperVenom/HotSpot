@@ -33,6 +33,7 @@ public class GameDeathHandler {
 
     public void handlePlayerDeath(Player player) {
         GameProfile gameProfile = game.getPlayerManager().getProfile(player);
+        if (gameProfile == null) return;
         handleDeath(gameProfile);
 
         gameProfile.getStats().addDeath();

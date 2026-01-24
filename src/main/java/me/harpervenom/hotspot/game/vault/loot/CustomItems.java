@@ -76,7 +76,7 @@ public class CustomItems {
     public static ItemStack diamondPlate;
     public static String diamondPlateId = "diamondPlate";
     public static int diamondPlateCooldown = 10;
-    public static int diamondPlateDuration = 3;
+    public static int diamondPlateDuration = 4;
 
     public static ItemStack tankPlate;
     public static String tankPlateId = "tankPlate";
@@ -94,11 +94,11 @@ public class CustomItems {
 
     public static void createCustomItems() {
         blockBomb = new ItemStack(Material.EGG);
-        ItemMeta mudBombMeta = blockBomb.getItemMeta();
+        ItemMeta blockBombMeta = blockBomb.getItemMeta();
 
-        if (mudBombMeta != null) {
-            mudBombMeta.displayName(text("Глиняная Бомба", TextColor.color(162, 165, 179)));
-            blockBomb.setItemMeta(mudBombMeta);
+        if (blockBombMeta != null) {
+            blockBombMeta.displayName(text("Блочная Бомба", TextColor.color(162, 165, 179)));
+            blockBomb.setItemMeta(blockBombMeta);
         }
         // id hard repeated in the listener
         setItemId(blockBomb, blockBombId);
@@ -250,7 +250,7 @@ public class CustomItems {
         setCustomName(camelEgg, text("Верблюд", TextColor.color(255, 179, 71)));
 
         shield = new ItemStack(Material.SHIELD);
-        shield.setData(DataComponentTypes.MAX_DAMAGE, 50);
+        shield.setData(DataComponentTypes.MAX_DAMAGE, 100);
         addItemKeyword(shield, breakableKeyword);
 
         turboShovel = new ItemStack(Material.IRON_SHOVEL);

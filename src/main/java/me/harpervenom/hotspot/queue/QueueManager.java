@@ -74,6 +74,9 @@ public class QueueManager implements GameListener {
         GameQueue queue = queueOwners.remove(owner);
         queue.removeViewer(owner);
         removeQueue(queue);
+        if (queueWindows.get(queue) != null) {
+            queueWindows.get(queue).closeForAll();
+        }
     }
 
     public void removeQueue(GameQueue queue) {
@@ -103,7 +106,8 @@ public class QueueManager implements GameListener {
     }
 
     public AddPlayerResult addPlayerToQueue(Player player, GameQueue queue, QueueTeam team) {
-        GameQueue lastQueue = getJoinedQueue(player);
+        GameQueue lastQueue = getQueue(player);
+//        getJoinedQueue(player);
 
         if (queue.isFull()) {
             return AddPlayerResult.NOT_ALLOWED;

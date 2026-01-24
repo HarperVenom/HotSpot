@@ -52,8 +52,8 @@ public class GameMap {
         for (Location spawn : spawns) {
             spawn = spawn.clone().subtract(0.5, 0, 0.5);
 
-            if (Math.abs(spawn.getX() - blockLoc.getX()) <= 1 &&
-                    Math.abs(spawn.getZ() - blockLoc.getZ()) <= 1) {
+            if (Math.abs(spawn.getX() - blockLoc.getX()) <= 3 &&
+                    Math.abs(spawn.getZ() - blockLoc.getZ()) <= 3) {
                 return false;
             }
         }
@@ -98,40 +98,4 @@ public class GameMap {
     public List<Vault> getVaults() {
         return vaults;
     }
-
-
-
-//    public void updateMonumentsDisplay() {
-//        for (Player player : world.getPlayers()) {
-//            updateMonumentsDisplay(player);
-//        }
-//    }
-
-//    public void updateMonumentsDisplay(Player p, boolean isOn) {
-//        if (monuments == null) return;
-//        for (Monument monument : monuments) {
-//            monument.highlightForPlayer(p, isOn);
-//        }
-//    }
-//
-//    public void updateMonumentsDisplay(Player p) {
-//        boolean isOn = p.getInventory().getItemInMainHand().getType().toString().contains("PICKAXE");
-//        updateMonumentsDisplay(p, isOn);
-//    }
-
-//    public void delete() {
-////        for (Trader trader : traders) {
-////            trader.remove();
-////        }
-////
-////        for (Monument monument : monuments) {
-////            monument.remove();
-////        }
-//
-//        for (Block block : blocks) {
-//            block.setType(Material.AIR);
-//        }
-//
-//        clearWorldAsync(world, null);
-//    }
 }

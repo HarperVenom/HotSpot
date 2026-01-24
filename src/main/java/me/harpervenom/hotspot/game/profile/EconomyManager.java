@@ -22,7 +22,7 @@ public class EconomyManager {
 
         if (lastDealtDamage > 2.0) {
             double remaining = lastDealtDamage % 2.0;
-            addBalance((int) lastDealtDamage / 2);
+            addBalance((int) (lastDealtDamage * 0.6));
             lastDealtDamage = remaining;
         }
     }

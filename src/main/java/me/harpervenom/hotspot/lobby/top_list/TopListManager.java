@@ -52,21 +52,16 @@ public class TopListManager implements GameListener {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 TopList list = new TopList(loc, lines, title);
                 topLists.put(statName, list);
-                list.update();
+                list.generate();
             });
         });
     }
 
     private void updateList(String statName) {
-        TopList list = topLists.get(statName);
+        TopList list = topLists.remove(statName);
         if (list == null) return;
-        db.players.getTopPlayersByStat(statName, 10).thenAccept(map -> {
-            Map<Component, Component> newLines = buildLines(map);
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                list.setLines(newLines);
-                list.update();
-            });
-        });
+        list.remove();
+        loadTopList(statName);
     }
 
     private Map<Component, Component> buildLines(Map<UUID, Double> map) {
@@ -106,7 +101,9 @@ public class TopListManager implements GameListener {
 
 
     public void update() {
-        topLists.keySet().forEach(this::updateList);
+        for (var key : new ArrayList<>(topLists.keySet())) {
+            updateList(key);
+        }
     }
 
     private Location getLocationFromConfig(String path) {

@@ -11,6 +11,8 @@ public enum LootClass {
     SWORD(1.2, new ItemStack(Material.WOODEN_SWORD)),
     AXE(1, new ItemStack(Material.WOODEN_AXE)),
 
+    SPEAR(0.8, new ItemStack(Material.WOODEN_SPEAR)),
+
     TRIDENT(0.5, new ItemStack(Material.TRIDENT)),
     TRIDENT_RIPTIDE(0.5, new ItemStack(Material.TRIDENT)),
     MACE(0.5, new ItemStack(Material.MACE)),
@@ -19,18 +21,12 @@ public enum LootClass {
     CROSSBOW(0.1, new ItemStack(Material.CROSSBOW)),
     ;
 
-    private final Random random = new Random();
-
     private final double probability;
     private final ItemStack mainItem;
 
     LootClass(double probability, ItemStack mainItem) {
         this.probability = probability;
         this.mainItem = mainItem;
-    }
-
-    public double getProbability() {
-        return probability;
     }
 
     public ItemStack getMainItem() {
@@ -42,14 +38,16 @@ public enum LootClass {
 
         if (!equipment.hasWeapon()) {
             equipment.setHasWeapon(true);
+            profile.getLootManager().addItem(getMainItem());
             return getMainItem();
         }
 
         LootPool pool = new LootPool();
 
-        pool.addCategory(LootCategory.EQUIPMENT, 1);
+        pool.addCategory(LootCategory.EQUIPMENT, 0.9);
         pool.addCategory(LootCategory.POTIONS, 0.2);
         pool.addCategory(LootCategory.ARMOR_ENCHANTS, 0.05);
+        pool.addCategory(LootCategory.BOOTS_ENCHANTS, 0.04);
 
         if (!equipment.hasChest()) {
             pool.addCategory(LootCategory.CHESTPLATES, 1);
@@ -60,6 +58,10 @@ public enum LootClass {
         switch (this) {
             case SWORD -> pool.addCategory(LootCategory.SWORD_ENCHANTS, baseEnchantsWeight);
             case AXE -> pool.addCategory(LootCategory.AXE_ENCHANT, baseEnchantsWeight);
+            case SPEAR -> {
+                pool.addCategory(LootCategory.SPEAR, 0.05);
+                pool.addCategory(LootCategory.SPEAR_ENCHANTS, baseEnchantsWeight);
+            }
             case TRIDENT -> {
                 pool.addCategory(LootCategory.TRIDENT, 0.05);
                 pool.addCategory(LootCategory.TRIDENT_ENCHANTS, baseEnchantsWeight);
@@ -91,7 +93,9 @@ public enum LootClass {
 
         LootEntry entry = pool.pickRandomEntry(category, profile);
         profile.getLootManager().addReceived(entry);
-        return entry.create();
+        ItemStack itemStack = entry.create();
+        profile.getLootManager().addItem(itemStack);
+        return itemStack;
     }
 
     /** Pick a random class based on weighted probabilities */

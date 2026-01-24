@@ -40,14 +40,14 @@ public class WorldManager {
             creator.type(WorldType.FLAT);
             World world = Bukkit.createWorld(creator);
             if (world == null) return;
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-            world.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
-            world.setGameRule(GameRule.DISABLE_RAIDS, true);
-            world.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
-            world.setGameRule(GameRule.DO_INSOMNIA, false);
-            world.setGameRule(GameRule.WATER_SOURCE_CONVERSION, false);
-            world.setGameRule(GameRule.REDUCED_DEBUG_INFO, true);
-            world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+            world.setGameRule(GameRules.ADVANCE_TIME, false);
+            world.setGameRule(GameRules.ADVANCE_WEATHER, false);
+            world.setGameRule(GameRules.RAIDS, false);
+            world.setGameRule(GameRules.SPAWN_WANDERING_TRADERS, false);
+            world.setGameRule(GameRules.SPAWN_PHANTOMS, false);
+            world.setGameRule(GameRules.WATER_SOURCE_CONVERSION, false);
+            world.setGameRule(GameRules.REDUCED_DEBUG_INFO, true);
+            world.setGameRule(GameRules.RANDOM_TICK_SPEED, 0);
             world.setDifficulty(Difficulty.HARD);
             worlds[i] = world;
         }

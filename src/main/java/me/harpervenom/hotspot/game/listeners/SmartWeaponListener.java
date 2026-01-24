@@ -28,28 +28,40 @@ import static me.harpervenom.hotspot.utils.Utils.*;
 
 public class SmartWeaponListener implements Listener {
 
-    private static final Map<Material, Material> UPGRADE_PATH = Map.of(
-            Material.WOODEN_SWORD, Material.STONE_SWORD,
-            Material.STONE_SWORD, Material.IRON_SWORD,
-            Material.IRON_SWORD, Material.DIAMOND_SWORD,
-            Material.DIAMOND_SWORD, Material.NETHERITE_SWORD,
+    private static final Map<Material, Material> UPGRADE_PATH = Map.ofEntries(
+            Map.entry(Material.WOODEN_SWORD, Material.STONE_SWORD),
+            Map.entry(Material.STONE_SWORD, Material.IRON_SWORD),
+            Map.entry(Material.IRON_SWORD, Material.DIAMOND_SWORD),
+            Map.entry(Material.DIAMOND_SWORD, Material.NETHERITE_SWORD),
 
-            Material.WOODEN_AXE, Material.STONE_AXE,
-            Material.STONE_AXE, Material.IRON_AXE,
-            Material.IRON_AXE, Material.DIAMOND_AXE,
-            Material.DIAMOND_AXE, Material.NETHERITE_AXE
+            Map.entry(Material.WOODEN_AXE, Material.STONE_AXE),
+            Map.entry(Material.STONE_AXE, Material.IRON_AXE),
+            Map.entry(Material.IRON_AXE, Material.DIAMOND_AXE),
+            Map.entry(Material.DIAMOND_AXE, Material.NETHERITE_AXE),
+
+            Map.entry(Material.WOODEN_SPEAR, Material.STONE_SPEAR),
+            Map.entry(Material.STONE_SPEAR, Material.COPPER_SPEAR),
+            Map.entry(Material.COPPER_SPEAR, Material.IRON_SPEAR),
+            Map.entry(Material.IRON_SPEAR, Material.DIAMOND_SPEAR),
+            Map.entry(Material.DIAMOND_SPEAR, Material.NETHERITE_SPEAR)
     );
 
-    private static final Map<Material, Integer> DAMAGE_REQUIRED = Map.of(
-            Material.WOODEN_SWORD, 20,
-            Material.STONE_SWORD, 40,
-            Material.IRON_SWORD, 60,
-            Material.DIAMOND_SWORD, 80,
+    private static final Map<Material, Integer> DAMAGE_REQUIRED = Map.ofEntries(
+            Map.entry(Material.WOODEN_SWORD, 20),
+            Map.entry(Material.STONE_SWORD, 40),
+            Map.entry(Material.IRON_SWORD, 60),
+            Map.entry(Material.DIAMOND_SWORD, 80),
 
-            Material.WOODEN_AXE, 25,
-            Material.STONE_AXE, 50,
-            Material.IRON_AXE, 75,
-            Material.DIAMOND_AXE, 100
+            Map.entry(Material.WOODEN_AXE, 25),
+            Map.entry(Material.STONE_AXE, 50),
+            Map.entry(Material.IRON_AXE, 75),
+            Map.entry(Material.DIAMOND_AXE, 100),
+
+            Map.entry(Material.WOODEN_SPEAR, 15),
+            Map.entry(Material.STONE_SPEAR, 30),
+            Map.entry(Material.COPPER_SPEAR, 45),
+            Map.entry(Material.IRON_SPEAR, 60),
+            Map.entry(Material.DIAMOND_SPEAR, 75)
     );
 
     public static int getUpgradeLevel(Material itemType) {
@@ -77,20 +89,20 @@ public class SmartWeaponListener implements Listener {
         return level;
     }
 
-    public static String getMaterialLevel(Material type) {
-        // Return the appropriate level string based on the material (Wooden, Stone, etc.)
-        if (type == Material.WOODEN_SWORD || type == Material.WOODEN_AXE) return "Wooden";
-        if (type == Material.STONE_SWORD || type == Material.STONE_AXE) return "Stone";
-        if (type == Material.IRON_SWORD || type == Material.IRON_AXE) return "Iron";
-        if (type == Material.GOLDEN_SWORD || type == Material.GOLDEN_AXE) return "Golden";
-        if (type == Material.DIAMOND_SWORD || type == Material.DIAMOND_AXE) return "Diamond";
-        if (type == Material.NETHERITE_SWORD || type == Material.NETHERITE_AXE) return "Netherite";
+//    public static String getMaterialLevel(Material type) {
+//        // Return the appropriate level string based on the material (Wooden, Stone, etc.)
+//        if (type == Material.WOODEN_SWORD || type == Material.WOODEN_AXE) return "Wooden";
+//        if (type == Material.STONE_SWORD || type == Material.STONE_AXE) return "Stone";
+//        if (type == Material.IRON_SWORD || type == Material.IRON_AXE) return "Iron";
+//        if (type == Material.GOLDEN_SWORD || type == Material.GOLDEN_AXE) return "Golden";
+//        if (type == Material.DIAMOND_SWORD || type == Material.DIAMOND_AXE) return "Diamond";
+//        if (type == Material.NETHERITE_SWORD || type == Material.NETHERITE_AXE) return "Netherite";
+//
+//        return "Unknown"; // Fallback in case of unsupported materials
+//    }
 
-        return "Unknown"; // Fallback in case of unsupported materials
-    }
-
-    public static ItemStack smartSword, smartAxe;
-    public static Component smartSwordName, smartAxeName;
+    public static ItemStack smartSword, smartAxe, smartSpear;
+    public static Component smartSwordName, smartAxeName, smartSpearName;
 
     static {
         smartSword = new ItemStack(Material.WOODEN_SWORD);
@@ -102,6 +114,11 @@ public class SmartWeaponListener implements Listener {
         smartAxeName = text("Топор", NamedTextColor.WHITE);
         setCustomName(smartAxe, smartAxeName);
         updateWeaponLore(smartAxe, 0);
+
+        smartSpear = new ItemStack(Material.WOODEN_SPEAR);
+        smartSpearName = text("Копье", NamedTextColor.WHITE);
+        setCustomName(smartSpear, smartSpearName);
+        updateWeaponLore(smartSpear, 0);
     }
 
     public static void updateWeaponLore(ItemStack item, double progress) {
@@ -126,8 +143,10 @@ public class SmartWeaponListener implements Listener {
 
         if (item.getType().toString().contains("SWORD")) {
             newName = smartSwordName;
-        } else {
+        } else if (item.getType().toString().contains("AXE")) {
             newName = smartAxeName;
+        } else {
+            newName = smartSpearName;
         }
 
         int level = getUpgradeLevel(item.getType());

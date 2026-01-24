@@ -15,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
@@ -128,8 +129,9 @@ public class LobbyEventListener implements Listener {
     }
 
     @EventHandler
-    public void onDialog( PlayerCustomClickEvent e) {
-        Bukkit.broadcastMessage("hey");
+    public void EntityExplode(EntityExplodeEvent e) {
+        if (!manager.isLobby(e.getEntity().getWorld())) return;
+        e.blockList().clear();
     }
 
     @EventHandler

@@ -7,18 +7,21 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 
 public class Window {
 
     public static HashMap<Player, Window> openedWindow = new HashMap<>();
 
-
     private final Inventory inventory;
     private final Map<Integer, Button> buttons = new HashMap<>(); // slot, button
     private Runnable onUpdate;
     private Runnable onClose;
+
+    private final Set<Player> viewers = new HashSet<>();
 
     public Window(String name, InventoryType type) {
         inventory = Bukkit.createInventory(null, type, Component.text(name));
@@ -49,6 +52,7 @@ public class Window {
         if (inventory == null) return;
         player.openInventory(inventory);
         openedWindow.put(player, this);
+        viewers.add(player);
     }
 
     public void close(Player player) {
@@ -59,7 +63,25 @@ public class Window {
         if (callCloseInventory) {
             player.closeInventory();
         }
+
         openedWindow.remove(player);
+        viewers.remove(player);
+
+        if (onClose != null) {
+            onClose.run();
+        }
+    }
+
+    public void closeForAll() {
+        for (Player player : new HashSet<>(viewers)) {
+            if (player.isOnline()) {
+                player.closeInventory();
+            }
+            openedWindow.remove(player);
+        }
+
+        viewers.clear();
+
         if (onClose != null) {
             onClose.run();
         }

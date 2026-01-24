@@ -92,11 +92,6 @@ public class Vault {
 
         Item item = null;
         if (itemStack != null) {
-
-//            if (itemStack.getType() == Material.ENCHANTED_BOOK) {
-//                addLoreLine(itemStack, text("*ПКМ по нужному предмету в инвентаре*"));
-//            }
-
             item = world.dropItem(spawnLocation, itemStack);
             item.setVelocity(new Vector(0, 0.15, 0));
             item.setPickupDelay(0);

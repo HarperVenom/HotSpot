@@ -1,17 +1,21 @@
 package me.harpervenom.hotspot.game.vault.loot;
 
 import me.harpervenom.hotspot.game.profile.GameProfile;
+import net.kyori.adventure.text.Component;
 import org.apache.logging.log4j.util.Supplier;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import static me.harpervenom.hotspot.utils.Utils.getItemId;
+import static me.harpervenom.hotspot.utils.Utils.text;
 
 public class LootEntry {
 
@@ -19,14 +23,12 @@ public class LootEntry {
     private final Enchantment enchantment;
 
     private final double weight;
-//    private final double frequencyFactor;
     private final Supplier<ItemStack> itemSupplier;
 
     public LootEntry(String key, double weight, Supplier<ItemStack> itemSupplier) {
         this.key = key;
         this.enchantment = null;
         this.weight = weight;
-//        this.frequencyFactor = frequencyFactor;
         this.itemSupplier = itemSupplier;
     }
 
@@ -34,7 +36,6 @@ public class LootEntry {
         this.key = key;
         this.enchantment = enchantment;
         this.weight = weight;
-//        this.frequencyFactor = frequencyFactor;
         this.itemSupplier = itemSupplier;
     }
 
@@ -44,37 +45,22 @@ public class LootEntry {
 
     public double getAdjustedWeight(GameProfile profile) {
         if (enchantment != null) {
-            List<ItemStack> items = Arrays.stream(profile.getPlayer().getInventory().getContents()).toList();
+            List<ItemStack> items = profile.getLootManager().getItems();
             if (!hasItemForEnchant(enchantment, items)) {
                 return 0;
             }
         }
 
         return weight;
-
-//        long receivedCount = profile.getReceivedCount(key);
-//
-//        if (receivedCount <= 0) {
-//            return weight;
-//        }
-//
-//        // Reduce chance based on frequency factor and count
-//        return weight * Math.pow(frequencyFactor, receivedCount);
     }
 
     public ItemStack create() {
         return itemSupplier.get();
     }
 
-//    public double getFrequencyFactor() {
-//        return frequencyFactor;
-//    }
-
     public String getKey() {
         return key;
     }
-
-    private static final double baseFreq = 0.9;
 
     public static LootEntry makeItemEntry(Material mat, double weight) {
         return makeItemEntry(new ItemStack(mat), 1, 1, weight);
@@ -110,6 +96,10 @@ public class LootEntry {
             meta.addStoredEnchant(enchant, level, true);
             stack.setItemMeta(meta);
 
+            List<Component> lore = new ArrayList<>();
+            lore.add(text("ПКМ по снаряжению в инвентаре"));
+            stack.lore(lore);
+
             return stack;
         });
     }
@@ -130,9 +120,9 @@ public class LootEntry {
         for (ItemStack item : items) {
             if (item == null) continue;
 
-            if (item.containsEnchantment(enchantment)) {
-                totalLevels += item.getEnchantmentLevel(enchantment);
-            }
+//            if (item.containsEnchantment(enchantment)) {
+//                totalLevels += item.getEnchantmentLevel(enchantment);
+//            }
 
             if (item.getType() == Material.ENCHANTED_BOOK) {
                 EnchantmentStorageMeta meta = (EnchantmentStorageMeta) item.getItemMeta();

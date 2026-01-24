@@ -11,7 +11,7 @@ import static me.harpervenom.hotspot.game.vault.loot.CustomItems.*;
 public class Loot {
 
     public static final List<LootEntry> equipment, chestPlates, arrows, potions, trident, tridentRiptide, mace,
-            swordEnchants, axeEnchants, bowEnchants, tridentEnchants, tridentRiptideEnchants,
+            swordEnchants, axeEnchants, spear, spearEnchants, bowEnchants, tridentEnchants, tridentRiptideEnchants,
             crossBowEnchants, maceEnchants, armorEnchants, bootsEnchants;
     public static final LootEntry rocketItem;
 
@@ -56,15 +56,15 @@ public class Loot {
         equipment = List.of(
                 LootEntry.makeItemEntry(shield, 1, 1, 0.05),
 
-                LootEntry.makeItemEntry(blockBomb, 1.2),
-                LootEntry.makeItemEntry(pillarRelic, 1),
-                LootEntry.makeItemEntry(reflectionRelic, 0.6),
-                LootEntry.makeItemEntry(vacuumBomb, 0.6),
+                LootEntry.makeItemEntry(blockBomb, 1),
+                LootEntry.makeItemEntry(pillarRelic, 0.8),
+                LootEntry.makeItemEntry(reflectionRelic, 0.5),
+                LootEntry.makeItemEntry(vacuumBomb, 0.5),
+
+                LootEntry.makeItemEntry(tnt, 1, 1, 0.5),
 
                 LootEntry.makeItemEntry(horseEgg, 1, 1, 0.02),
                 LootEntry.makeItemEntry(camelEgg, 1, 1, 0.01),
-
-                LootEntry.makeItemEntry(tnt, 1, 1, 0.5),
 
                 LootEntry.makeItemEntry(Material.WIND_CHARGE, 2, 4, 0.8),
                 LootEntry.makeItemEntry(Material.ENDER_PEARL, 1, 1, 0.3),
@@ -99,6 +99,18 @@ public class Loot {
 
         axeEnchants = List.of(
                 LootEntry.makeBookEntry(Enchantment.SHARPNESS, 1, 1));
+
+        spear = List.of(
+                LootEntry.makeItemEntry(horseEgg, 1, 1, 1),
+                LootEntry.makeItemEntry(camelEgg, 1, 1, 0.2)
+        );
+
+        spearEnchants = List.of(
+                LootEntry.makeBookEntry(Enchantment.SHARPNESS, 1, 1),
+                LootEntry.makeBookEntry(Enchantment.FIRE_ASPECT, 1, 1),
+                LootEntry.makeBookEntry(Enchantment.KNOCKBACK, 1, 1),
+                LootEntry.makeBookEntry(Enchantment.LUNGE, 1, 1)
+        );
 
         bowEnchants = List.of(
                 LootEntry.makeBookEntry(Enchantment.POWER, 1, 2),

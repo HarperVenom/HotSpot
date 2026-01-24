@@ -2,7 +2,6 @@ package me.harpervenom.hotspot.lobby.top_list;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 import java.util.Map;
@@ -24,20 +23,7 @@ public class TopList {
         holoText.addLine(text(title, NamedTextColor.GOLD));
     }
 
-    public void setLines(Map<Component, Component> newLines) {
-        lines.clear();
-//        lines.put(text(title, NamedTextColor.GOLD));
-        lines.putAll(newLines);
-    }
-
-    public void update() {
-        // Remove old lines except title
-        int linesToRemove = holoText.getLines().size() - 1;
-        for (int i = 0; i < linesToRemove; i++) {
-            holoText.getLines().getLast().remove();
-            holoText.getLines().removeLast();
-        }
-
+    public void generate() {
         int rank = 1;
         for (Map.Entry<Component, Component> entry : lines.entrySet()) {
             Component name = entry.getKey();
@@ -60,9 +46,5 @@ public class TopList {
 
     public void remove() {
         holoText.remove();
-    }
-
-    public HoloText getHoloText() {
-        return holoText;
     }
 }
