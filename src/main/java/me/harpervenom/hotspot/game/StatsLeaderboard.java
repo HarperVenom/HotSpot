@@ -118,7 +118,7 @@ public final class StatsLeaderboard {
             StatEntry self = sorted.get(pos - 1);
 
             comp = comp.append(
-                    text("#" + pos + " ", NamedTextColor.DARK_GRAY)
+                    text("#" + pos + " ", NamedTextColor.GRAY)
                             .append(text("Вы", NamedTextColor.GRAY))
                             .append(text(" - " + (int) self.value() + suffix, NamedTextColor.GRAY))
             );

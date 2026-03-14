@@ -5,8 +5,11 @@ import me.harpervenom.hotspot.game.point.Point;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
@@ -73,25 +76,44 @@ public class GameTeam {
     public void spawnAll() {
         for (GameProfile profile : profiles.values()) {
             Player player = profile.getPlayer();
-            spawn(player);
+            spawnFirstTime(player);
         }
     }
 
-    public void spawn(Player player) {
-        spawn(player, true);
+    public void spawnWithReset(Player player) {
+        teleportSpawn(player);
+        resetStats(player, false);
+        giveSpawnItems(player);
     }
 
-    public void spawn(Player player, boolean reset) {
+    public void spawnFirstTime(Player player) {
+        teleportSpawn(player);
+        resetStats(player, true);
+        giveSpawnItems(player);
+    }
+
+    public void teleportSpawn(Player player) {
         player.teleport(spawn);
+        player.setGameMode(GameMode.SURVIVAL);
+    }
 
-        player.setGameMode(org.bukkit.GameMode.SURVIVAL);
-        if (reset) {
-            player.setSaturation(20);
-            player.setFoodLevel(20);
-            player.getInventory().clear();
-            player.getInventory().setHeldItemSlot(0);
-            profiles.get(player.getUniqueId()).getEquipmentManager().giveItems();
+    private void resetStats(Player player, boolean firstTime) {
+        if (!firstTime) {
+            AttributeInstance attr = player.getAttribute(Attribute.MAX_HEALTH);
+            if (attr != null) {
+                player.setHealth(attr.getValue());
+            }
         }
+        player.setSaturation(20);
+        player.setFoodLevel(20);
+    }
+
+    private void giveSpawnItems(Player player) {
+        player.getInventory().clear();
+        player.getInventory().setHeldItemSlot(0);
+        profiles.get(player.getUniqueId())
+                .getEquipmentManager()
+                .giveItems();
     }
 
     public void setFirstPoint(Point point) {

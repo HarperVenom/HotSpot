@@ -210,7 +210,7 @@ public class PickaxeListener implements Listener {
                     timer--;
                 } else {
                     // Teleport to fixed location
-                    profile.getTeam().spawn(player, false);
+                    profile.getTeam().teleportSpawn(player);
                     player.getWorld().playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 0.8f);
                     player.getWorld().playSound(teleportOrigins.get(uuid), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 0.8f);
                     teleportingPlayers.get(uuid).cancel();

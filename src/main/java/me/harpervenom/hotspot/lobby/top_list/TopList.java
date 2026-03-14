@@ -4,13 +4,15 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static net.kyori.adventure.text.Component.text;
 
 public class TopList {
 
-    private final Map<Component, Component> lines;
+    private Map<Component, Component> lines;
     private final HoloText holoText;
     private final String title;
 
@@ -20,31 +22,39 @@ public class TopList {
         this.title = title;
 
         holoText.addLineSpacing(0.15);
-        holoText.addLine(text(title, NamedTextColor.GOLD));
+        update();
     }
 
-    public void generate() {
+    public void update() {
+        List<Component> components = new ArrayList<>();
+
+        // Title is always line 0
+        components.add(text(title, NamedTextColor.GOLD));
+
         int rank = 1;
         for (Map.Entry<Component, Component> entry : lines.entrySet()) {
-            Component name = entry.getKey();
-            Component score = entry.getValue();
-
             Component line = text(rank + ". ", NamedTextColor.YELLOW)
-                    .append(name)
+                    .append(entry.getKey())
                     .append(text(" - ", NamedTextColor.GRAY))
-                    .append(score);
+                    .append(entry.getValue());
 
-            holoText.addLine(line);
+            components.add(line);
             rank++;
         }
 
-        // Fill up to 10 entries with empty ones if needed
+        // If no entries, show placeholder line
         if (rank == 1) {
-            holoText.addLine(text("-"));
+            components.add(text("-", NamedTextColor.GRAY));
         }
+
+        holoText.setLines(components);
     }
 
-    public void remove() {
-        holoText.remove();
+    /**
+     * Replace data and refresh display.
+     */
+    public void updateLines(Map<Component, Component> newLines) {
+        this.lines = newLines;
+        update();
     }
 }

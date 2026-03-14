@@ -14,8 +14,6 @@ import static me.harpervenom.hotspot.HotSpot.plugin;
 
 public class HoloText {
 
-    private static final Set<UUID> ACTIVE_DISPLAYS = new HashSet<>();
-
     private final List<UUID> lines = new ArrayList<>();
     private final Location baseLocation;
 
@@ -29,29 +27,47 @@ public class HoloText {
         this.baseLocation = baseLocation.clone().add(0.5, 0.5, 0.5);
     }
 
-    public void addLine(Component text) {
-        Location loc;
+    public void setLine(int index, Component text) {
+        TextDisplay display;
 
-        if (lines.isEmpty()) {
-            loc = baseLocation.clone();
+        if (index < lines.size()) {
+            display = getDisplay(lines.get(index));
         } else {
-            UUID lastId = lines.getLast();
-            Entity e = Bukkit.getEntity(lastId);
+            display = spawnLine(index);
+            lines.add(display.getUniqueId());
+        }
 
-            if (e instanceof TextDisplay last) {
-                loc = last.getLocation().clone()
-                        .subtract(0, DEFAULT_SPACING + extraSpacing, 0);
-            } else {
-                // Fallback if last line no longer exists
-                loc = baseLocation.clone()
-                        .subtract(0, (DEFAULT_SPACING + extraSpacing) * lines.size(), 0);
+        if (display != null) {
+            display.text(text);
+        }
+    }
+
+    public void setLines(List<Component> components) {
+        for (int i = 0; i < components.size(); i++) {
+            setLine(i, components.get(i));
+        }
+
+        // Hide unused lines (never remove)
+        for (int i = components.size(); i < lines.size(); i++) {
+            TextDisplay td = getDisplay(lines.get(i));
+            if (td != null) {
+                td.text(Component.empty());
             }
         }
+    }
+
+    private TextDisplay getDisplay(UUID uuid) {
+        Entity e = Bukkit.getEntity(uuid);
+        return (e instanceof TextDisplay td) ? td : null;
+    }
+
+    private TextDisplay spawnLine(int index) {
+        Location loc = baseLocation.clone()
+                .subtract(0, (DEFAULT_SPACING + extraSpacing) * index, 0);
 
         TextDisplay display = (TextDisplay) baseLocation.getWorld()
                 .spawnEntity(loc, EntityType.TEXT_DISPLAY);
 
-        display.text(text);
         display.setBillboard(Display.Billboard.CENTER);
         display.setDefaultBackground(false);
         display.setSeeThrough(false);
@@ -63,41 +79,16 @@ public class HoloText {
         display.getPersistentDataContainer()
                 .set(TAG_KEY, PersistentDataType.BYTE, (byte) 1);
 
-        UUID id = display.getUniqueId();
-        lines.add(id);
-        ACTIVE_DISPLAYS.add(id);
-
         extraSpacing = 0.0;
+        return display;
     }
 
-    /**
-     * Adds extra vertical spacing before the next line.
-     */
     public void addLineSpacing(double space) {
         this.extraSpacing = space;
     }
 
-    public void remove() {
-        for (UUID id : lines) {
-            Entity e = Bukkit.getEntity(id);
-
-            if (e instanceof TextDisplay td) {
-                Chunk chunk = td.getLocation().getChunk();
-                if (!chunk.isLoaded()) {
-                    chunk.load();
-                }
-
-                td.remove();
-            }
-            ACTIVE_DISPLAYS.remove(id);
-        }
-
-        lines.clear();
-    }
-
-    public static void cleanDisplays(World world) {
+        public static void cleanDisplays(World world) {
         for (Entity entity : world.getEntitiesByClass(TextDisplay.class)) {
-            if (ACTIVE_DISPLAYS.contains(entity.getUniqueId())) continue;
             if (entity instanceof TextDisplay td &&
                     td.getPersistentDataContainer().has(TAG_KEY, PersistentDataType.BYTE)) {
                 td.remove();

@@ -129,7 +129,7 @@ public class GameDeathHandler {
         addProtection(profile, 20 * 20);
 
         GameTeam gameTeam = profile.getTeam();
-        gameTeam.spawn(player);
+        gameTeam.spawnWithReset(player);
     }
 
     private void addProtection(GameProfile profile, int duration) {

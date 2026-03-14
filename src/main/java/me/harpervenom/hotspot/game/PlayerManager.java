@@ -70,7 +70,6 @@ public class PlayerManager {
     public boolean connect(Player player) {
         GameProfile profile = profileMap.get(player.getUniqueId());
         if (profile != null) {
-//            profile.getTeam().spawn(player);
             profile.setConnected(true);
             profile.reset();
             getTeam(player).connect(player);
@@ -82,7 +81,6 @@ public class PlayerManager {
             if (game.hasStarted() && !game.getSettings().isCanJoinMidGame()) return false;
             if (profileMap.size() >= game.getSettings().getMaxPlayers()) return false;
             profile = createProfile(player);
-//            getTeam(player).connect(player);
             if (game.hasStarted()) {
                 sendMessage( text(player.getName()).append(text(" присоединился к команде ", NamedTextColor.GRAY)
                         .append(profile.getTeam().getName())), getConnectedPlayers());
@@ -93,11 +91,10 @@ public class PlayerManager {
         game.updateScoreBoardViewers();
 
         if (game.hasStarted()) {
-            profile.getTeam().spawn(player);
+            profile.getTeam().spawnFirstTime(player);
         }
 
         updateGlows();
-//        updateGlow(profile);
 
         game.getUiManager().refreshBarViewers();
         return true;
